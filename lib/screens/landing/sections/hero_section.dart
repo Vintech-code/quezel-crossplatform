@@ -1,0 +1,484 @@
+import 'package:flutter/material.dart';
+import 'dart:math' as math;
+
+class HeroSection extends StatefulWidget {
+  const HeroSection({super.key});
+
+  @override
+  State<HeroSection> createState() => _HeroSectionState();
+}
+
+class _HeroSectionState extends State<HeroSection>
+    with TickerProviderStateMixin {
+  late AnimationController fadeController;
+  late AnimationController floatController;
+
+  @override
+  void initState() {
+    super.initState();
+
+    fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..forward();
+
+    floatController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 6),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    fadeController.dispose();
+    floatController.dispose();
+    super.dispose();
+  }
+
+  static const warmBeige = Color(0xFFE8F9FD);
+  static const darkEspresso = Color(0xFF000000);
+  static const coffeeBrown = Color(0xFFFF1E00);
+  static const softGold = Color(0xFF59CE8F);
+  static const creamWhite = Color(0xFFE8F9FD);
+  static const parchment = Color(0xFFE8F9FD);
+
+  final List<_CategoryChipData> chips = const [
+    _CategoryChipData("Dishes", Icons.restaurant, 0),
+    _CategoryChipData("Dessert", Icons.icecream, 0.2),
+    _CategoryChipData("Drinks", Icons.local_cafe, 0.4),
+    _CategoryChipData("Platter", Icons.soup_kitchen, 0.6),
+    _CategoryChipData("Snacks", Icons.local_pizza, 0.8),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final isDesktop = MediaQuery.of(context).size.width >= 900;
+
+    return Container(
+      color: warmBeige,
+      constraints: const BoxConstraints(minHeight: 720),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 80),
+      child: Stack(
+        children: [
+          Positioned(
+            right: -240,
+            top: 0,
+            child: Container(
+              height: 640,
+              width: 640,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: parchment.withOpacity(0.5),
+                boxShadow: [
+                  BoxShadow(
+                    color: parchment.withOpacity(0.9),
+                    blurRadius: 90,
+                    spreadRadius: 40,
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1152),
+              child: isDesktop
+                  ? Row(
+                      children: [
+                        Expanded(
+                          flex: 6,
+                          child: _leftContent(context),
+                        ),
+                        const SizedBox(width: 48),
+                        Expanded(
+                          flex: 4,
+                          child: _rightContent(isDesktop),
+                        ),
+                      ],
+                    )
+                  : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _leftContent(context),
+                        const SizedBox(height: 48),
+                        _rightContent(isDesktop),
+                      ],
+                    ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _leftContent(BuildContext context) {
+    return FadeTransition(
+      opacity: fadeController,
+      child: SlideTransition(
+        position: Tween<Offset>(
+          begin: const Offset(-0.08, 0),
+          end: Offset.zero,
+        ).animate(
+          CurvedAnimation(parent: fadeController, curve: Curves.easeOut),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              "Quezel's Cafe Hub",
+              style: TextStyle(
+                fontFamily: "Poppins",
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 4.2,
+                color: coffeeBrown,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              "BITE with SMILE & DRINK with Freshness",
+              style: TextStyle(
+                fontFamily: "Righteous",
+                fontSize: MediaQuery.of(context).size.width >= 768 ? 72 : 48,
+                height: 1.05,
+                color: darkEspresso,
+              ),
+            ),
+            const SizedBox(height: 24),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 576),
+              child: Text(
+                "Order your favorite artisanal coffee, breakfast, and halo-halo effortlessly. Experience our cozy lounge or grab flavor on the go with our smart ordering system.",
+                style: TextStyle(
+                  fontFamily: "Poppins",
+                  fontSize: 18,
+                  height: 1.6,
+                  color: Color(0xFF333333),
+                ),
+              ),
+            ),
+            const SizedBox(height: 40),
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
+              children: [
+                _HeroButton(
+                  text: "Order Now",
+                  backgroundColor: darkEspresso,
+                  textColor: creamWhite,
+                  borderColor: darkEspresso,
+                  onTap: () {
+                    Navigator.pushNamed(context, "/auth/sign-in");
+                  },
+                ),
+                _HeroButton(
+                  text: "Explore Menu",
+                  backgroundColor: Colors.transparent,
+                  textColor: darkEspresso,
+                  borderColor: coffeeBrown,
+                  onTap: () {
+                    // Scroll to menu section here.
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _rightContent(bool isDesktop) {
+    return FadeTransition(
+      opacity: fadeController,
+      child: ScaleTransition(
+        scale: Tween<double>(begin: 0.9, end: 1).animate(
+          CurvedAnimation(parent: fadeController, curve: Curves.easeOut),
+        ),
+        child: Column(
+          children: [
+            SizedBox(
+              height: isDesktop ? 520 : 360,
+              child: Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned(
+                    left: -40,
+                    top: -40,
+                    child: Container(
+                      height: 224,
+                      width: 224,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: softGold.withOpacity(0.2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: softGold.withOpacity(0.25),
+                            blurRadius: 80,
+                            spreadRadius: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  AnimatedBuilder(
+                    animation: floatController,
+                    builder: (context, child) {
+                      final y = math.sin(floatController.value * 2 * math.pi) * -10;
+                      return Transform.translate(
+                        offset: Offset(0, y),
+                        child: child,
+                      );
+                    },
+                    child: Image.asset(
+                      "assets/images/logo1.png",
+                      width: isDesktop ? 480 : 320,
+                      height: isDesktop ? 480 : 320,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+
+                  if (isDesktop)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: SizedBox(
+                        width: 180,
+                        height: 340,
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            _FloatingChip(data: chips[0], right: -8, top: 16),
+                            _FloatingChip(data: chips[1], right: -24, top: 64),
+                            _FloatingChip(data: chips[2], right: -32, top: 112),
+                            _FloatingChip(data: chips[3], right: -40, top: 160),
+                            _FloatingChip(data: chips[4], right: -32, top: 208),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            if (!isDesktop)
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 8,
+                runSpacing: 8,
+                children: chips.map((chip) {
+                  return _StaticChip(data: chip);
+                }).toList(),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _HeroButton extends StatefulWidget {
+  final String text;
+  final Color backgroundColor;
+  final Color textColor;
+  final Color borderColor;
+  final VoidCallback onTap;
+
+  const _HeroButton({
+    required this.text,
+    required this.backgroundColor,
+    required this.textColor,
+    required this.borderColor,
+    required this.onTap,
+  });
+
+  @override
+  State<_HeroButton> createState() => _HeroButtonState();
+}
+
+class _HeroButtonState extends State<_HeroButton> {
+  bool hovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      onEnter: (_) => setState(() => hovered = true),
+      onExit: (_) => setState(() => hovered = false),
+      child: AnimatedScale(
+        scale: hovered ? 1.02 : 1,
+        duration: const Duration(milliseconds: 180),
+        child: AnimatedSlide(
+          offset: hovered ? const Offset(0, -0.05) : Offset.zero,
+          duration: const Duration(milliseconds: 180),
+          child: GestureDetector(
+            onTap: widget.onTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              decoration: BoxDecoration(
+                color: widget.backgroundColor,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: widget.borderColor),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.12),
+                    blurRadius: 32,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Text(
+                widget.text,
+                style: TextStyle(
+                  fontFamily: "Poppins",
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: widget.textColor,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FloatingChip extends StatefulWidget {
+  final _CategoryChipData data;
+  final double right;
+  final double top;
+
+  const _FloatingChip({
+    required this.data,
+    required this.right,
+    required this.top,
+  });
+
+  @override
+  State<_FloatingChip> createState() => _FloatingChipState();
+}
+
+class _FloatingChipState extends State<_FloatingChip>
+    with SingleTickerProviderStateMixin {
+  late AnimationController controller;
+
+  static const coffeeBrown = Color(0xFFFF1E00);
+  static const darkEspresso = Color(0xFF000000);
+  static const creamWhite = Color(0xFFE8F9FD);
+  static const parchment = Color(0xFFE8F9FD);
+  static const borderColor = Color(0xFF59CE8F);
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 4),
+    );
+
+    Future.delayed(
+      Duration(milliseconds: (widget.data.delay * 1000).toInt()),
+      () {
+        if (mounted) controller.repeat();
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      right: widget.right,
+      top: widget.top,
+      child: AnimatedBuilder(
+        animation: controller,
+        builder: (context, child) {
+          final y = math.sin(controller.value * 2 * math.pi) * -6;
+          return Transform.translate(offset: Offset(0, y), child: child);
+        },
+        child: _StaticChip(data: widget.data),
+      ),
+    );
+  }
+}
+
+class _StaticChip extends StatelessWidget {
+  final _CategoryChipData data;
+
+  const _StaticChip({required this.data});
+
+  static const coffeeBrown = Color(0xFFFF1E00);
+  static const darkEspresso = Color(0xFF000000);
+  static const creamWhite = Color(0xFFE8F9FD);
+  static const parchment = Color(0xFFE8F9FD);
+  static const borderColor = Color(0xFF59CE8F);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: creamWhite,
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: borderColor.withOpacity(0.45)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.10),
+            blurRadius: 4,
+            offset: const Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            height: 24,
+            width: 24,
+            decoration: const BoxDecoration(
+              color: parchment,
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              data.icon,
+              size: 15,
+              color: coffeeBrown,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            data.label,
+            style: const TextStyle(
+              fontFamily: "Poppins",
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: darkEspresso,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CategoryChipData {
+  final String label;
+  final IconData icon;
+  final double delay;
+
+  const _CategoryChipData(this.label, this.icon, this.delay);
+}
