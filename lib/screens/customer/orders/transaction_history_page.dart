@@ -4,14 +4,14 @@ import '../../../core/services/order_service.dart';
 import '../../../models/order.dart';
 import '../home/user_mobile_home.dart';
 
-class OrderHistoryPage extends StatefulWidget {
-  const OrderHistoryPage({super.key});
+class TransactionHistoryPage extends StatefulWidget {
+  const TransactionHistoryPage({super.key});
 
   @override
-  State<OrderHistoryPage> createState() => _OrderHistoryPageState();
+  State<TransactionHistoryPage> createState() => _TransactionHistoryPageState();
 }
 
-class _OrderHistoryPageState extends State<OrderHistoryPage> {
+class _TransactionHistoryPageState extends State<TransactionHistoryPage> {
   final orderService = OrderService.instance;
 
   @override

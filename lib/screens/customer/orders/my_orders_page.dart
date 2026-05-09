@@ -185,7 +185,15 @@ class _MyOrdersPageState extends State<MyOrdersPage>
     return Row(
       children: [
         GestureDetector(
-          onTap: () => Navigator.pop(context),
+          onTap: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const UserMobileHome(),
+              ),
+              (route) => false,
+            );
+          },
           child: Container(
             height: 44,
             width: 44,

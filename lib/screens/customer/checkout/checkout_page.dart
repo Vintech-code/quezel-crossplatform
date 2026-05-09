@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/cart_service.dart';
+import '../../../core/services/order_service.dart';
+import '../../../core/services/delivery_location_service.dart';
 import '../../../models/order.dart';
 import '../../../models/cart_item.dart';
-import '../../../core/services/order_service.dart';
-import '../orders/order_history_page.dart';
+import '../orders/my_orders_page.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -15,16 +16,20 @@ class CheckoutPage extends StatefulWidget {
 
 class _CheckoutPageState extends State<CheckoutPage> {
   final cart = CartService.instance;
+  final deliveryService = DeliveryLocationService.instance;
 
   @override
   void initState() {
     super.initState();
+
     cart.addListener(_refresh);
+    deliveryService.addListener(_refresh);
   }
 
   @override
   void dispose() {
     cart.removeListener(_refresh);
+    deliveryService.removeListener(_refresh);
     super.dispose();
   }
 
@@ -33,6 +38,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   void placeOrder() {
+    final location = deliveryService.selectedLocation;
+
+    final subtotal = cart.subtotal;
+    final deliveryFee = location.fee;
+    final total = subtotal + deliveryFee;
+
     final orderItems = cart.items
         .map(
           (item) => CartItem(
@@ -45,7 +56,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final order = Order(
       id: "QZ-${DateTime.now().millisecondsSinceEpoch}",
       items: orderItems,
-      total: cart.subtotal,
+      subtotal: subtotal,
+      deliveryFee: deliveryFee,
+      deliveryLocation: location.name,
+      deliveryKm: location.km,
+      total: total,
       paymentMethod: "GCash",
       orderType: "Delivery",
       status: "Preparing",
@@ -53,26 +68,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
 
     OrderService.instance.addOrder(order);
+
     cart.clearCart();
 
-    Navigator.pushReplacement(
+    Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
-        builder: (_) => const OrderHistoryPage(),
+        builder: (_) => const MyOrdersPage(),
       ),
+      (route) => false,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final total = cart.subtotal;
+    final location = deliveryService.selectedLocation;
+
+    final subtotal = cart.subtotal;
+    final deliveryFee = location.fee;
+    final total = subtotal + deliveryFee;
 
     return Scaffold(
       backgroundColor: AppColors.warmBeige,
       body: SafeArea(
         bottom: false,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: Padding(
@@ -81,7 +101,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _topBar(context),
+
                     const SizedBox(height: 22),
+
                     const Text(
                       "Checkout",
                       style: TextStyle(
@@ -90,7 +112,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         color: AppColors.darkEspresso,
                       ),
                     ),
+
                     const SizedBox(height: 6),
+
                     const Text(
                       "Review your order before confirming payment.",
                       style: TextStyle(
@@ -99,6 +123,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         color: AppColors.mutedForeground,
                       ),
                     ),
+
                     const SizedBox(height: 18),
 
                     Expanded(
@@ -110,7 +135,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             child: Column(
                               children: cart.items.map((item) {
                                 return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
+                                  padding:
+                                      const EdgeInsets.only(bottom: 12),
                                   child: Row(
                                     children: [
                                       Container(
@@ -127,7 +153,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                           fit: BoxFit.contain,
                                         ),
                                       ),
+
                                       const SizedBox(width: 12),
+
                                       Expanded(
                                         child: Text(
                                           item.product.name,
@@ -135,16 +163,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                             fontFamily: AppFonts.poppins,
                                             fontSize: 14,
                                             fontWeight: FontWeight.w700,
-                                            color: AppColors.darkEspresso,
+                                            color:
+                                                AppColors.darkEspresso,
                                           ),
                                         ),
                                       ),
+
                                       Text(
                                         "x${item.quantity}",
                                         style: const TextStyle(
                                           fontFamily: AppFonts.poppins,
                                           fontSize: 13,
-                                          color: AppColors.mutedForeground,
+                                          color:
+                                              AppColors.mutedForeground,
                                         ),
                                       ),
                                     ],
@@ -163,12 +194,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                 Container(
                                   height: 44,
                                   width: 44,
-                                  padding: const EdgeInsets.all(8),
+                                  padding: const EdgeInsets.all(6),
                                   decoration: BoxDecoration(
                                     color: Colors.white,
-                                    borderRadius: BorderRadius.circular(12),
+                                    borderRadius:
+                                        BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: AppColors.softGold.withOpacity(0.35),
+                                      color: AppColors.softGold
+                                          .withOpacity(0.35),
                                     ),
                                   ),
                                   child: Image.asset(
@@ -176,7 +209,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                     fit: BoxFit.contain,
                                   ),
                                 ),
+
                                 const SizedBox(width: 12),
+
                                 const Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -185,24 +220,30 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                       Text(
                                         "GCash",
                                         style: TextStyle(
-                                          fontFamily: AppFonts.poppins,
+                                          fontFamily:
+                                              AppFonts.poppins,
                                           fontSize: 15,
-                                          fontWeight: FontWeight.w800,
-                                          color: AppColors.darkEspresso,
+                                          fontWeight:
+                                              FontWeight.w800,
+                                          color: AppColors
+                                              .darkEspresso,
                                         ),
                                       ),
                                       SizedBox(height: 2),
                                       Text(
                                         "Default payment method",
                                         style: TextStyle(
-                                          fontFamily: AppFonts.poppins,
+                                          fontFamily:
+                                              AppFonts.poppins,
                                           fontSize: 12,
-                                          color: AppColors.mutedForeground,
+                                          color: AppColors
+                                              .mutedForeground,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
+
                                 const Icon(
                                   Icons.check_circle,
                                   color: AppColors.softGold,
@@ -214,27 +255,47 @@ class _CheckoutPageState extends State<CheckoutPage> {
                           const SizedBox(height: 12),
 
                           _sectionCard(
-                            title: "Payment Details",
-                            child: const Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            title: "Delivery Details",
+                            child: Column(
                               children: [
                                 _InfoLine(
+                                  label: "Location",
+                                  value: location.name,
+                                ),
+
+                                const SizedBox(height: 8),
+
+                                _InfoLine(
+                                  label: "Distance",
+                                  value:
+                                      "${location.km.toStringAsFixed(1)} km",
+                                ),
+
+                                const SizedBox(height: 8),
+
+                                _InfoLine(
+                                  label: "Delivery Fee",
+                                  value:
+                                      "₱${deliveryFee.toStringAsFixed(2)}",
+                                ),
+
+                                const SizedBox(height: 8),
+
+                                const _InfoLine(
                                   label: "Payment",
                                   value: "GCash only",
                                 ),
-                                SizedBox(height: 8),
-                                _InfoLine(
+
+                                const SizedBox(height: 8),
+
+                                const _InfoLine(
                                   label: "Order Type",
                                   value: "Delivery",
-                                ),
-                                SizedBox(height: 8),
-                                _InfoLine(
-                                  label: "Note",
-                                  value: "No cash on delivery",
                                 ),
                               ],
                             ),
                           ),
+
                           const SizedBox(height: 12),
                         ],
                       ),
@@ -244,69 +305,95 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ),
 
-            _bottomCheckoutPanel(total),
+            _bottomPanel(
+              subtotal,
+              deliveryFee,
+              total,
+            ),
           ],
         ),
       ),
     );
   }
 
-Widget _bottomCheckoutPanel(double total) {
-  return Container(
-    width: double.infinity,
-    padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      border: Border(
-        top: BorderSide(
-          color: AppColors.softGold.withOpacity(0.45),
+  Widget _bottomPanel(
+    double subtotal,
+    double deliveryFee,
+    double total,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border(
+          top: BorderSide(
+            color: AppColors.softGold.withOpacity(0.45),
+          ),
         ),
       ),
-    ),
-    child: SafeArea(
-      top: false,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _PriceLine(
-            label: "Total",
-            value: "₱${total.toStringAsFixed(2)}",
-          ),
-          const SizedBox(height: 12),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _PriceLine(
+              label: "Subtotal",
+              value: "₱${subtotal.toStringAsFixed(2)}",
+            ),
 
-          SizedBox(
-            width: double.infinity,
-            height: 54,
-            child: ElevatedButton(
-              onPressed: cart.items.isEmpty ? null : placeOrder,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.coffeeBrown,
-                foregroundColor: AppColors.creamWhite,
-                disabledBackgroundColor:
-                    AppColors.mutedForeground.withOpacity(0.25),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+            const SizedBox(height: 6),
+
+            _PriceLine(
+              label: "Delivery Fee",
+              value: "₱${deliveryFee.toStringAsFixed(2)}",
+            ),
+
+            const SizedBox(height: 10),
+
+            _PriceLine(
+              label: "Total",
+              value: "₱${total.toStringAsFixed(2)}",
+              strong: true,
+            ),
+
+            const SizedBox(height: 14),
+
+            SizedBox(
+              width: double.infinity,
+              height: 54,
+              child: ElevatedButton(
+                onPressed:
+                    cart.items.isEmpty ? null : placeOrder,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      AppColors.coffeeBrown,
+                  foregroundColor:
+                      AppColors.creamWhite,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(14),
+                  ),
                 ),
-              ),
-              child: const Text(
-                "PLACE ORDER",
-                style: TextStyle(
-                  fontFamily: AppFonts.poppins,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
+                child: const Text(
+                  "PLACE ORDER",
+                  style: TextStyle(
+                    fontFamily: AppFonts.poppins,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.2,
+                  ),
                 ),
               ),
             ),
-          ),
 
-          const SizedBox(height: 6),
-        ],
+            const SizedBox(height: 6),
+          ],
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   Widget _topBar(BuildContext context) {
     return Row(
@@ -315,6 +402,7 @@ Widget _bottomCheckoutPanel(double total) {
           icon: Icons.arrow_back_ios_new_rounded,
           onTap: () => Navigator.pop(context),
         ),
+
         const Expanded(
           child: Center(
             child: Text(
@@ -328,6 +416,7 @@ Widget _bottomCheckoutPanel(double total) {
             ),
           ),
         ),
+
         const SizedBox(width: 44),
       ],
     );
@@ -343,11 +432,13 @@ Widget _bottomCheckoutPanel(double total) {
         color: AppColors.creamWhite,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.softGold.withOpacity(0.45),
+          color:
+              AppColors.softGold.withOpacity(0.45),
         ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           Text(
             title,
@@ -389,16 +480,13 @@ class _InfoLine extends StatelessWidget {
             ),
           ),
         ),
-        Flexible(
-          child: Text(
-            value,
-            textAlign: TextAlign.right,
-            style: const TextStyle(
-              fontFamily: AppFonts.poppins,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: AppColors.darkEspresso,
-            ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontFamily: AppFonts.poppins,
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: AppColors.darkEspresso,
           ),
         ),
       ],
@@ -409,31 +497,37 @@ class _InfoLine extends StatelessWidget {
 class _PriceLine extends StatelessWidget {
   final String label;
   final String value;
+  final bool strong;
 
   const _PriceLine({
     required this.label,
     required this.value,
+    this.strong = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment:
+          MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: AppFonts.poppins,
-            fontSize: 15,
+            fontSize: strong ? 16 : 14,
+            fontWeight:
+                strong ? FontWeight.w800 : FontWeight.w500,
             color: AppColors.mutedForeground,
           ),
         ),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: AppFonts.poppins,
-            fontSize: 20,
-            fontWeight: FontWeight.w900,
+            fontSize: strong ? 22 : 14,
+            fontWeight:
+                strong ? FontWeight.w900 : FontWeight.w700,
             color: AppColors.darkEspresso,
           ),
         ),
@@ -462,7 +556,8 @@ class _IconButtonBox extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: AppColors.softGold.withOpacity(0.35),
+            color:
+                AppColors.softGold.withOpacity(0.35),
           ),
         ),
         child: Icon(
