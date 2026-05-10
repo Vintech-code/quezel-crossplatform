@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../core/services/cart_service.dart';
 import '../core/theme/app_theme.dart';
 
 enum CustomerNavItem {
@@ -30,7 +31,7 @@ class CustomerBottomNav extends StatelessWidget {
     return Container(
       height: 58,
       decoration: BoxDecoration(
-        color: AppColors.darkEspresso,
+        color: AppColors.creamWhite,
         border: Border(
           top: BorderSide(
             color: AppColors.softGold.withOpacity(0.5),
@@ -38,9 +39,9 @@ class CustomerBottomNav extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.14),
-            blurRadius: 14,
-            offset: const Offset(0, -3),
+            color: Colors.black.withOpacity(0.10),
+            blurRadius: 12,
+            offset: const Offset(0, -2),
           ),
         ],
       ),
@@ -62,18 +63,23 @@ class CustomerBottomNav extends StatelessWidget {
                   ? null
                   : onFavoritesTap,
             ),
-            _NavButton(
-              icon: Icons.shopping_cart_outlined,
-              label: "Cart",
-              active: activeItem == CustomerNavItem.cart,
-              onTap: activeItem == CustomerNavItem.cart ? null : onCartTap,
+            AnimatedBuilder(
+              animation: CartService.instance,
+              builder: (context, _) {
+                return _NavButton(
+                  icon: Icons.shopping_cart_outlined,
+                  label: "Cart",
+                  active: activeItem == CustomerNavItem.cart,
+                  badgeCount: CartService.instance.itemCount,
+                  onTap: activeItem == CustomerNavItem.cart ? null : onCartTap,
+                );
+              },
             ),
             _NavButton(
               icon: Icons.person_outline_rounded,
               label: "Profile",
               active: activeItem == CustomerNavItem.profile,
-              onTap:
-                  activeItem == CustomerNavItem.profile ? null : onProfileTap,
+              onTap: activeItem == CustomerNavItem.profile ? null : onProfileTap,
             ),
           ],
         ),
@@ -86,6 +92,7 @@ class _NavButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final bool active;
+  final int badgeCount;
   final VoidCallback? onTap;
 
   const _NavButton({
@@ -93,10 +100,13 @@ class _NavButton extends StatelessWidget {
     required this.label,
     required this.active,
     required this.onTap,
+    this.badgeCount = 0,
   });
 
   @override
   Widget build(BuildContext context) {
+    final inactiveColor = AppColors.softGold.withOpacity(0.65);
+
     return Expanded(
       child: InkWell(
         onTap: onTap,
@@ -113,10 +123,48 @@ class _NavButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            Icon(
-              icon,
-              size: 22,
-              color: active ? AppColors.coffeeBrown : Colors.white,
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(
+                  icon,
+                  size: 22,
+                  color: active ? AppColors.coffeeBrown : inactiveColor,
+                ),
+                if (badgeCount > 0)
+                  Positioned(
+                    right: -10,
+                    top: -8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 5,
+                        vertical: 1,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 17,
+                        minHeight: 17,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.coffeeBrown,
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: AppColors.creamWhite,
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Text(
+                        badgeCount > 99 ? "99+" : badgeCount.toString(),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontFamily: AppFonts.poppins,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 1),
             Text(
@@ -127,7 +175,7 @@ class _NavButton extends StatelessWidget {
                 fontFamily: AppFonts.poppins,
                 fontSize: 10,
                 fontWeight: active ? FontWeight.w800 : FontWeight.w600,
-                color: active ? AppColors.coffeeBrown : Colors.white,
+                color: active ? AppColors.coffeeBrown : inactiveColor,
               ),
             ),
           ],

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_theme.dart';
+
 class AuthChoicePage extends StatelessWidget {
   final String modeLabel;
   final String title;
@@ -18,12 +20,6 @@ class AuthChoicePage extends StatelessWidget {
     required this.alternateRoute,
   });
 
-  static const warmBeige = Color(0xFFE8F9FD);
-  static const coffeeBrown = Color(0xFFFF1E00);
-  static const softGold = Color(0xFF59CE8F);
-  static const darkText = Color(0xFF101010);
-  static const mutedText = Color(0xFF4B5563);
-
   void _goHome(BuildContext context) {
     Navigator.pushReplacementNamed(context, "/");
   }
@@ -39,7 +35,7 @@ class AuthChoicePage extends StatelessWidget {
     final logoHeight = isShort ? 96.0 : 120.0;
 
     return Scaffold(
-      backgroundColor: warmBeige,
+      backgroundColor: AppColors.creamWhite,
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
@@ -66,23 +62,62 @@ class AuthChoicePage extends StatelessWidget {
                         turns: 0.08,
                       ),
                     ),
+
                     Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        height: 150,
-                        decoration: BoxDecoration(
-                          color: softGold.withOpacity(0.12),
-                          border: Border(
-                            top: BorderSide(
-                              color: softGold.withOpacity(0.28),
-                              width: 1,
-                            ),
-                          ),
-                        ),
+                      top: 95,
+                      left: 28,
+                      child: _FloatingCircle(
+                        size: 46,
+                        color: AppColors.softGold,
+                        opacity: 0.18,
                       ),
                     ),
+                    Positioned(
+                      top: 245,
+                      right: 32,
+                      child: _FloatingCircle(
+                        size: 74,
+                        color: AppColors.coffeeBrown,
+                        opacity: 0.08,
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 180,
+                      left: -28,
+                      child: _FloatingCircle(
+                        size: 110,
+                        color: AppColors.softGold,
+                        opacity: 0.13,
+                      ),
+                    ),
+                    Positioned(
+                      bottom: 90,
+                      right: 24,
+                      child: _FloatingCircle(
+                        size: 64,
+                        color: AppColors.coffeeBrown,
+                        opacity: 0.08,
+                      ),
+                    ),
+                    Positioned(
+                      bottom: -80,
+                      left: -70,
+                      child: _FloatingCircle(
+                        size: 220,
+                        color: Colors.white,
+                        opacity: 0.55,
+                      ),
+                    ),
+                    Positioned(
+                      bottom: -100,
+                      right: -80,
+                      child: _FloatingCircle(
+                        size: 260,
+                        color: AppColors.softGold,
+                        opacity: 0.10,
+                      ),
+                    ),
+
                     Center(
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(maxWidth: 460),
@@ -97,59 +132,68 @@ class AuthChoicePage extends StatelessWidget {
                                   onPressed: () => _goHome(context),
                                   icon: const Icon(
                                     Icons.arrow_back_ios_new_rounded,
-                                    color: darkText,
+                                    color: AppColors.darkEspresso,
                                     size: 24,
                                   ),
                                 ),
                               ),
                               SizedBox(height: isShort ? 18 : 40),
+
                               Image.asset(
                                 "assets/images/logo3.png",
                                 height: logoHeight,
                                 fit: BoxFit.contain,
                               ),
+
                               const SizedBox(height: 22),
+
                               Text(
                                 title,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
-                                  fontFamily: "Righteous",
+                                  fontFamily: AppFonts.righteous,
                                   fontSize: 40,
                                   height: 1,
-                                  color: darkText,
+                                  color: AppColors.darkEspresso,
                                 ),
                               ),
+
                               const SizedBox(height: 10),
+
                               Text(
                                 subtitle,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
-                                  fontFamily: "Poppins",
+                                  fontFamily: AppFonts.poppins,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
                                   height: 1.45,
-                                  color: mutedText,
+                                  color: AppColors.mutedForeground,
                                 ),
                               ),
+
                               const SizedBox(height: 8),
+
                               Text(
                                 modeLabel,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
-                                  fontFamily: "Poppins",
+                                  fontFamily: AppFonts.poppins,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 2.2,
-                                  color: coffeeBrown,
+                                  color: AppColors.coffeeBrown,
                                 ),
                               ),
+
                               SizedBox(height: isShort ? 34 : 62),
+
                               _AuthButton(
                                 label: "Continue With Facebook",
                                 icon: const Text(
                                   "f",
                                   style: TextStyle(
-                                    fontFamily: "Poppins",
+                                    fontFamily: AppFonts.poppins,
                                     fontSize: 24,
                                     fontWeight: FontWeight.w900,
                                     color: Color(0xFF1877F2),
@@ -157,13 +201,15 @@ class AuthChoicePage extends StatelessWidget {
                                 ),
                                 onTap: () => _demoContinue(context),
                               ),
+
                               const SizedBox(height: 12),
+
                               _AuthButton(
                                 label: "Continue With Google",
                                 icon: const Text(
                                   "G",
                                   style: TextStyle(
-                                    fontFamily: "Poppins",
+                                    fontFamily: AppFonts.poppins,
                                     fontSize: 20,
                                     fontWeight: FontWeight.w900,
                                     color: Color(0xFF4285F4),
@@ -171,29 +217,35 @@ class AuthChoicePage extends StatelessWidget {
                                 ),
                                 onTap: () => _demoContinue(context),
                               ),
+
                               const SizedBox(height: 18),
+
                               const _DividerOr(),
+
                               const SizedBox(height: 18),
+
                               _AuthButton(
                                 label: "Continue With Mobile Number",
                                 icon: const Icon(
                                   Icons.phone_rounded,
-                                  color: darkText,
+                                  color: AppColors.darkEspresso,
                                   size: 22,
                                 ),
                                 onTap: () => _demoContinue(context),
                               ),
+
                               const SizedBox(height: 18),
+
                               Wrap(
                                 alignment: WrapAlignment.center,
                                 children: [
                                   Text(
                                     alternateText,
                                     style: const TextStyle(
-                                      fontFamily: "Poppins",
+                                      fontFamily: AppFonts.poppins,
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,
-                                      color: mutedText,
+                                      color: AppColors.mutedForeground,
                                     ),
                                   ),
                                   GestureDetector(
@@ -206,12 +258,12 @@ class AuthChoicePage extends StatelessWidget {
                                     child: Text(
                                       alternateActionText,
                                       style: const TextStyle(
-                                        fontFamily: "Poppins",
+                                        fontFamily: AppFonts.poppins,
                                         fontSize: 13,
                                         fontWeight: FontWeight.w800,
-                                        color: coffeeBrown,
+                                        color: AppColors.coffeeBrown,
                                         decoration: TextDecoration.underline,
-                                        decorationColor: coffeeBrown,
+                                        decorationColor: AppColors.coffeeBrown,
                                       ),
                                     ),
                                   ),
@@ -252,18 +304,24 @@ class _AuthButton extends StatelessWidget {
       child: Material(
         color: Colors.white,
         elevation: 0,
-        shadowColor: Colors.black.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
         child: InkWell(
-          borderRadius: BorderRadius.circular(18),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
           onTap: onTap,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 18),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(AppRadius.lg),
               border: Border.all(
-                color: AuthChoicePage.softGold.withOpacity(0.36),
+                color: AppColors.softGold.withOpacity(0.36),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 18,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: Row(
               children: [
@@ -279,10 +337,10 @@ class _AuthButton extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontFamily: "Poppins",
+                      fontFamily: AppFonts.poppins,
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
-                      color: AuthChoicePage.darkText,
+                      color: AppColors.darkEspresso,
                     ),
                   ),
                 ),
@@ -306,7 +364,7 @@ class _DividerOr extends StatelessWidget {
         Expanded(
           child: Container(
             height: 1.4,
-            color: AuthChoicePage.softGold.withOpacity(0.48),
+            color: AppColors.softGold.withOpacity(0.48),
           ),
         ),
         const Padding(
@@ -314,17 +372,17 @@ class _DividerOr extends StatelessWidget {
           child: Text(
             "or",
             style: TextStyle(
-              fontFamily: "Poppins",
+              fontFamily: AppFonts.poppins,
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AuthChoicePage.mutedText,
+              color: AppColors.mutedForeground,
             ),
           ),
         ),
         Expanded(
           child: Container(
             height: 1.4,
-            color: AuthChoicePage.softGold.withOpacity(0.48),
+            color: AppColors.softGold.withOpacity(0.48),
           ),
         ),
       ],
@@ -351,10 +409,37 @@ class _BackgroundRibbon extends StatelessWidget {
         height: height,
         width: width,
         decoration: BoxDecoration(
-          color: AuthChoicePage.coffeeBrown.withOpacity(0.06),
+          color: AppColors.coffeeBrown.withOpacity(0.06),
           border: Border.all(
-            color: AuthChoicePage.coffeeBrown.withOpacity(0.08),
+            color: AppColors.coffeeBrown.withOpacity(0.08),
           ),
+          borderRadius: BorderRadius.circular(AppRadius.full),
+        ),
+      ),
+    );
+  }
+}
+
+class _FloatingCircle extends StatelessWidget {
+  final double size;
+  final Color color;
+  final double opacity;
+
+  const _FloatingCircle({
+    required this.size,
+    required this.color,
+    required this.opacity,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: color.withOpacity(opacity),
         ),
       ),
     );

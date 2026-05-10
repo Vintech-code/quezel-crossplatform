@@ -42,12 +42,12 @@ class _CartPageState extends State<CartPage> {
           children: [
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _topBar(context),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 24),
 
                     const Text(
                       "My Cart",
@@ -69,20 +69,17 @@ class _CartPageState extends State<CartPage> {
                       ),
                     ),
 
-                    const SizedBox(height: 18),
+                    const SizedBox(height: 22),
 
                     Expanded(
-                      child: cart.items.isEmpty
-                          ? _emptyCart()
-                          : _cartList(),
+                      child: cart.items.isEmpty ? _emptyCart() : _cartList(),
                     ),
                   ],
                 ),
               ),
             ),
 
-            if (cart.items.isNotEmpty)
-              _bottomCheckoutPanel(),
+            if (cart.items.isNotEmpty) _bottomCheckoutPanel(),
           ],
         ),
       ),
@@ -135,25 +132,12 @@ class _CartPageState extends State<CartPage> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            height: 88,
-            width: 88,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.softGold.withOpacity(0.35),
-              ),
-            ),
-            child: const Icon(
-              Icons.shopping_cart_outlined,
-              size: 38,
-              color: AppColors.coffeeBrown,
-            ),
+          const Icon(
+            Icons.shopping_cart_outlined,
+            size: 54,
+            color: AppColors.coffeeBrown,
           ),
-
           const SizedBox(height: 18),
-
           const Text(
             "Your cart is empty",
             style: TextStyle(
@@ -162,9 +146,7 @@ class _CartPageState extends State<CartPage> {
               color: AppColors.darkEspresso,
             ),
           ),
-
           const SizedBox(height: 8),
-
           const Text(
             "Add Quezel’s treats to start your order.",
             textAlign: TextAlign.center,
@@ -181,90 +163,90 @@ class _CartPageState extends State<CartPage> {
 
   Widget _cartList() {
     return ListView.separated(
-      padding: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 16),
       itemCount: cart.items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, __) => Divider(
+        height: 28,
+        thickness: 1,
+        color: AppColors.darkEspresso.withOpacity(0.10),
+      ),
       itemBuilder: (context, index) {
-        return _CartItemCard(item: cart.items[index]);
+        return _CartItemLine(item: cart.items[index]);
       },
     );
   }
 
   Widget _bottomCheckoutPanel() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+    return DecoratedBox(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.creamWhite,
         border: Border(
           top: BorderSide(
-            color: AppColors.softGold.withOpacity(0.45),
+            color: AppColors.darkEspresso.withOpacity(0.12),
           ),
         ),
       ),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _PriceRow(
-              label: "Subtotal",
-              value: "₱${cart.subtotal.toStringAsFixed(2)}",
-            ),
-
-            const SizedBox(height: 6),
-
-            const _PriceRow(
-              label: "Payment",
-              value: "GCash only",
-            ),
-
-            const SizedBox(height: 14),
-
-            SizedBox(
-              width: double.infinity,
-              height: 54,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => const CheckoutPage(),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _PriceRow(
+                label: "Subtotal",
+                value: "₱${cart.subtotal.toStringAsFixed(2)}",
+              ),
+              const SizedBox(height: 6),
+              const _PriceRow(
+                label: "Payment",
+                value: "GCash only",
+              ),
+              const SizedBox(height: 14),
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const CheckoutPage(),
+                      ),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.softGold,
+                    foregroundColor: AppColors.creamWhite,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.coffeeBrown,
-                  foregroundColor: AppColors.creamWhite,
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(14),
                   ),
-                ),
-                child: const Text(
-                  "CHECKOUT",
-                  style: TextStyle(
-                    fontFamily: AppFonts.poppins,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.2,
+                  child: const Text(
+                    "CHECKOUT",
+                    style: TextStyle(
+                      fontFamily: AppFonts.poppins,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.2,
+                    ),
                   ),
                 ),
               ),
-            ),
-
-            const SizedBox(height: 6),
-          ],
+              const SizedBox(height: 6),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-class _CartItemCard extends StatelessWidget {
+class _CartItemLine extends StatelessWidget {
   final CartItem item;
 
-  const _CartItemCard({
+  const _CartItemLine({
     required this.item,
   });
 
@@ -272,32 +254,19 @@ class _CartItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cart = CartService.instance;
 
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.creamWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.softGold.withOpacity(0.35),
-        ),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            height: 78,
-            width: 78,
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Image.asset(
-              item.product.image,
-              fit: BoxFit.contain,
-            ),
+          Image.asset(
+            item.product.image,
+            height: 72,
+            width: 72,
+            fit: BoxFit.contain,
           ),
 
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
 
           Expanded(
             child: Column(
@@ -310,7 +279,7 @@ class _CartItemCard extends StatelessWidget {
                   style: const TextStyle(
                     fontFamily: AppFonts.poppins,
                     fontSize: 14,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                     color: AppColors.darkEspresso,
                   ),
                 ),
@@ -335,7 +304,6 @@ class _CartItemCard extends StatelessWidget {
                       icon: Icons.remove,
                       onTap: () => cart.decrease(item),
                     ),
-
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 12),
                       child: Text(
@@ -347,7 +315,6 @@ class _CartItemCard extends StatelessWidget {
                         ),
                       ),
                     ),
-
                     _QtyButton(
                       icon: Icons.add,
                       filled: true,
@@ -359,10 +326,13 @@ class _CartItemCard extends StatelessWidget {
             ),
           ),
 
+          const SizedBox(width: 8),
+
           GestureDetector(
             onTap: () => cart.remove(item),
             child: const Icon(
               Icons.close_rounded,
+              size: 22,
               color: AppColors.mutedForeground,
             ),
           ),
@@ -387,20 +357,24 @@ class _QtyButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        height: 34,
-        width: 34,
+      child: DecoratedBox(
         decoration: BoxDecoration(
-          color: filled ? AppColors.darkEspresso : Colors.white,
-          borderRadius: BorderRadius.circular(10),
+          color: filled ? AppColors.darkEspresso : Colors.transparent,
+          borderRadius: BorderRadius.circular(999),
           border: Border.all(
-            color: AppColors.darkEspresso.withOpacity(0.12),
+            color: filled
+                ? AppColors.darkEspresso
+                : AppColors.darkEspresso.withOpacity(0.22),
           ),
         ),
-        child: Icon(
-          icon,
-          size: 18,
-          color: filled ? Colors.white : AppColors.darkEspresso,
+        child: SizedBox(
+          height: 30,
+          width: 30,
+          child: Icon(
+            icon,
+            size: 17,
+            color: filled ? Colors.white : AppColors.darkEspresso,
+          ),
         ),
       ),
     );
@@ -422,20 +396,15 @@ class _IconButtonBox extends StatelessWidget {
       onTap: onTap,
       child: Opacity(
         opacity: onTap == null ? 0.45 : 1,
-        child: Container(
+        child: SizedBox(
           height: 44,
           width: 44,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: AppColors.softGold.withOpacity(0.35),
+          child: Center(
+            child: Icon(
+              icon,
+              size: 21,
+              color: AppColors.darkEspresso,
             ),
-          ),
-          child: Icon(
-            icon,
-            size: 20,
-            color: AppColors.darkEspresso,
           ),
         ),
       ),

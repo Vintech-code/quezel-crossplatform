@@ -378,7 +378,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     cart.items.isEmpty ? null : placeOrder,
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
-                      AppColors.coffeeBrown,
+                      AppColors.softGold,
                   foregroundColor:
                       AppColors.creamWhite,
                   elevation: 0,

@@ -34,27 +34,61 @@ class _UserMobileHomeState extends State<UserMobileHome> {
   final products = const [
     Product(
       name: "Halo-Halo Large",
-      price: "\u20B178.00",
+      price: "₱78.00",
       kcal: "354 kcal",
       image: "assets/images/1.png",
+      ingredients: [
+        IngredientItem(name: "Shaved ice", calories: "35 kcal"),
+        IngredientItem(name: "Evaporated milk", calories: "45 kcal"),
+        IngredientItem(name: "Sweetened banana", calories: "60 kcal"),
+        IngredientItem(name: "Sweet beans", calories: "55 kcal"),
+        IngredientItem(name: "Nata de coco", calories: "35 kcal"),
+        IngredientItem(name: "Leche flan", calories: "75 kcal"),
+        IngredientItem(name: "Ube topping", calories: "49 kcal"),
+      ],
     ),
     Product(
       name: "Halo-Halo Medium",
-      price: "\u20B155.00",
+      price: "₱55.00",
       kcal: "285 kcal",
       image: "assets/images/2.png",
+      ingredients: [
+        IngredientItem(name: "Shaved ice", calories: "30 kcal"),
+        IngredientItem(name: "Evaporated milk", calories: "38 kcal"),
+        IngredientItem(name: "Sweetened banana", calories: "48 kcal"),
+        IngredientItem(name: "Sweet beans", calories: "42 kcal"),
+        IngredientItem(name: "Nata de coco", calories: "28 kcal"),
+        IngredientItem(name: "Leche flan", calories: "60 kcal"),
+        IngredientItem(name: "Ube topping", calories: "39 kcal"),
+      ],
     ),
     Product(
       name: "Crema De Leche",
-      price: "\u20B178.00",
+      price: "₱78.00",
       kcal: "320 kcal",
       image: "assets/images/3.png",
+      ingredients: [
+        IngredientItem(name: "Shaved ice", calories: "35 kcal"),
+        IngredientItem(name: "Evaporated milk", calories: "45 kcal"),
+        IngredientItem(name: "Cream milk", calories: "85 kcal"),
+        IngredientItem(name: "Leche flan", calories: "90 kcal"),
+        IngredientItem(name: "Caramel syrup", calories: "40 kcal"),
+        IngredientItem(name: "Cheese topping", calories: "25 kcal"),
+      ],
     ),
     Product(
       name: "Mais Con Yelo",
-      price: "\u20B165.00",
+      price: "₱65.00",
       kcal: "260 kcal",
       image: "assets/images/4.png",
+      ingredients: [
+        IngredientItem(name: "Shaved ice", calories: "30 kcal"),
+        IngredientItem(name: "Sweet corn", calories: "85 kcal"),
+        IngredientItem(name: "Evaporated milk", calories: "45 kcal"),
+        IngredientItem(name: "Condensed milk", calories: "55 kcal"),
+        IngredientItem(name: "Cornflakes", calories: "30 kcal"),
+        IngredientItem(name: "Cheese topping", calories: "15 kcal"),
+      ],
     ),
   ];
 
@@ -254,7 +288,7 @@ class _UserMobileHomeState extends State<UserMobileHome> {
                     height: 50,
                     width: 50,
                     decoration: const BoxDecoration(
-                      color: Colors.white,
+                      color: AppColors.creamWhite,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -394,9 +428,9 @@ class _UserMobileHomeState extends State<UserMobileHome> {
               duration: const Duration(milliseconds: 180),
               padding: const EdgeInsets.symmetric(horizontal: 22),
               decoration: BoxDecoration(
-                color: active ? AppColors.coffeeBrown : Colors.transparent,
+                color: active ? AppColors.softGold : Colors.transparent,
                 borderRadius: BorderRadius.circular(999),
-                border: Border.all(color: AppColors.coffeeBrown),
+                border: Border.all(color: AppColors.softGold),
               ),
               child: Center(
                 child: Text(
