@@ -10,7 +10,7 @@ class CartItem {
   });
 
   double get totalPrice {
-    final cleanPrice = product.price.replaceAll("₱", "").trim();
+    final cleanPrice = product.price.replaceAll(RegExp(r"[^0-9.]"), "");
     return double.tryParse(cleanPrice) ?? 0;
   }
 }

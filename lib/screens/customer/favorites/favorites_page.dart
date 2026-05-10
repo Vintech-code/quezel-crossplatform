@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/theme/app_theme.dart';
 import '../../../core/services/favorite_service.dart';
+import '../../../core/theme/app_theme.dart';
 import '../../../models/product.dart';
+import '../../../widgets/bottom_nav.dart';
+import '../cart/cart_page.dart';
 import '../home/user_mobile_home.dart';
 import '../product/product_detail_page.dart';
+import '../profile/profile_page.dart';
 
 class FavoritesPage extends StatefulWidget {
   const FavoritesPage({super.key});
@@ -32,6 +35,21 @@ class _FavoritesPageState extends State<FavoritesPage> {
     if (mounted) setState(() {});
   }
 
+  void _openRoot(Widget page) {
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (_) => page),
+      (route) => false,
+    );
+  }
+
+  void _pushPage(Widget page) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => page),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final favorites = favoriteService.favorites;
@@ -39,58 +57,63 @@ class _FavoritesPageState extends State<FavoritesPage> {
     return Scaffold(
       backgroundColor: AppColors.warmBeige,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _topBar(context),
-              const SizedBox(height: 22),
-
-              const Text(
-                "Favorites",
-                style: TextStyle(
-                  fontFamily: AppFonts.righteous,
-                  fontSize: 32,
-                  color: AppColors.darkEspresso,
-                ),
+        bottom: false,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _topBar(context),
+                  const SizedBox(height: 22),
+                  const Text(
+                    "Favorites",
+                    style: TextStyle(
+                      fontFamily: AppFonts.righteous,
+                      fontSize: 32,
+                      color: AppColors.darkEspresso,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  const Text(
+                    "Your saved Quezel's treats.",
+                    style: TextStyle(
+                      fontFamily: AppFonts.poppins,
+                      fontSize: 14,
+                      color: AppColors.mutedForeground,
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                ],
               ),
-
-              const SizedBox(height: 6),
-
-              const Text(
-                "Your saved Quezel’s treats.",
-                style: TextStyle(
-                  fontFamily: AppFonts.poppins,
-                  fontSize: 14,
-                  color: AppColors.mutedForeground,
-                ),
-              ),
-
-              const SizedBox(height: 18),
-
-              Expanded(
-                child: favorites.isEmpty
-                    ? _emptyFavorites()
-                    : GridView.builder(
-                        padding: const EdgeInsets.only(bottom: 24),
-                        itemCount: favorites.length,
-                        gridDelegate:
-                            const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisExtent: 230,
-                          crossAxisSpacing: 14,
-                          mainAxisSpacing: 14,
-                        ),
-                        itemBuilder: (context, index) {
-                          return _FavoriteCard(
-                            product: favorites[index],
-                          );
-                        },
+            ),
+            Expanded(
+              child: favorites.isEmpty
+                  ? _emptyFavorites()
+                  : GridView.builder(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 18),
+                      itemCount: favorites.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisExtent: 230,
+                        crossAxisSpacing: 14,
+                        mainAxisSpacing: 14,
                       ),
-              ),
-            ],
-          ),
+                      itemBuilder: (context, index) {
+                        return _FavoriteCard(product: favorites[index]);
+                      },
+                    ),
+            ),
+            CustomerBottomNav(
+              activeItem: CustomerNavItem.favorites,
+              onHomeTap: () => _openRoot(const UserMobileHome()),
+              onCartTap: () => _pushPage(const CartPage()),
+              onProfileTap: () => _pushPage(const ProfilePage()),
+            ),
+          ],
         ),
       ),
     );
@@ -103,9 +126,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
           onTap: () {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(
-                builder: (_) => const UserMobileHome(),
-              ),
+              MaterialPageRoute(builder: (_) => const UserMobileHome()),
               (route) => false,
             );
           },
@@ -126,7 +147,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
             ),
           ),
         ),
-
         const Expanded(
           child: Center(
             child: Text(
@@ -140,7 +160,6 @@ class _FavoritesPageState extends State<FavoritesPage> {
             ),
           ),
         ),
-
         const SizedBox(width: 44),
       ],
     );
@@ -237,7 +256,6 @@ class _FavoriteCard extends StatelessWidget {
                 ),
               ),
             ),
-
             Expanded(
               child: Center(
                 child: Image.asset(
@@ -246,7 +264,6 @@ class _FavoriteCard extends StatelessWidget {
                 ),
               ),
             ),
-
             Text(
               product.name,
               maxLines: 1,
@@ -258,9 +275,7 @@ class _FavoriteCard extends StatelessWidget {
                 color: AppColors.darkEspresso,
               ),
             ),
-
             const SizedBox(height: 8),
-
             Row(
               children: [
                 const Icon(

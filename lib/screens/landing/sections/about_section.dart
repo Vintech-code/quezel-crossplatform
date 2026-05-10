@@ -68,9 +68,14 @@ class _AboutSectionState extends State<AboutSection>
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 768;
+
     return Container(
       color: creamWhite,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 128),
+      padding: EdgeInsets.symmetric(
+        horizontal: isNarrow ? 16 : 24,
+        vertical: isNarrow ? 72 : 128,
+      ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1152),
@@ -90,7 +95,7 @@ class _AboutSectionState extends State<AboutSection>
                   : Column(
                       children: [
                         _imageSection(),
-                        const SizedBox(height: 64),
+                        const SizedBox(height: 56),
                         _textSection(),
                       ],
                     );
@@ -264,6 +269,8 @@ class _AboutSectionState extends State<AboutSection>
   }
 
   Widget _textSection() {
+    final isNarrow = MediaQuery.of(context).size.width < 768;
+
     return FadeTransition(
       opacity: rightController,
       child: SlideTransition(
@@ -275,8 +282,8 @@ class _AboutSectionState extends State<AboutSection>
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
+          children: [
+            const Text(
               "Our Story",
               style: TextStyle(
                 fontFamily: "Poppins",
@@ -286,48 +293,48 @@ class _AboutSectionState extends State<AboutSection>
                 color: coffeeBrown,
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               "More than a cafe.\nA community hub.",
               style: TextStyle(
                 fontFamily: "Righteous",
-                fontSize: 48,
+                fontSize: isNarrow ? 34 : 48,
                 height: 1.1,
                 color: darkEspresso,
               ),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 28),
             Text(
-              "Quezel’s started with a simple idea inspired by the hot weather — to create refreshing treats that people could enjoy and cool down with. What began with halo-halo soon expanded into customer favorites like Mais Con Yelo and Crema de Leche.",
+              "Quezel's started with a simple idea inspired by the hot weather: refreshing treats people could enjoy and cool down with. What began with halo-halo soon expanded into favorites like Mais Con Yelo and Crema de Leche.",
               style: TextStyle(
                 fontFamily: "Poppins",
-                fontSize: 18,
+                fontSize: isNarrow ? 15 : 18,
                 height: 1.7,
                 color: mutedForeground,
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Text(
-              "As Quezel’s grew, the founders realized people also loved affordable snacks and combo meals, leading to the addition of burgers, fries, and hotdog sandwiches to the menu.",
+              "As Quezel's grew, the founders added affordable snacks and combo meals, including fries, sandwiches, and quick bites.",
               style: TextStyle(
                 fontFamily: "Poppins",
-                fontSize: 18,
+                fontSize: isNarrow ? 15 : 18,
                 height: 1.7,
                 color: mutedForeground,
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             Text(
-              "The name “Quezel’s” comes from the combination of the founders’ names, Jeque Jhon Roxas and Hazel Ann Cababaros — representing their passion, partnership, and shared dream of serving the community with food made from the heart.",
+              "The name Quezel's comes from the founders' names, Jeque Jhon Roxas and Hazel Ann Cababaros, and their shared dream of serving the community with food made from the heart.",
               style: TextStyle(
                 fontFamily: "Poppins",
-                fontSize: 18,
+                fontSize: isNarrow ? 15 : 18,
                 height: 1.7,
                 color: mutedForeground,
               ),
             ),
-            SizedBox(height: 48),
-            Row(
+            const SizedBox(height: 48),
+            const Row(
               children: [
                 Expanded(
                   child: _StatBlock(value: "100%", label: "Local Beans"),

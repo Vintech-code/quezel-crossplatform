@@ -331,3 +331,33 @@ Inline magic numbers are forbidden. Every value must point to a token.
   --text-3xl:  40px;
 }
 ```
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+12. REQUIRED: Clean Code and Professional Project Structure
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+All generated code must follow clean code practices and avoid spaghetti code.
+
+Rules:
+- Separate UI, logic, services, models, and constants.
+- Do not put API calls directly inside UI widgets/pages.
+- Use reusable components/widgets for repeated UI.
+- Use clear and meaningful file names, class names, function names, and variable names.
+- Keep each file focused on one responsibility.
+- Avoid deeply nested code when possible.
+- Avoid duplicated code.
+- Use comments only when the logic is not obvious.
+- Keep functions small and readable.
+- Use proper error handling for API requests, forms, and user actions.
+- Use a professional folder structure suitable for production.
+- Follow the design system and UI rules already defined in the project policy.
+- Code must be scalable, maintainable, and easy for another developer to understand.
+
+Forbidden:
+- Spaghetti code
+- Hardcoded values everywhere
+- Large files that mix UI, API logic, validation, and state management
+- Repeating the same UI code instead of creating reusable components/widgets
+- Messy naming like `data1`, `temp`, `myFunction`, `newPage`

@@ -58,11 +58,13 @@ class _TestimonialsSectionState
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 768;
+
     return Container(
       color: AppColors.warmBeige,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.pageX,
-        vertical: 96,
+      padding: EdgeInsets.symmetric(
+        horizontal: isNarrow ? 16 : AppSpacing.pageX,
+        vertical: isNarrow ? 56 : 88,
       ),
       child: Center(
         child: ConstrainedBox(
@@ -95,17 +97,17 @@ class _TestimonialsSectionState
                     ),
                   ),
 
-                  const SizedBox(height: 40),
+                  SizedBox(height: isNarrow ? 28 : 40),
 
                   Wrap(
-                    spacing: 24,
-                    runSpacing: 24,
+                    spacing: isNarrow ? 18 : 24,
+                    runSpacing: isNarrow ? 18 : 24,
                     children: List.generate(
                       testimonials.length,
                       (index) {
                         final width =
                             (constraints.maxWidth -
-                                    ((columns - 1) * 24)) /
+                                    ((columns - 1) * (isNarrow ? 18 : 24))) /
                                 columns;
 
                         return SizedBox(
@@ -182,10 +184,12 @@ class _HeaderText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    final isNarrow = MediaQuery.of(context).size.width < 768;
+
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           "Guest stories",
           style: TextStyle(
             fontFamily: AppFonts.poppins,
@@ -195,12 +199,12 @@ class _HeaderText extends StatelessWidget {
             fontWeight: FontWeight.w500,
           ),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         Text(
           "What people are saying",
           style: TextStyle(
             fontFamily: AppFonts.righteous,
-            fontSize: 34,
+            fontSize: isNarrow ? 30 : 34,
             color: AppColors.darkEspresso,
           ),
         ),
@@ -254,6 +258,8 @@ class _AnimatedTestimonialCardState
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 768;
+
     return MouseRegion(
       onEnter: (_) => setState(() => hovered = true),
       onExit: (_) => setState(() => hovered = false),
@@ -274,7 +280,14 @@ class _AnimatedTestimonialCardState
               0.20,
             ),
           ),
-          boxShadow: AppShadows.diffuse,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.06),
+              blurRadius: 16,
+              spreadRadius: -8,
+              offset: const Offset(0, 10),
+            ),
+          ],
         ),
         child: FadeTransition(
           opacity: controller,
@@ -289,24 +302,24 @@ class _AnimatedTestimonialCardState
               ),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(isNarrow ? 20 : 24),
               child: Column(
                 crossAxisAlignment:
                     CrossAxisAlignment.start,
                 children: [
                   Text(
                     "\"${widget.data.quote}\"",
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppFonts.poppins,
-                      fontSize: 18,
-                      height: 1.7,
+                      fontSize: isNarrow ? 16 : 18,
+                      height: 1.55,
                       color:
                           AppColors.darkEspresso,
                       fontWeight: FontWeight.w300,
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: isNarrow ? 18 : 24),
 
                   Text(
                     widget.data.name,

@@ -63,11 +63,13 @@ class _HowItWorksSectionState extends State<HowItWorksSection>
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 768;
+
     return Container(
       color: AppColors.warmBeige,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.pageX,
-        vertical: 128,
+      padding: EdgeInsets.symmetric(
+        horizontal: isNarrow ? 16 : AppSpacing.pageX,
+        vertical: isNarrow ? 56 : 112,
       ),
       child: Center(
         child: ConstrainedBox(
@@ -105,7 +107,7 @@ class _HowItWorksSectionState extends State<HowItWorksSection>
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: AppFonts.righteous,
-                              fontSize: 40,
+                            fontSize: 36,
                               color: AppColors.darkEspresso,
                             ),
                           ),
@@ -114,7 +116,7 @@ class _HowItWorksSectionState extends State<HowItWorksSection>
                     ),
                   ),
 
-                  const SizedBox(height: 80),
+                  SizedBox(height: isNarrow ? 28 : 64),
 
                   Stack(
                     children: [
@@ -151,6 +153,7 @@ class _HowItWorksSectionState extends State<HowItWorksSection>
                             child: _AnimatedStepCard(
                               delay: index * 150,
                               data: steps[index],
+                              compact: columns == 1,
                             ),
                           );
                         }),
@@ -170,10 +173,12 @@ class _HowItWorksSectionState extends State<HowItWorksSection>
 class _AnimatedStepCard extends StatefulWidget {
   final int delay;
   final _StepData data;
+  final bool compact;
 
   const _AnimatedStepCard({
     required this.delay,
     required this.data,
+    required this.compact,
   });
 
   @override
@@ -233,15 +238,22 @@ class _AnimatedStepCardState extends State<_AnimatedStepCard>
               ),
             ),
             child: Container(
-              padding: const EdgeInsets.all(32),
+              padding: EdgeInsets.all(widget.compact ? 20 : 32),
               decoration: BoxDecoration(
                 color: AppColors.creamWhite,
-                borderRadius: BorderRadius.circular(24),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: AppColors.softGold.withOpacity(0.25),
                   width: 1,
                 ),
-                boxShadow: AppShadows.diffuse,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 16,
+                    spreadRadius: -8,
+                    offset: const Offset(0, 10),
+                  ),
+                ],
               ),
               child: Column(
                 children: [
@@ -268,14 +280,14 @@ class _AnimatedStepCardState extends State<_AnimatedStepCard>
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: widget.compact ? 16 : 24),
 
                   Text(
                     widget.data.title,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppFonts.righteous,
-                      fontSize: 28,
+                      fontSize: widget.compact ? 24 : 28,
                       color: AppColors.darkEspresso,
                     ),
                   ),

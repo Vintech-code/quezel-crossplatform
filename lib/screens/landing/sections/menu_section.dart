@@ -18,28 +18,28 @@ class _MenuSectionState extends State<MenuSection>
       name: "Halo-Halo Large",
       category: "Dessert",
       detail: "Ube halaya, sweet beans, leche flan, shaved ice",
-      price: "₱78.00",
+      price: "PHP 78.00",
       imagePath: "assets/images/1.png",
     ),
     _MenuItemData(
       name: "Halo-Halo Medium",
       category: "Dessert",
       detail: "Ube halaya, sweet beans, leche flan, shaved ice",
-      price: "₱55.00",
+      price: "PHP 55.00",
       imagePath: "assets/images/2.png",
     ),
     _MenuItemData(
       name: "Crema De Leche",
       category: "Dessert",
       detail: "Creamy milk base with leche flan and toppings",
-      price: "₱78.00",
+      price: "PHP 78.00",
       imagePath: "assets/images/3.png",
     ),
     _MenuItemData(
       name: "Mais Con Yelo",
       category: "Dessert",
       detail: "Sweet corn, shaved ice, creamy milk, and toppings",
-      price: "₱65.00",
+      price: "PHP 65.00",
       imagePath: "assets/images/4.png",
     ),
   ];
@@ -61,17 +61,6 @@ class _MenuSectionState extends State<MenuSection>
     super.dispose();
   }
 
-  void scrollMenu(double offset) {
-    scrollController.animateTo(
-      (scrollController.offset + offset).clamp(
-        scrollController.position.minScrollExtent,
-        scrollController.position.maxScrollExtent,
-      ),
-      duration: const Duration(milliseconds: 350),
-      curve: Curves.easeOut,
-    );
-  }
-
   int _columnsForWidth(double width) {
     if (width >= 1024) return 4;
     if (width >= 768) return 2;
@@ -80,11 +69,13 @@ class _MenuSectionState extends State<MenuSection>
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 768;
+
     return Container(
       color: AppColors.warmBeige,
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.pageX,
-        vertical: 128,
+      padding: EdgeInsets.symmetric(
+        horizontal: isNarrow ? 16 : AppSpacing.pageX,
+        vertical: isNarrow ? 56 : 112,
       ),
       child: Center(
         child: ConstrainedBox(
@@ -108,15 +99,11 @@ class _MenuSectionState extends State<MenuSection>
                           curve: Curves.easeOut,
                         ),
                       ),
-                      child: _MenuHeader(
-                        showDesktopArrows: isDesktopGrid,
-                        onLeft: () => scrollMenu(-300),
-                        onRight: () => scrollMenu(300),
-                      ),
+                      child: const _MenuHeader(),
                     ),
                   ),
 
-                  SizedBox(height: isDesktopGrid ? 64 : 32),
+                  SizedBox(height: isDesktopGrid ? 64 : 28),
 
                   if (isDesktopGrid)
                     Wrap(
@@ -137,49 +124,25 @@ class _MenuSectionState extends State<MenuSection>
                       }),
                     )
                   else
-                    Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        SizedBox(
-                          height: 470,
-                          child: ListView.separated(
-                            controller: scrollController,
-                            scrollDirection: Axis.horizontal,
-                            physics: const BouncingScrollPhysics(),
-                            itemCount: items.length,
-                            padding: const EdgeInsets.only(bottom: 24),
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(width: 24),
-                            itemBuilder: (context, index) {
-                              return SizedBox(
-                                width: constraints.maxWidth * 0.80,
-                                child: _AnimatedMenuCard(
-                                  data: items[index],
-                                  delay: index * 100,
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-
-                        Positioned(
-                          left: 0,
-                          child: _ArrowButton(
-                            icon: Icons.chevron_left,
-                            filled: false,
-                            onTap: () => scrollMenu(-300),
-                          ),
-                        ),
-
-                        Positioned(
-                          right: 0,
-                          child: _ArrowButton(
-                            icon: Icons.chevron_right,
-                            filled: true,
-                            onTap: () => scrollMenu(300),
-                          ),
-                        ),
-                      ],
+                    SizedBox(
+                      height: 370,
+                      child: ListView.separated(
+                        controller: scrollController,
+                        scrollDirection: Axis.horizontal,
+                        physics: const BouncingScrollPhysics(),
+                        itemCount: items.length,
+                        padding: const EdgeInsets.only(bottom: 12),
+                        separatorBuilder: (_, __) => const SizedBox(width: 16),
+                        itemBuilder: (context, index) {
+                          return SizedBox(
+                            width: constraints.maxWidth * 0.78,
+                            child: _AnimatedMenuCard(
+                              data: items[index],
+                              delay: index * 100,
+                            ),
+                          );
+                        },
+                      ),
                     ),
                 ],
               );
@@ -192,15 +155,7 @@ class _MenuSectionState extends State<MenuSection>
 }
 
 class _MenuHeader extends StatelessWidget {
-  final bool showDesktopArrows;
-  final VoidCallback onLeft;
-  final VoidCallback onRight;
-
-  const _MenuHeader({
-    required this.showDesktopArrows,
-    required this.onLeft,
-    required this.onRight,
-  });
+  const _MenuHeader();
 
   @override
   Widget build(BuildContext context) {
@@ -212,25 +167,7 @@ class _MenuHeader extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               const _HeaderText(),
-              Row(
-                children: [
-                  const _SeeFullMenuButton(),
-                  if (showDesktopArrows) ...[
-                    const SizedBox(width: 16),
-                    _SmallArrowButton(
-                      icon: Icons.chevron_left,
-                      filled: false,
-                      onTap: onLeft,
-                    ),
-                    const SizedBox(width: 8),
-                    _SmallArrowButton(
-                      icon: Icons.chevron_right,
-                      filled: true,
-                      onTap: onRight,
-                    ),
-                  ],
-                ],
-              ),
+              const _SeeFullMenuButton(),
             ],
           )
         : Column(
@@ -249,10 +186,12 @@ class _HeaderText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    final isNarrow = MediaQuery.of(context).size.width < 768;
+
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           "A taste of local",
           style: TextStyle(
             fontFamily: AppFonts.poppins,
@@ -262,12 +201,12 @@ class _HeaderText extends StatelessWidget {
             color: AppColors.coffeeBrown,
           ),
         ),
-        SizedBox(height: 12),
+        const SizedBox(height: 12),
         Text(
           "Curated Menu Highlights",
           style: TextStyle(
             fontFamily: AppFonts.righteous,
-            fontSize: 40,
+            fontSize: isNarrow ? 32 : 40,
             color: AppColors.darkEspresso,
           ),
         ),
@@ -359,31 +298,33 @@ class _AnimatedMenuCardState extends State<_AnimatedMenuCard>
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 768;
+
     return MouseRegion(
       onEnter: (_) => setState(() => hovered = true),
       onExit: (_) => setState(() => hovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        transform: Matrix4.translationValues(0, hovered ? -8 : 0, 0),
+        transform: Matrix4.translationValues(0, hovered ? -5 : 0, 0),
         decoration: BoxDecoration(
           color: AppColors.creamWhite,
-          borderRadius: BorderRadius.circular(24),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: AppColors.softGold.withOpacity(0.25),
           ),
           boxShadow: hovered
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.15),
-                    blurRadius: 40,
-                    spreadRadius: -15,
-                    offset: const Offset(0, 20),
+                    color: Colors.black.withOpacity(0.10),
+                    blurRadius: 22,
+                    spreadRadius: -10,
+                    offset: const Offset(0, 12),
                   ),
                 ]
               : [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 12,
+                    color: Colors.black.withOpacity(0.06),
+                    blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
                 ],
@@ -398,11 +339,11 @@ class _AnimatedMenuCardState extends State<_AnimatedMenuCard>
               CurvedAnimation(parent: controller, curve: Curves.easeOut),
             ),
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: EdgeInsets.all(isNarrow ? 16 : 24),
               child: Column(
                 children: [
                   _MenuImage(imagePath: widget.data.imagePath),
-                  const SizedBox(height: 24),
+                  SizedBox(height: isNarrow ? 14 : 24),
 
                   Text(
                     widget.data.category.toUpperCase(),
@@ -428,7 +369,7 @@ class _AnimatedMenuCardState extends State<_AnimatedMenuCard>
                     ),
                   ),
 
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
 
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -441,22 +382,22 @@ class _AnimatedMenuCardState extends State<_AnimatedMenuCard>
                     ],
                   ),
 
-                  const SizedBox(height: 12),
+                  SizedBox(height: isNarrow ? 8 : 12),
 
                   Text(
                     widget.data.detail,
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppFonts.poppins,
-                      fontSize: 14,
-                      height: 1.5,
+                      fontSize: isNarrow ? 12 : 14,
+                      height: 1.4,
                       color: AppColors.mutedForeground,
                     ),
                   ),
 
-                  const SizedBox(height: 24),
+                  SizedBox(height: isNarrow ? 12 : 24),
 
                   Text(
                     widget.data.price,
@@ -468,7 +409,7 @@ class _AnimatedMenuCardState extends State<_AnimatedMenuCard>
                     ),
                   ),
 
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 10),
 
                   _AddToCartButton(
                     onTap: () {
@@ -492,21 +433,30 @@ class _MenuImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 768;
+    final imageHeight = isNarrow ? 116.0 : 180.0;
+    final imageSize = isNarrow ? 86.0 : 128.0;
+
     return SizedBox(
-      height: 180,
+      height: imageHeight,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          _CircleBorder(size: 144, opacity: 0.40),
-          _CircleBorder(size: 176, opacity: 0.20),
-          _CircleBorder(size: 208, opacity: 0.10),
+          _CircleBorder(size: isNarrow ? 100 : 144, opacity: 0.32),
+          _CircleBorder(size: isNarrow ? 124 : 176, opacity: 0.16),
           Container(
-            height: 128,
-            width: 128,
+            height: imageSize,
+            width: imageSize,
             decoration: BoxDecoration(
               color: AppColors.parchment,
               shape: BoxShape.circle,
-              boxShadow: AppShadows.diffuse,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.07),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
             child: ClipOval(
               child: Image.asset(
@@ -582,7 +532,7 @@ class _AddToCartButtonState extends State<_AddToCartButton> {
       onExit: (_) => setState(() => hovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
           color: hovered ? AppColors.coffeeBrown : AppColors.parchment,
           borderRadius: BorderRadius.circular(AppRadius.full),
@@ -594,91 +544,12 @@ class _AddToCartButtonState extends State<_AddToCartButton> {
             fontFamily: AppFonts.poppins,
             fontSize: 12,
             fontWeight: FontWeight.w600,
-            letterSpacing: 1.2,
+            letterSpacing: 0.6,
             color:
                 hovered ? AppColors.creamWhite : AppColors.darkEspresso,
           ),
         ),
       ),
-    );
-  }
-}
-
-class _SmallArrowButton extends StatefulWidget {
-  final IconData icon;
-  final bool filled;
-  final VoidCallback onTap;
-
-  const _SmallArrowButton({
-    required this.icon,
-    required this.filled,
-    required this.onTap,
-  });
-
-  @override
-  State<_SmallArrowButton> createState() => _SmallArrowButtonState();
-}
-
-class _SmallArrowButtonState extends State<_SmallArrowButton> {
-  bool hovered = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => hovered = true),
-      onExit: (_) => setState(() => hovered = false),
-      child: AnimatedScale(
-        scale: hovered ? 1.05 : 1,
-        duration: const Duration(milliseconds: 160),
-        child: GestureDetector(
-          onTap: widget.onTap,
-          child: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: widget.filled
-                  ? AppColors.coffeeBrown
-                  : AppColors.creamWhite,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.coffeeBrown),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.12),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Icon(
-              widget.icon,
-              size: 18,
-              color: widget.filled
-                  ? AppColors.creamWhite
-                  : AppColors.darkEspresso,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ArrowButton extends StatelessWidget {
-  final IconData icon;
-  final bool filled;
-  final VoidCallback onTap;
-
-  const _ArrowButton({
-    required this.icon,
-    required this.filled,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return _SmallArrowButton(
-      icon: icon,
-      filled: filled,
-      onTap: onTap,
     );
   }
 }

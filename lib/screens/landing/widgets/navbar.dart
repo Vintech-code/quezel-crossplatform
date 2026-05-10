@@ -1,199 +1,162 @@
 import 'package:flutter/material.dart';
 
-class Navbar extends StatefulWidget {
-  const Navbar({super.key});
+class Navbar extends StatelessWidget {
+  final VoidCallback onTop;
+  final VoidCallback onAbout;
+  final VoidCallback onMenu;
+  final VoidCallback onHowItWorks;
+  final VoidCallback onFeatures;
+  final VoidCallback onStories;
 
-  @override
-  State<Navbar> createState() => _NavbarState();
-}
-
-class _NavbarState extends State<Navbar> {
-  bool isOpen = false;
+  const Navbar({
+    super.key,
+    required this.onTop,
+    required this.onAbout,
+    required this.onMenu,
+    required this.onHowItWorks,
+    required this.onFeatures,
+    required this.onStories,
+  });
 
   static const warmBeige = Color(0xFFE8F9FD);
   static const darkEspresso = Color(0xFF000000);
   static const coffeeBrown = Color(0xFFFF1E00);
-  static const softGold = Color(0xFF59CE8F);
-  static const creamWhite = Color(0xFFE8F9FD);
-  static const parchment = Color(0xFFE8F9FD);
+
+  void _openSectionMenu(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: warmBeige,
+      showDragHandle: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
+      ),
+      builder: (sheetContext) {
+        void closeAndRun(VoidCallback callback) {
+          Navigator.pop(sheetContext);
+          callback();
+        }
+
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _SheetNavItem(
+                  icon: Icons.home_rounded,
+                  text: "Top",
+                  onTap: () => closeAndRun(onTop),
+                ),
+                _SheetNavItem(
+                  icon: Icons.info_outline_rounded,
+                  text: "About",
+                  onTap: () => closeAndRun(onAbout),
+                ),
+                _SheetNavItem(
+                  icon: Icons.restaurant_menu_rounded,
+                  text: "Menu",
+                  onTap: () => closeAndRun(onMenu),
+                ),
+                _SheetNavItem(
+                  icon: Icons.receipt_long_rounded,
+                  text: "How it works",
+                  onTap: () => closeAndRun(onHowItWorks),
+                ),
+                _SheetNavItem(
+                  icon: Icons.auto_awesome_rounded,
+                  text: "Features",
+                  onTap: () => closeAndRun(onFeatures),
+                ),
+                _SheetNavItem(
+                  icon: Icons.reviews_rounded,
+                  text: "Stories",
+                  onTap: () => closeAndRun(onStories),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final isDesktop = MediaQuery.of(context).size.width >= 768;
+    final width = MediaQuery.of(context).size.width;
+    final isDesktop = width >= 768;
 
     return Material(
       color: warmBeige,
       elevation: 0,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: warmBeige,
-              border: Border(
-                bottom: BorderSide(
-                  color: darkEspresso.withOpacity(0.12),
-                  width: 1,
-                ),
-              ),
-            ),
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1152),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Row(
-                        children: [
-                          ClipOval(
-                            child: Image(
-                              image: AssetImage("assets/images/logo3.png"),
-                              height: 40,
-                              width: 40,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Text(
-                            "Quezel",
-                            style: TextStyle(
-                              fontFamily: "Righteous",
-                              fontSize: 20,
-                              letterSpacing: 0.8,
-                              color: darkEspresso,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      if (isDesktop)
-                        Row(
-                          children: const [
-                            _NavItem(text: "About"),
-                            SizedBox(width: 32),
-                            _NavItem(text: "Menu"),
-                            SizedBox(width: 32),
-                            _NavItem(text: "How it works"),
-                            SizedBox(width: 32),
-                            _NavItem(text: "Stories"),
-                          ],
-                        ),
-
-                      if (!isDesktop)
-                        GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              isOpen = !isOpen;
-                            });
-                          },
-                          child: Container(
-                            height: 40,
-                            width: 40,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: coffeeBrown,
-                                width: 1,
-                              ),
-                            ),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                AnimatedPositioned(
-                                  duration: const Duration(milliseconds: 300),
-                                  top: isOpen ? 19 : 12,
-                                  child: AnimatedRotation(
-                                    duration: const Duration(milliseconds: 300),
-                                    turns: isOpen ? 0.125 : 0,
-                                    child: _MenuLine(),
-                                  ),
-                                ),
-                                AnimatedOpacity(
-                                  duration: const Duration(milliseconds: 300),
-                                  opacity: isOpen ? 0 : 1,
-                                  child: _MenuLine(),
-                                ),
-                                AnimatedPositioned(
-                                  duration: const Duration(milliseconds: 300),
-                                  top: isOpen ? 19 : 26,
-                                  child: AnimatedRotation(
-                                    duration: const Duration(milliseconds: 300),
-                                    turns: isOpen ? -0.125 : 0,
-                                    child: _MenuLine(),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: warmBeige,
+          border: Border(
+            bottom: BorderSide(
+              color: darkEspresso.withOpacity(0.12),
+              width: 1,
             ),
           ),
-
-          if (!isDesktop)
-            Positioned(
-              left: 0,
-              right: 0,
-              top: 65,
-              child: AnimatedOpacity(
-                duration: const Duration(milliseconds: 300),
-                opacity: isOpen ? 1 : 0,
-                child: AnimatedSlide(
-                  duration: const Duration(milliseconds: 300),
-                  offset: isOpen ? Offset.zero : const Offset(0, -0.08),
-                  child: IgnorePointer(
-                    ignoring: !isOpen,
-                    child: Container(
-                      margin: const EdgeInsets.fromLTRB(24, 0, 24, 16),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: creamWhite,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: coffeeBrown,
-                          width: 1,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
-                          ),
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.12),
-                            blurRadius: 32,
-                            offset: const Offset(0, 8),
-                          ),
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.10),
-                            blurRadius: 64,
-                            offset: const Offset(0, 24),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          _MobileNavItem(text: "About"),
-                          _MobileNavItem(text: "Menu"),
-                          _MobileNavItem(text: "How it works"),
-                          _MobileNavItem(text: "Stories"),
-                        ],
+        ),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1152),
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: isDesktop ? 24 : 16,
+                vertical: 12,
+              ),
+              child: Row(
+                children: [
+                  const ClipOval(
+                    child: Image(
+                      image: AssetImage("assets/images/logo3.png"),
+                      height: 40,
+                      width: 40,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  const Expanded(
+                    child: Text(
+                      "Quezel",
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        fontFamily: "Righteous",
+                        fontSize: 20,
+                        color: darkEspresso,
                       ),
                     ),
                   ),
-                ),
+                  if (isDesktop) ...[
+                    _NavItem(text: "About", onTap: onAbout),
+                    const SizedBox(width: 28),
+                    _NavItem(text: "Menu", onTap: onMenu),
+                    const SizedBox(width: 28),
+                    _NavItem(text: "How it works", onTap: onHowItWorks),
+                    const SizedBox(width: 28),
+                    _NavItem(text: "Stories", onTap: onStories),
+                    const SizedBox(width: 20),
+                  ],
+                  IconButton(
+                    tooltip: "Open section menu",
+                    onPressed: () => _openSectionMenu(context),
+                    style: IconButton.styleFrom(
+                      backgroundColor: coffeeBrown,
+                      foregroundColor: Colors.white,
+                      fixedSize: const Size(42, 42),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    icon: const Icon(Icons.menu_rounded),
+                  ),
+                ],
               ),
             ),
-        ],
+          ),
+        ),
       ),
     );
   }
@@ -201,8 +164,12 @@ class _NavbarState extends State<Navbar> {
 
 class _NavItem extends StatefulWidget {
   final String text;
+  final VoidCallback onTap;
 
-  const _NavItem({required this.text});
+  const _NavItem({
+    required this.text,
+    required this.onTap,
+  });
 
   @override
   State<_NavItem> createState() => _NavItemState();
@@ -219,54 +186,15 @@ class _NavItemState extends State<_NavItem> {
     return MouseRegion(
       onEnter: (_) => setState(() => hovered = true),
       onExit: (_) => setState(() => hovered = false),
-      child: Text(
-        widget.text,
-        style: TextStyle(
-          fontFamily: "Poppins",
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: hovered ? softGold : darkEspresso,
-        ),
-      ),
-    );
-  }
-}
-
-class _MobileNavItem extends StatefulWidget {
-  final String text;
-
-  const _MobileNavItem({required this.text});
-
-  @override
-  State<_MobileNavItem> createState() => _MobileNavItemState();
-}
-
-class _MobileNavItemState extends State<_MobileNavItem> {
-  bool hovered = false;
-
-  static const darkEspresso = Color(0xFF000000);
-  static const parchment = Color(0xFFE8F9FD);
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => hovered = true),
-      onExit: (_) => setState(() => hovered = false),
-      child: Container(
-        width: double.infinity,
-        margin: const EdgeInsets.only(top: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: hovered ? parchment : Colors.transparent,
-          borderRadius: BorderRadius.circular(8),
-        ),
+      child: GestureDetector(
+        onTap: widget.onTap,
         child: Text(
           widget.text,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: "Poppins",
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: darkEspresso,
+            color: hovered ? softGold : darkEspresso,
           ),
         ),
       ),
@@ -274,20 +202,40 @@ class _MobileNavItemState extends State<_MobileNavItem> {
   }
 }
 
-class _MenuLine extends StatelessWidget {
-  _MenuLine();
+class _SheetNavItem extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  final VoidCallback onTap;
 
-  static const darkEspresso = Color(0xFF000000);
+  const _SheetNavItem({
+    required this.icon,
+    required this.text,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 2,
-      width: 20,
-      decoration: BoxDecoration(
-        color: darkEspresso,
-        borderRadius: BorderRadius.circular(999),
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Container(
+        height: 38,
+        width: 38,
+        decoration: BoxDecoration(
+          color: Navbar.coffeeBrown.withOpacity(0.10),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: Navbar.coffeeBrown, size: 20),
       ),
+      title: Text(
+        text,
+        style: const TextStyle(
+          fontFamily: "Poppins",
+          fontSize: 15,
+          fontWeight: FontWeight.w700,
+          color: Navbar.darkEspresso,
+        ),
+      ),
+      onTap: onTap,
     );
   }
 }

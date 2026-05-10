@@ -3,6 +3,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/services/cart_service.dart';
 import '../../../models/cart_item.dart';
 import '../checkout/checkout_page.dart';
+import '../home/user_mobile_home.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -93,7 +94,18 @@ class _CartPageState extends State<CartPage> {
       children: [
         _IconButtonBox(
           icon: Icons.arrow_back_ios_new_rounded,
-          onTap: () => Navigator.pop(context),
+          onTap: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+              return;
+            }
+
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (_) => const UserMobileHome()),
+              (route) => false,
+            );
+          },
         ),
 
         const Expanded(

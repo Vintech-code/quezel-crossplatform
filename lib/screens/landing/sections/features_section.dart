@@ -69,9 +69,14 @@ class _FeaturesSectionState extends State<FeaturesSection>
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 768;
+
     return Container(
       color: parchment,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 96),
+      padding: EdgeInsets.symmetric(
+        horizontal: isNarrow ? 16 : 24,
+        vertical: isNarrow ? 56 : 88,
+      ),
       child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1152),
@@ -93,9 +98,9 @@ class _FeaturesSectionState extends State<FeaturesSection>
                           curve: Curves.easeOut,
                         ),
                       ),
-                      child: const Column(
+                      child: Column(
                         children: [
-                          Text(
+                          const Text(
                             "More than just a cafe",
                             textAlign: TextAlign.center,
                             style: TextStyle(
@@ -106,13 +111,13 @@ class _FeaturesSectionState extends State<FeaturesSection>
                               fontWeight: FontWeight.w500,
                             ),
                           ),
-                          SizedBox(height: 16),
+                          const SizedBox(height: 16),
                           Text(
                             "Modern Convenience meets Cozy Comfort",
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               fontFamily: "Righteous",
-                              fontSize: 40,
+                              fontSize: isNarrow ? 32 : 40,
                               color: darkEspresso,
                               height: 1.15,
                             ),
@@ -122,14 +127,15 @@ class _FeaturesSectionState extends State<FeaturesSection>
                     ),
                   ),
 
-                  const SizedBox(height: 64),
+                  SizedBox(height: isNarrow ? 28 : 56),
 
                   Wrap(
-                    spacing: 32,
-                    runSpacing: 32,
+                    spacing: isNarrow ? 18 : 32,
+                    runSpacing: isNarrow ? 18 : 32,
                     children: List.generate(features.length, (index) {
                       final itemWidth =
-                          (constraints.maxWidth - ((columns - 1) * 32)) /
+                          (constraints.maxWidth -
+                                  ((columns - 1) * (isNarrow ? 18 : 32))) /
                               columns;
 
                       return SizedBox(
@@ -196,6 +202,8 @@ class _AnimatedFeatureCardState extends State<_AnimatedFeatureCard>
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 768;
+
     return MouseRegion(
       onEnter: (_) => setState(() => hovered = true),
       onExit: (_) => setState(() => hovered = false),
@@ -216,29 +224,20 @@ class _AnimatedFeatureCardState extends State<_AnimatedFeatureCard>
               ),
             ),
             child: Container(
-              padding: const EdgeInsets.all(32),
+              padding: EdgeInsets.all(isNarrow ? 20 : 28),
               decoration: BoxDecoration(
                 color: creamWhite,
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(
                   color: softGold.withOpacity(0.35),
                   width: 1,
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.12),
-                    blurRadius: 32,
-                    offset: const Offset(0, 8),
-                  ),
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.10),
-                    blurRadius: 64,
-                    offset: const Offset(0, 24),
+                    color: Colors.black.withOpacity(0.07),
+                    blurRadius: 18,
+                    spreadRadius: -8,
+                    offset: const Offset(0, 10),
                   ),
                 ],
               ),
@@ -246,7 +245,7 @@ class _AnimatedFeatureCardState extends State<_AnimatedFeatureCard>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(12),
+                    padding: EdgeInsets.all(isNarrow ? 10 : 12),
                     decoration: const BoxDecoration(
                       color: darkEspresso,
                       shape: BoxShape.circle,
@@ -257,22 +256,22 @@ class _AnimatedFeatureCardState extends State<_AnimatedFeatureCard>
                       color: softGold,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: isNarrow ? 14 : 16),
                   Text(
                     widget.data.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: "Righteous",
-                      fontSize: 20,
+                      fontSize: isNarrow ? 19 : 20,
                       color: darkEspresso,
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  SizedBox(height: isNarrow ? 10 : 16),
                   Text(
                     widget.data.description,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: "Poppins",
-                      fontSize: 14,
-                      height: 1.7,
+                      fontSize: isNarrow ? 13 : 14,
+                      height: 1.55,
                       color: mutedForeground,
                     ),
                   ),

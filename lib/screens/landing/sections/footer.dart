@@ -36,6 +36,8 @@ class _FooterState extends State<Footer>
 
   @override
   Widget build(BuildContext context) {
+    final isNarrow = MediaQuery.of(context).size.width < 768;
+
     return FadeTransition(
       opacity: controller,
       child: SlideTransition(
@@ -46,16 +48,19 @@ class _FooterState extends State<Footer>
           CurvedAnimation(parent: controller, curve: Curves.easeOut),
         ),
         child: Container(
-  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 64),
-  decoration: BoxDecoration(
-    color: AppColors.warmBeige,
-    border: Border(
-      top: BorderSide(
-        color: AppColors.softGold.withOpacity(0.4),
-        width: 0.5,
-      ),
-    ),
-  ),
+          padding: EdgeInsets.symmetric(
+            horizontal: isNarrow ? 16 : 24,
+            vertical: isNarrow ? 36 : 52,
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.warmBeige,
+            border: Border(
+              top: BorderSide(
+                color: AppColors.softGold.withOpacity(0.4),
+                width: 0.5,
+              ),
+            ),
+          ),
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(
@@ -64,14 +69,16 @@ class _FooterState extends State<Footer>
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final columns = _columnsForWidth(constraints.maxWidth);
+                  final spacing = isNarrow ? 24.0 : 40.0;
                   final itemWidth =
-                      (constraints.maxWidth - ((columns - 1) * 40)) / columns;
+                      (constraints.maxWidth - ((columns - 1) * spacing)) /
+                          columns;
 
                   return Column(
                     children: [
                       Wrap(
-                        spacing: 40,
-                        runSpacing: 40,
+                        spacing: spacing,
+                        runSpacing: isNarrow ? 24 : 36,
                         children: [
                           SizedBox(
                             width: itemWidth,
@@ -105,18 +112,18 @@ class _FooterState extends State<Footer>
                             child: const _FooterLinks(
                               title: "Opening Hours",
                               items: [
-                                "Mon - Fri: 8:00 AM – 10:00 PM",
-                                "Sat - Sun: 9:00 AM – 11:00 PM",
+                                "Mon - Fri: 8:00 AM - 10:00 PM",
+                                "Sat - Sun: 9:00 AM - 11:00 PM",
                               ],
                             ),
                           ),
                         ],
                       ),
 
-                      const SizedBox(height: 48),
+                      SizedBox(height: isNarrow ? 28 : 44),
 
                       Container(
-                        padding: const EdgeInsets.only(top: 24),
+                        padding: EdgeInsets.only(top: isNarrow ? 18 : 24),
                         decoration: BoxDecoration(
                           border: Border(
                             top: BorderSide(
@@ -168,7 +175,7 @@ class _FooterBrand extends StatelessWidget {
         ),
         const SizedBox(height: 12),
         const Text(
-          "A cozy café experience blending artisanal coffee, local flavors, and a modern ordering system.",
+          "A cozy cafe experience blending local flavors, refreshing treats, and a modern ordering system.",
           style: TextStyle(
             fontFamily: AppFonts.poppins,
             fontSize: 14,
@@ -258,7 +265,7 @@ class _FooterBottom extends StatelessWidget {
     final content = [
       const _SocialIcons(),
       const Text(
-        "© 2026 Quezel. All rights reserved.",
+        "Copyright 2026 Quezel. All rights reserved.",
         style: TextStyle(
           fontFamily: AppFonts.poppins,
           fontSize: 12,

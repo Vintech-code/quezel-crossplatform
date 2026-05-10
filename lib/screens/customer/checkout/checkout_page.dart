@@ -3,6 +3,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/services/cart_service.dart';
 import '../../../core/services/order_service.dart';
 import '../../../core/services/delivery_location_service.dart';
+import '../../../core/services/user_address_service.dart';
 import '../../../models/order.dart';
 import '../../../models/cart_item.dart';
 import '../orders/my_orders_page.dart';
@@ -17,6 +18,7 @@ class CheckoutPage extends StatefulWidget {
 class _CheckoutPageState extends State<CheckoutPage> {
   final cart = CartService.instance;
   final deliveryService = DeliveryLocationService.instance;
+  final addressService = UserAddressService.instance;
 
   @override
   void initState() {
@@ -24,12 +26,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     cart.addListener(_refresh);
     deliveryService.addListener(_refresh);
+    addressService.addListener(_refresh);
   }
 
   @override
   void dispose() {
     cart.removeListener(_refresh);
     deliveryService.removeListener(_refresh);
+    addressService.removeListener(_refresh);
     super.dispose();
   }
 
@@ -58,7 +62,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       items: orderItems,
       subtotal: subtotal,
       deliveryFee: deliveryFee,
-      deliveryLocation: location.name,
+      deliveryLocation: addressService.checkoutSummary,
       deliveryKm: location.km,
       total: total,
       paymentMethod: "GCash",
@@ -258,6 +262,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             title: "Delivery Details",
                             child: Column(
                               children: [
+                                _InfoLine(
+                                  label: "Address",
+                                  value: addressService.checkoutSummary,
+                                ),
+
+                                const SizedBox(height: 8),
+
                                 _InfoLine(
                                   label: "Location",
                                   value: location.name,
@@ -480,13 +491,18 @@ class _InfoLine extends StatelessWidget {
             ),
           ),
         ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontFamily: AppFonts.poppins,
-            fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: AppColors.darkEspresso,
+        Flexible(
+          child: Text(
+            value,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.right,
+            style: const TextStyle(
+              fontFamily: AppFonts.poppins,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: AppColors.darkEspresso,
+            ),
           ),
         ),
       ],

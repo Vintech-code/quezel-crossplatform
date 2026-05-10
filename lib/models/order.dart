@@ -26,4 +26,32 @@ class Order {
     required this.status,
     required this.createdAt,
   });
+
+  Order copyWith({
+    String? id,
+    List<CartItem>? items,
+    double? subtotal,
+    double? deliveryFee,
+    String? deliveryLocation,
+    double? deliveryKm,
+    double? total,
+    String? paymentMethod,
+    String? orderType,
+    String? status,
+    DateTime? createdAt,
+  }) {
+    return Order(
+      id: id ?? this.id,
+      items: items ?? this.items,
+      subtotal: subtotal ?? this.subtotal,
+      deliveryFee: deliveryFee ?? this.deliveryFee,
+      deliveryLocation: deliveryLocation ?? this.deliveryLocation,
+      deliveryKm: deliveryKm ?? this.deliveryKm,
+      total: total ?? this.total,
+      paymentMethod: paymentMethod ?? this.paymentMethod,
+      orderType: orderType ?? this.orderType,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
 }

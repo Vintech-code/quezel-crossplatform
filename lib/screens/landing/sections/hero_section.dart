@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
 class HeroSection extends StatefulWidget {
-  const HeroSection({super.key});
+  final VoidCallback? onExploreMenu;
+
+  const HeroSection({
+    super.key,
+    this.onExploreMenu,
+  });
 
   @override
   State<HeroSection> createState() => _HeroSectionState();
@@ -52,12 +57,18 @@ class _HeroSectionState extends State<HeroSection>
 
   @override
   Widget build(BuildContext context) {
-    final isDesktop = MediaQuery.of(context).size.width >= 900;
+    final width = MediaQuery.of(context).size.width;
+    final isDesktop = width >= 900;
 
     return Container(
       color: warmBeige,
-      constraints: const BoxConstraints(minHeight: 720),
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 80),
+      constraints: BoxConstraints(minHeight: isDesktop ? 720 : 640),
+      padding: EdgeInsets.fromLTRB(
+        isDesktop ? 24 : 16,
+        isDesktop ? 0 : 24,
+        isDesktop ? 24 : 16,
+        isDesktop ? 80 : 56,
+      ),
       child: Stack(
         children: [
           Positioned(
@@ -126,7 +137,7 @@ class _HeroSectionState extends State<HeroSection>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Quezel's Cafe Hub",
+            "Quezel's Cafe Hub",
               style: TextStyle(
                 fontFamily: "Poppins",
                 fontSize: 14,
@@ -140,7 +151,7 @@ class _HeroSectionState extends State<HeroSection>
               "BITE with SMILE & DRINK with Freshness",
               style: TextStyle(
                 fontFamily: "Righteous",
-                fontSize: MediaQuery.of(context).size.width >= 768 ? 72 : 48,
+                fontSize: MediaQuery.of(context).size.width >= 768 ? 72 : 42,
                 height: 1.05,
                 color: darkEspresso,
               ),
@@ -152,7 +163,7 @@ class _HeroSectionState extends State<HeroSection>
                 "Order your favorite artisanal coffee, breakfast, and halo-halo effortlessly. Experience our cozy lounge or grab flavor on the go with our smart ordering system.",
                 style: TextStyle(
                   fontFamily: "Poppins",
-                  fontSize: 18,
+                  fontSize: MediaQuery.of(context).size.width >= 768 ? 18 : 15,
                   height: 1.6,
                   color: Color(0xFF333333),
                 ),
@@ -177,9 +188,7 @@ class _HeroSectionState extends State<HeroSection>
                   backgroundColor: Colors.transparent,
                   textColor: darkEspresso,
                   borderColor: coffeeBrown,
-                  onTap: () {
-                    // Scroll to menu section here.
-                  },
+                  onTap: widget.onExploreMenu ?? () {},
                 ),
               ],
             ),
@@ -199,7 +208,7 @@ class _HeroSectionState extends State<HeroSection>
         child: Column(
           children: [
             SizedBox(
-              height: isDesktop ? 520 : 360,
+              height: isDesktop ? 520 : 300,
               child: Stack(
                 alignment: Alignment.center,
                 clipBehavior: Clip.none,
@@ -235,8 +244,8 @@ class _HeroSectionState extends State<HeroSection>
                     },
                     child: Image.asset(
                       "assets/images/logo1.png",
-                      width: isDesktop ? 480 : 320,
-                      height: isDesktop ? 480 : 320,
+                      width: isDesktop ? 480 : 260,
+                      height: isDesktop ? 480 : 260,
                       fit: BoxFit.contain,
                     ),
                   ),
