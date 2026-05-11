@@ -4,10 +4,17 @@ import '../../../core/services/cart_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../models/product.dart';
 import '../cart/cart_page.dart';
+import 'controllers/product_customization_controller.dart';
 import 'widgets/animated_cart_badge.dart';
 import 'widgets/flying_cart_bubble.dart';
 import 'widgets/ingredient_expandable_list.dart';
+import 'widgets/product_addons_sheet.dart';
+import 'widgets/product_image_card.dart';
 import 'widgets/product_info_item.dart';
+import 'widgets/product_price_section.dart';
+import 'widgets/quantity_selector.dart';
+import 'widgets/selected_addons_preview.dart';
+
 
 class ProductDetailPage extends StatefulWidget {
   final Product product;
@@ -28,12 +35,11 @@ class _ProductDetailPageState extends State<ProductDetailPage>
   final GlobalKey cartKey = GlobalKey();
   final GlobalKey buttonKey = GlobalKey();
 
-  int qty = 1;
   bool showBubble = false;
-
   Offset bubbleStart = Offset.zero;
   Offset bubbleEnd = Offset.zero;
 
+  late final ProductCustomizationController controller;
   late final AnimationController bubbleController;
   late final AnimationController cartBounceController;
   late final Animation<double> bubbleAnimation;
@@ -43,6 +49,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
   void initState() {
     super.initState();
 
+    controller = ProductCustomizationController(widget.product);
     cart.addListener(_refresh);
 
     bubbleController = AnimationController(
@@ -74,6 +81,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
   @override
   void dispose() {
     cart.removeListener(_refresh);
+    controller.dispose();
     bubbleController.dispose();
     cartBounceController.dispose();
     super.dispose();
@@ -83,17 +91,27 @@ class _ProductDetailPageState extends State<ProductDetailPage>
     if (mounted) setState(() {});
   }
 
+  void _showAddOnsSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) {
+        return ProductAddOnsSheet(controller: controller);
+      },
+    );
+  }
+
   void addToCart() {
     _prepareBubblePosition();
 
-    final addedQuantity = qty;
+    cart.addToCart(
+      controller.cartProduct,
+      quantity: controller.quantity,
+    );
 
-    cart.addToCart(widget.product, quantity: addedQuantity);
-
-    setState(() {
-      showBubble = true;
-      qty = 1;
-    });
+    setState(() => showBubble = true);
+    controller.resetAfterCart();
 
     bubbleController.forward(from: 0).then((_) {
       if (!mounted) return;
@@ -217,194 +235,195 @@ class _ProductDetailPageState extends State<ProductDetailPage>
   }
 
   Widget _productContent() {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          Container(
-            height: 305,
-            width: double.infinity,
-            padding: const EdgeInsets.all(28),
-            decoration: BoxDecoration(
-              color: AppColors.creamWhite,
-              borderRadius: BorderRadius.circular(28),
-            ),
-            child: Image.asset(
-              widget.product.image,
-              fit: BoxFit.contain,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, _) {
+        return SingleChildScrollView(
+          child: Column(
             children: [
-              Expanded(
-                child: Text(
-                  widget.product.name,
-                  style: const TextStyle(
-                    fontFamily: AppFonts.righteous,
-                    fontSize: 30,
-                    height: 1.1,
-                    color: AppColors.darkEspresso,
-                  ),
-                ),
+              ProductImageCard(image: widget.product.image),
+              const SizedBox(height: 24),
+              _productTitleRow(),
+              const SizedBox(height: 10),
+              if (widget.product.savings != null) _savingsBadge(),
+              const SizedBox(height: 8),
+              ProductPriceSection(
+                price: controller.formattedTotalPrice,
+                hasAddOns: widget.product.addOns.isNotEmpty,
+                selectedAddOnsCount: controller.selectedAddOns.length,
+                onAddOnsTap: _showAddOnsSheet,
               ),
-              const _CircleIcon(
-                icon: Icons.favorite,
-                iconColor: AppColors.coffeeBrown,
+              const SizedBox(height: 4),
+              _caloriesText(),
+              const SizedBox(height: 22),
+              _infoRow(),
+              const SizedBox(height: 26),
+              _description(),
+              const SizedBox(height: 20),
+              SelectedAddOnsPreview(
+                selectedAddOns: controller.selectedAddOns,
               ),
+              if (controller.selectedAddOns.isNotEmpty)
+                const SizedBox(height: 20),
+              IngredientExpandableList(
+                ingredients: widget.product.ingredients,
+              ),
+              const SizedBox(height: 24),
             ],
           ),
-          const SizedBox(height: 10),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              widget.product.price,
-              style: const TextStyle(
-                fontFamily: AppFonts.poppins,
-                fontSize: 30,
-                fontWeight: FontWeight.w900,
-                color: AppColors.coffeeBrown,
-              ),
+        );
+      },
+    );
+  }
+
+  Widget _productTitleRow() {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child: Text(
+            widget.product.name,
+            style: const TextStyle(
+              fontFamily: AppFonts.righteous,
+              fontSize: 30,
+              height: 1.1,
+              color: AppColors.darkEspresso,
             ),
           ),
-          const SizedBox(height: 4),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              widget.product.kcal,
-              style: const TextStyle(
-                fontFamily: AppFonts.poppins,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: AppColors.mutedForeground,
-              ),
-            ),
-          ),
-          const SizedBox(height: 22),
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              ProductInfoItem(icon: Icons.star_rounded, text: "4.9"),
-              ProductInfoItem(icon: Icons.timer_outlined, text: "10-15 min"),
-              ProductInfoItem(
-                icon: Icons.local_fire_department_outlined,
-                text: "Cool Treat",
-              ),
-            ],
-          ),
-          const SizedBox(height: 26),
-          const Align(
-            alignment: Alignment.centerLeft,
-            child: Text(
-              "Description",
-              style: TextStyle(
-                fontFamily: AppFonts.poppins,
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            "A refreshing Quezel’s favorite made with creamy shaved ice, sweet toppings, leche flan, and rich flavors made to cool you down.",
-            style: TextStyle(
-              fontFamily: AppFonts.poppins,
-              fontSize: 14,
-              height: 1.6,
-              color: AppColors.mutedForeground,
-            ),
-          ),
-          const SizedBox(height: 20),
-          IngredientExpandableList(
-            ingredients: widget.product.ingredients,
-          ),
-          const SizedBox(height: 24),
-        ],
+        ),
+        const _CircleIcon(
+          icon: Icons.favorite,
+          iconColor: AppColors.coffeeBrown,
+        ),
+      ],
+    );
+  }
+
+  Widget _caloriesText() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Text(
+        widget.product.kcal,
+        style: const TextStyle(
+          fontFamily: AppFonts.poppins,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+          color: AppColors.mutedForeground,
+        ),
       ),
     );
   }
 
-  Widget _bottomAction() {
+  Widget _infoRow() {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        _QtyButton(
-          icon: Icons.remove,
-          onTap: () {
-            if (qty > 1) setState(() => qty--);
-          },
+        const ProductInfoItem(icon: Icons.star_rounded, text: "4.9"),
+        const ProductInfoItem(
+          icon: Icons.timer_outlined,
+          text: "10-15 min",
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+        ProductInfoItem(
+          icon: widget.product.isCombo
+              ? Icons.fastfood_outlined
+              : Icons.local_fire_department_outlined,
+          text: widget.product.isCombo ? "Combo Meal" : "Fresh Treat",
+        ),
+      ],
+    );
+  }
+
+  Widget _description() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Align(
+          alignment: Alignment.centerLeft,
           child: Text(
-            qty.toString().padLeft(2, "0"),
-            style: const TextStyle(
+            "Description",
+            style: TextStyle(
               fontFamily: AppFonts.poppins,
+              fontSize: 18,
               fontWeight: FontWeight.w700,
             ),
           ),
         ),
-        _QtyButton(
-          icon: Icons.add,
-          filled: true,
-          onTap: () => setState(() => qty++),
-        ),
-        const SizedBox(width: 20),
-        Expanded(
-          key: buttonKey,
-          child: ElevatedButton(
-            onPressed: addToCart,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.softGold,
-              foregroundColor: AppColors.creamWhite,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(999),
-              ),
-            ),
-            child: const Text(
-              "Add to Cart",
-              style: TextStyle(
-                fontFamily: AppFonts.poppins,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
+        const SizedBox(height: 8),
+        Text(
+          widget.product.description ??
+              "A refreshing Quezel’s favorite made with creamy shaved ice, sweet toppings, and rich flavors made to satisfy your cravings.",
+          style: const TextStyle(
+            fontFamily: AppFonts.poppins,
+            fontSize: 14,
+            height: 1.6,
+            color: AppColors.mutedForeground,
           ),
         ),
       ],
     );
   }
-}
 
-class _QtyButton extends StatelessWidget {
-  final IconData icon;
-  final bool filled;
-  final VoidCallback onTap;
-
-  const _QtyButton({
-    required this.icon,
-    required this.onTap,
-    this.filled = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
+  Widget _savingsBadge() {
+    return Align(
+      alignment: Alignment.centerLeft,
       child: Container(
-        height: 46,
-        width: 46,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: filled ? AppColors.darkEspresso : Colors.white,
-          shape: BoxShape.circle,
+          color: AppColors.softGold.withOpacity(0.16),
+          borderRadius: BorderRadius.circular(999),
           border: Border.all(
-            color: AppColors.darkEspresso.withOpacity(0.15),
+            color: AppColors.softGold.withOpacity(0.55),
           ),
         ),
-        child: Icon(
-          icon,
-          color: filled ? Colors.white : AppColors.darkEspresso,
+        child: Text(
+          widget.product.savings!,
+          style: const TextStyle(
+            fontFamily: AppFonts.poppins,
+            fontSize: 12,
+            fontWeight: FontWeight.w800,
+            color: AppColors.coffeeBrown,
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _bottomAction() {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, _) {
+        return Row(
+          children: [
+            QuantitySelector(
+              quantity: controller.quantity,
+              onDecrease: controller.decreaseQuantity,
+              onIncrease: controller.increaseQuantity,
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              key: buttonKey,
+              child: ElevatedButton(
+                onPressed: addToCart,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.softGold,
+                  foregroundColor: AppColors.creamWhite,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                child: Text(
+                  "Add ${controller.formattedTotalPrice}",
+                  style: const TextStyle(
+                    fontFamily: AppFonts.poppins,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -25,13 +25,16 @@ class _UserMobileHomeState extends State<UserMobileHome> {
   String searchQuery = "";
 
   final categories = const [
-    "All",
-    "Halo-Halo",
-    "Crema",
-    "Mais",
-  ];
+  "All",
+  "Palamig",
+  "Burgers",
+  "Fries",
+  "Drinks",
+  "Combos",
+];
 
-  final products = const [
+final Map<String, List<Product>> productSections = const {
+  "Palamig": [
     Product(
       name: "Halo-Halo Large",
       price: "₱78.00",
@@ -90,19 +93,280 @@ class _UserMobileHomeState extends State<UserMobileHome> {
         IngredientItem(name: "Cheese topping", calories: "15 kcal"),
       ],
     ),
-  ];
+  ],
 
-  List<Product> get filteredProducts {
-    final selected = categories[selectedCategory].toLowerCase();
+  "Burgers": [
+    Product(
+      name: "Regular Burger",
+      price: "₱59.00",
+      kcal: "360 kcal",
+      image: "assets/images/burger_regular.png",
+      addOns: [
+        ProductAddOn(name: "Egg Add-on", price: "₱16.00", type: "Add-on"),
+        ProductAddOn(name: "Spicy Burger Sauce", price: "₱5.00", type: "Sauce"),
+      ],
+      ingredients: [
+        IngredientItem(name: "Burger bun", calories: "150 kcal"),
+        IngredientItem(name: "Burger patty", calories: "180 kcal"),
+        IngredientItem(name: "Burger sauce", calories: "30 kcal"),
+      ],
+    ),
+    Product(
+      name: "Cheese Burger",
+      price: "₱69.00",
+      kcal: "390 kcal",
+      image: "assets/images/burger_cheese.png",
+      addOns: [
+        ProductAddOn(name: "Egg Add-on", price: "₱16.00", type: "Add-on"),
+        ProductAddOn(name: "Spicy Burger Sauce", price: "₱5.00", type: "Sauce"),
+      ],
+      ingredients: [
+        IngredientItem(name: "Burger bun", calories: "150 kcal"),
+        IngredientItem(name: "Burger patty", calories: "180 kcal"),
+        IngredientItem(name: "Cheese", calories: "60 kcal"),
+      ],
+    ),
+    Product(
+      name: "Bacon Lettuce Cheese Burger",
+      price: "₱85.00",
+      kcal: "430 kcal",
+      image: "assets/images/burger_lettucecheese.png",
+      addOns: [
+        ProductAddOn(name: "Egg Add-on", price: "₱16.00", type: "Add-on"),
+        ProductAddOn(name: "Spicy Burger Sauce", price: "₱5.00", type: "Sauce"),
+      ],
+      ingredients: [
+        IngredientItem(name: "Burger bun", calories: "150 kcal"),
+        IngredientItem(name: "Burger patty", calories: "180 kcal"),
+        IngredientItem(name: "Bacon", calories: "70 kcal"),
+        IngredientItem(name: "Lettuce", calories: "10 kcal"),
+        IngredientItem(name: "Cheese", calories: "60 kcal"),
+      ],
+    ),
+  ],
+
+  "Fries": [
+    Product(
+      name: "Regular Fries Solo",
+      price: "₱35.00",
+      kcal: "270 kcal",
+      image: "assets/images/fries_regular.png",
+      addOns: [
+        ProductAddOn(name: "Cheese Flavor Upgrade", price: "₱3.00", type: "Flavor"),
+        ProductAddOn(name: "Sour Cream Flavor Upgrade", price: "₱5.00", type: "Flavor"),
+        ProductAddOn(name: "Fries Hot Sauce", price: "₱9.00", type: "Sauce"),
+      ],
+      ingredients: [
+        IngredientItem(name: "Potato fries", calories: "250 kcal"),
+        IngredientItem(name: "Salt", calories: "20 kcal"),
+      ],
+    ),
+    Product(
+      name: "Fries with Cheese",
+      price: "₱39.00",
+      kcal: "310 kcal",
+      image: "assets/images/fries_cheese.png",
+      addOns: [
+        ProductAddOn(name: "Fries Hot Sauce", price: "₱9.00", type: "Sauce"),
+      ],
+      ingredients: [
+        IngredientItem(name: "Potato fries", calories: "250 kcal"),
+        IngredientItem(name: "Cheese flavor", calories: "60 kcal"),
+      ],
+    ),
+    Product(
+      name: "Sour Cream Fries",
+      price: "₱45.00",
+      kcal: "300 kcal",
+      image: "assets/images/fries_sourcream.png",
+      addOns: [
+        ProductAddOn(name: "Fries Hot Sauce", price: "₱9.00", type: "Sauce"),
+      ],
+      ingredients: [
+        IngredientItem(name: "Potato fries", calories: "250 kcal"),
+        IngredientItem(name: "Sour cream flavor", calories: "50 kcal"),
+      ],
+    ),
+  ],
+
+  "Drinks": [
+    Product(
+      name: "Solo Drinks Large",
+      price: "₱20.00",
+      kcal: "120 kcal",
+      image: "assets/images/icedtea_large.png",
+      ingredients: [
+        IngredientItem(name: "Large drink", calories: "120 kcal"),
+      ],
+    ),
+    Product(
+      name: "Lemon Juice Large",
+      price: "₱45.00",
+      kcal: "140 kcal",
+      image: "assets/images/lemonjuice_large.png",
+      ingredients: [
+        IngredientItem(name: "Lemon juice", calories: "25 kcal"),
+        IngredientItem(name: "Sugar syrup", calories: "115 kcal"),
+      ],
+    ),
+    Product(
+      name: "Iced Tea Regular",
+      price: "₱35.00",
+      kcal: "120 kcal",
+      image: "assets/images/icedtea_regular.png",
+      ingredients: [
+        IngredientItem(name: "Tea", calories: "15 kcal"),
+        IngredientItem(name: "Sugar syrup", calories: "105 kcal"),
+      ],
+    ),
+    Product(
+      name: "Lemon Juice Regular",
+      price: "₱35.00",
+      kcal: "110 kcal",
+      image: "assets/images/lemonjuice_regular.png",
+      ingredients: [
+        IngredientItem(name: "Lemon juice", calories: "20 kcal"),
+        IngredientItem(name: "Sugar syrup", calories: "90 kcal"),
+      ],
+    ),
+  ],
+
+  "Combos": [
+    Product(
+      name: "Regular Burger with Large Drink",
+      price: "₱76.00",
+      kcal: "480 kcal",
+      image: "assets/images/regular_burger_combo.png",
+      savings: "Save ₱3",
+      isCombo: true,
+      description: "Regular burger paired with a large drink.",
+      addOns: [
+        ProductAddOn(name: "Egg Add-on", price: "₱16.00", type: "Add-on"),
+        ProductAddOn(name: "Spicy Burger Sauce", price: "₱5.00", type: "Sauce"),
+      ],
+      ingredients: [
+        IngredientItem(name: "Regular burger", calories: "360 kcal"),
+        IngredientItem(name: "Large drink", calories: "120 kcal"),
+      ],
+    ),
+    Product(
+      name: "Regular Burger Combo Meal",
+      price: "₱99.00",
+      kcal: "750 kcal",
+      image: "assets/images/regular_sulit_pairs.png",
+      savings: "Save ₱10",
+      isCombo: true,
+      description: "Regular burger with regular fries and regular drink.",
+      addOns: [
+        ProductAddOn(name: "Cheese Fries Upgrade", price: "₱3.00", type: "Flavor"),
+        ProductAddOn(name: "Sour Cream Fries Upgrade", price: "₱5.00", type: "Flavor"),
+        ProductAddOn(name: "Fries Hot Sauce", price: "₱9.00", type: "Sauce"),
+      ],
+      ingredients: [
+        IngredientItem(name: "Regular burger", calories: "360 kcal"),
+        IngredientItem(name: "Regular fries", calories: "270 kcal"),
+        IngredientItem(name: "Regular drink", calories: "120 kcal"),
+      ],
+    ),
+    Product(
+      name: "Cheese Burger Combo Meal",
+      price: "₱109.00",
+      kcal: "780 kcal",
+      image: "assets/images/cheese_burger_combo.png",
+      savings: "Save ₱10",
+      isCombo: true,
+      description: "Cheese burger with regular fries and regular drink.",
+      addOns: [
+        ProductAddOn(name: "Fries Hot Sauce", price: "₱9.00", type: "Sauce"),
+        ProductAddOn(name: "Spicy Burger Sauce", price: "₱5.00", type: "Sauce"),
+      ],
+      ingredients: [
+        IngredientItem(name: "Cheese burger", calories: "390 kcal"),
+        IngredientItem(name: "Regular fries", calories: "270 kcal"),
+        IngredientItem(name: "Regular drink", calories: "120 kcal"),
+      ],
+    ),
+    Product(
+      name: "Cheese Sulit Pairs",
+      price: "₱109.00",
+      kcal: "780 kcal",
+      image: "assets/images/cheese_sulit_pairs.png",
+      savings: "Save ₱10",
+      isCombo: true,
+      description: "Cheese burger with regular fries and regular drink.",
+      addOns: [
+        ProductAddOn(name: "Fries Hot Sauce", price: "₱9.00", type: "Sauce"),
+        ProductAddOn(name: "Spicy Burger Sauce", price: "₱5.00", type: "Sauce"),
+      ],
+      ingredients: [
+        IngredientItem(name: "Cheese burger", calories: "390 kcal"),
+        IngredientItem(name: "Regular fries", calories: "270 kcal"),
+        IngredientItem(name: "Regular drink", calories: "120 kcal"),
+      ],
+    ),
+    Product(
+      name: "Supreme Regular Burger Combo",
+      price: "₱152.00",
+      kcal: "1035 kcal",
+      image: "assets/images/regular_supreme_combo.png",
+      savings: "Save ₱12",
+      isCombo: true,
+      description: "Regular burger, medium halo-halo, regular fries, and regular drink.",
+      addOns: [
+        ProductAddOn(name: "Fries Hot Sauce", price: "₱9.00", type: "Sauce"),
+        ProductAddOn(name: "Spicy Burger Sauce", price: "₱5.00", type: "Sauce"),
+      ],
+      ingredients: [
+        IngredientItem(name: "Regular burger", calories: "360 kcal"),
+        IngredientItem(name: "Medium halo-halo", calories: "285 kcal"),
+        IngredientItem(name: "Regular fries", calories: "270 kcal"),
+        IngredientItem(name: "Regular drink", calories: "120 kcal"),
+      ],
+    ),
+    Product(
+      name: "Cheese Supreme Combo",
+      price: "₱152.00",
+      kcal: "1065 kcal",
+      image: "assets/images/cheese_supreme_combo.png",
+      savings: "Save ₱12",
+      isCombo: true,
+      description: "Cheese burger, medium halo-halo, regular fries, and regular drink.",
+      addOns: [
+        ProductAddOn(name: "Fries Hot Sauce", price: "₱9.00", type: "Sauce"),
+        ProductAddOn(name: "Spicy Burger Sauce", price: "₱5.00", type: "Sauce"),
+      ],
+      ingredients: [
+        IngredientItem(name: "Cheese burger", calories: "390 kcal"),
+        IngredientItem(name: "Medium halo-halo", calories: "285 kcal"),
+        IngredientItem(name: "Regular fries", calories: "270 kcal"),
+        IngredientItem(name: "Regular drink", calories: "120 kcal"),
+      ],
+    ),
+  ],
+};
+
+  Map<String, List<Product>> get filteredProductSections {
+    final selected = categories[selectedCategory];
     final query = searchQuery.trim().toLowerCase();
 
-    return products.where((product) {
-      final name = product.name.toLowerCase();
-      final matchesCategory = selected == "all" || name.contains(selected);
-      final matchesSearch = query.isEmpty || name.contains(query);
+    final entries = selected == "All"
+        ? productSections.entries
+        : productSections.entries.where((entry) => entry.key == selected);
 
-      return matchesCategory && matchesSearch;
-    }).toList();
+    final filtered = <String, List<Product>>{};
+
+    for (final entry in entries) {
+      final products = entry.value.where((product) {
+        final name = product.name.toLowerCase();
+        return query.isEmpty || name.contains(query);
+      }).toList();
+
+      if (products.isNotEmpty) {
+        filtered[entry.key] = products;
+      }
+    }
+
+    return filtered;
   }
 
   void _openRoot(Widget page) {
@@ -122,7 +386,7 @@ class _UserMobileHomeState extends State<UserMobileHome> {
 
   @override
   Widget build(BuildContext context) {
-    final visibleProducts = filteredProducts;
+    final visibleSections = filteredProductSections;
 
     return Scaffold(
       backgroundColor: AppColors.warmBeige,
@@ -154,34 +418,25 @@ class _UserMobileHomeState extends State<UserMobileHome> {
                     const SizedBox(height: 22),
                     _categoryTabs(),
                     const SizedBox(height: 20),
-                    visibleProducts.isEmpty
+                    visibleSections.isEmpty
                         ? _emptyProducts()
-                        : GridView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: visibleProducts.length,
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              mainAxisExtent: 230,
-                              crossAxisSpacing: 14,
-                              mainAxisSpacing: 14,
-                            ),
-                            itemBuilder: (context, index) {
-                              return _ProductCard(
-                                product: visibleProducts[index],
-                                onTap: () {
+                        : Column(
+                            children: visibleSections.entries.map((section) {
+                              return _ProductSection(
+                                title: section.key,
+                                products: section.value,
+                                onProductTap: (product) {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (_) => ProductDetailPage(
-                                        product: visibleProducts[index],
+                                        product: product,
                                       ),
                                     ),
                                   );
                                 },
                               );
-                            },
+                            }).toList(),
                           ),
                   ],
                 ),
@@ -373,41 +628,6 @@ class _UserMobileHomeState extends State<UserMobileHome> {
     );
   }
 
-  Widget _emptyProducts() {
-    return Padding(
-      padding: const EdgeInsets.only(top: 48),
-      child: Center(
-        child: Column(
-          children: [
-            Icon(
-              Icons.search_off_rounded,
-              size: 52,
-              color: AppColors.mutedForeground.withOpacity(0.8),
-            ),
-            const SizedBox(height: 12),
-            const Text(
-              "No products found",
-              style: TextStyle(
-                fontFamily: AppFonts.righteous,
-                fontSize: 24,
-                color: AppColors.darkEspresso,
-              ),
-            ),
-            const SizedBox(height: 6),
-            const Text(
-              "Try another keyword or category.",
-              style: TextStyle(
-                fontFamily: AppFonts.poppins,
-                fontSize: 14,
-                color: AppColors.mutedForeground,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _categoryTabs() {
     return SizedBox(
       height: 48,
@@ -446,6 +666,115 @@ class _UserMobileHomeState extends State<UserMobileHome> {
             ),
           );
         },
+      ),
+    );
+  }
+
+  Widget _emptyProducts() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 48),
+      child: Center(
+        child: Column(
+          children: [
+            Icon(
+              Icons.search_off_rounded,
+              size: 52,
+              color: AppColors.mutedForeground.withOpacity(0.8),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              "No products found",
+              style: TextStyle(
+                fontFamily: AppFonts.righteous,
+                fontSize: 24,
+                color: AppColors.darkEspresso,
+              ),
+            ),
+            const SizedBox(height: 6),
+            const Text(
+              "Try another keyword or category.",
+              style: TextStyle(
+                fontFamily: AppFonts.poppins,
+                fontSize: 14,
+                color: AppColors.mutedForeground,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProductSection extends StatelessWidget {
+  final String title;
+  final List<Product> products;
+  final void Function(Product product) onProductTap;
+
+  const _ProductSection({
+    required this.title,
+    required this.products,
+    required this.onProductTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 26),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontFamily: AppFonts.righteous,
+                  fontSize: 24,
+                  color: AppColors.darkEspresso,
+                ),
+              ),
+              const Spacer(),
+              const Text(
+                "Swipe",
+                style: TextStyle(
+                  fontFamily: AppFonts.poppins,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.mutedForeground,
+                ),
+              ),
+              const SizedBox(width: 4),
+              const Icon(
+                Icons.arrow_forward_rounded,
+                size: 16,
+                color: AppColors.mutedForeground,
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            height: 238,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: products.length,
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.only(right: 4),
+              separatorBuilder: (_, __) => const SizedBox(width: 14),
+              itemBuilder: (context, index) {
+                final product = products[index];
+
+                return SizedBox(
+                  width: 168,
+                  child: _ProductCard(
+                    product: product,
+                    onTap: () => onProductTap(product),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
