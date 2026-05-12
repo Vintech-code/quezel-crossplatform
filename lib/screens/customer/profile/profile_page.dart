@@ -189,12 +189,12 @@ class _ProfilePageState extends State<ProfilePage> {
                       child: _InfoCard(
                         title: "Delivery Address",
                         value: addressService.profileSummary,
-                        icon: Icons.location_on_outlined,
+                        icon: Icons.delivery_dining_outlined,
                       ),
                     ),
                     const SizedBox(height: 18),
                     _ProfileMenuItem(
-                      icon: Icons.local_shipping_outlined,
+                      icon: Icons.delivery_dining_outlined,
                       title: "My Orders",
                       subtitle: "Track active deliveries",
                       onTap: () {

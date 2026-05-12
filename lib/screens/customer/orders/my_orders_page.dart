@@ -19,21 +19,13 @@ class _MyOrdersPageState extends State<MyOrdersPage>
 
   final orderService = OrderService.instance;
 
-  final tabs = const [
-    "To Receive",
-    "Completed",
-    "Return/Refund",
-    "Cancelled",
-  ];
+  final tabs = const ["To Receive", "Completed", "Return/Refund", "Cancelled"];
 
   @override
   void initState() {
     super.initState();
 
-    tabController = TabController(
-      length: tabs.length,
-      vsync: this,
-    );
+    tabController = TabController(length: tabs.length, vsync: this);
 
     orderService.addListener(_refresh);
   }
@@ -54,24 +46,26 @@ class _MyOrdersPageState extends State<MyOrdersPage>
 
     Navigator.push(
       context,
-      MaterialPageRoute(
-        builder: (_) => const CartPage(),
-      ),
+      MaterialPageRoute(builder: (_) => const CartPage()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     final toReceiveOrders = orderService.orders
-        .where((order) => order.status == "Preparing")
+        .where(
+          (order) =>
+              order.status == "Preparing" || order.status == "Out for delivery",
+        )
         .toList();
 
     final completedOrders = orderService.orders
         .where((order) => order.status == "Completed")
         .toList();
 
-    final refundOrders =
-        orderService.orders.where((order) => order.status == "Refund").toList();
+    final refundOrders = orderService.orders
+        .where((order) => order.status == "Refund")
+        .toList();
 
     final cancelledOrders = orderService.orders
         .where((order) => order.status == "Cancelled")
@@ -177,7 +171,6 @@ class _MyOrdersPageState extends State<MyOrdersPage>
         return _OrderCard(
           order: orders[index],
           onCancel: () => orderService.cancelOrder(orders[index].id),
-          onMarkReceived: () => orderService.markCompleted(orders[index].id),
           onRequestRefund: () => orderService.requestRefund(orders[index].id),
           onReorder: () => _reorder(orders[index]),
         );
@@ -198,9 +191,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
 
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(
-                builder: (_) => const UserMobileHome(),
-              ),
+              MaterialPageRoute(builder: (_) => const UserMobileHome()),
               (route) => false,
             );
           },
@@ -223,9 +214,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
           onTap: () {
             Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(
-                builder: (_) => const UserMobileHome(),
-              ),
+              MaterialPageRoute(builder: (_) => const UserMobileHome()),
               (route) => false,
             );
           },
@@ -241,9 +230,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: AppColors.softGold.withOpacity(0.45),
-        ),
+        border: Border.all(color: AppColors.softGold.withOpacity(0.45)),
       ),
       child: TabBar(
         controller: tabController,
@@ -276,14 +263,12 @@ class _MyOrdersPageState extends State<MyOrdersPage>
 class _OrderCard extends StatelessWidget {
   final Order order;
   final VoidCallback onCancel;
-  final VoidCallback onMarkReceived;
   final VoidCallback onRequestRefund;
   final VoidCallback onReorder;
 
   const _OrderCard({
     required this.order,
     required this.onCancel,
-    required this.onMarkReceived,
     required this.onRequestRefund,
     required this.onReorder,
   });
@@ -301,9 +286,7 @@ class _OrderCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.creamWhite,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppColors.softGold.withOpacity(0.45),
-        ),
+        border: Border.all(color: AppColors.softGold.withOpacity(0.45)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -351,10 +334,7 @@ class _OrderCard extends StatelessWidget {
             value: "${order.deliveryLocation} • $distance km",
           ),
           const SizedBox(height: 12),
-          Divider(
-            height: 1,
-            color: AppColors.softGold.withOpacity(0.35),
-          ),
+          Divider(height: 1, color: AppColors.softGold.withOpacity(0.35)),
           const SizedBox(height: 12),
           Column(
             children: order.items.map((item) {
@@ -415,22 +395,35 @@ class _OrderCard extends StatelessWidget {
     if (order.status == "Preparing") {
       return Padding(
         padding: const EdgeInsets.only(top: 16),
+        child: _OrderActionButton(
+          label: "Cancel Order",
+          icon: Icons.close_rounded,
+          onTap: onCancel,
+          outlined: true,
+        ),
+      );
+    }
+
+    if (order.status == "Out for delivery") {
+      return const Padding(
+        padding: EdgeInsets.only(top: 14),
         child: Row(
           children: [
-            Expanded(
-              child: _OrderActionButton(
-                label: "Cancel Order",
-                icon: Icons.close_rounded,
-                onTap: onCancel,
-                outlined: true,
-              ),
+            Icon(
+              Icons.delivery_dining_outlined,
+              size: 18,
+              color: AppColors.mutedForeground,
             ),
-            const SizedBox(width: 10),
+            SizedBox(width: 8),
             Expanded(
-              child: _OrderActionButton(
-                label: "Mark Received",
-                icon: Icons.check_rounded,
-                onTap: onMarkReceived,
+              child: Text(
+                "Your order is on the way.",
+                style: TextStyle(
+                  fontFamily: AppFonts.poppins,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.mutedForeground,
+                ),
               ),
             ),
           ],
@@ -505,9 +498,7 @@ class _OrderCard extends StatelessWidget {
 class _StatusBadge extends StatelessWidget {
   final String status;
 
-  const _StatusBadge({
-    required this.status,
-  });
+  const _StatusBadge({required this.status});
 
   @override
   Widget build(BuildContext context) {
@@ -516,9 +507,7 @@ class _StatusBadge extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.softGold.withOpacity(0.18),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(
-          color: AppColors.softGold.withOpacity(0.55),
-        ),
+        border: Border.all(color: AppColors.softGold.withOpacity(0.55)),
       ),
       child: Text(
         status,
@@ -598,10 +587,7 @@ class _OrderActionButton extends StatelessWidget {
       child: ElevatedButton.icon(
         onPressed: onTap,
         icon: Icon(icon, size: 18),
-        label: FittedBox(
-          fit: BoxFit.scaleDown,
-          child: Text(label),
-        ),
+        label: FittedBox(fit: BoxFit.scaleDown, child: Text(label)),
         style: ElevatedButton.styleFrom(
           elevation: 0,
           backgroundColor: outlined ? Colors.white : AppColors.coffeeBrown,
@@ -630,10 +616,7 @@ class _IconButtonBox extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onTap;
 
-  const _IconButtonBox({
-    required this.icon,
-    this.onTap,
-  });
+  const _IconButtonBox({required this.icon, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -645,15 +628,9 @@ class _IconButtonBox extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: AppColors.softGold.withOpacity(0.45),
-          ),
+          border: Border.all(color: AppColors.softGold.withOpacity(0.45)),
         ),
-        child: Icon(
-          icon,
-          size: 20,
-          color: AppColors.darkEspresso,
-        ),
+        child: Icon(icon, size: 20, color: AppColors.darkEspresso),
       ),
     );
   }
@@ -684,15 +661,9 @@ class _OrdersPlaceholder extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(
-                  color: AppColors.softGold.withOpacity(0.45),
-                ),
+                border: Border.all(color: AppColors.softGold.withOpacity(0.45)),
               ),
-              child: Icon(
-                icon,
-                size: 38,
-                color: AppColors.coffeeBrown,
-              ),
+              child: Icon(icon, size: 38, color: AppColors.coffeeBrown),
             ),
             const SizedBox(height: 18),
             Text(

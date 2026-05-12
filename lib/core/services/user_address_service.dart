@@ -16,8 +16,8 @@ class UserAddressService extends ChangeNotifier {
   String labelAs = "Home";
 
   bool get hasCompleteAddress {
-    return phoneNumber.trim().isNotEmpty ||
-        postalCode.trim().isNotEmpty ||
+    return phoneNumber.trim().isNotEmpty &&
+        postalCode.trim().isNotEmpty &&
         streetAddress.trim().isNotEmpty;
   }
 

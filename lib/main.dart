@@ -1,11 +1,25 @@
 import 'package:flutter/material.dart';
-import 'screens/landing/landing_page.dart';
+
+import 'core/services/cart_service.dart';
+import 'core/services/favorite_service.dart';
+import 'core/services/local_storage_service.dart';
+import 'core/services/order_service.dart';
+import 'screens/customer/home/user_mobile_home.dart';
 import 'screens/landing/auth/sign_in_page.dart';
 import 'screens/landing/auth/sign_up_page.dart';
+import 'screens/landing/landing_page.dart';
 import 'screens/landing/onboarding/onboarding_page.dart';
-import 'screens/customer/home/user_mobile_home.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await LocalStorageService.instance.init();
+  await Future.wait([
+    CartService.instance.loadFromStorage(),
+    FavoriteService.instance.loadFromStorage(),
+    OrderService.instance.loadFromStorage(),
+  ]);
+
   runApp(const QuezelApp());
 }
 
@@ -26,9 +40,7 @@ class QuezelApp extends StatelessWidget {
         "/user/dashboard": (context) => const UserMobileHome(),
       },
       onUnknownRoute: (settings) {
-        return MaterialPageRoute(
-          builder: (context) => const LandingPage(),
-        );
+        return MaterialPageRoute(builder: (context) => const LandingPage());
       },
     );
   }

@@ -7,6 +7,7 @@ import '../../../core/services/user_address_service.dart';
 import '../../../models/order.dart';
 import '../../../models/cart_item.dart';
 import '../orders/my_orders_page.dart';
+import '../profile/delivery_address_page.dart';
 
 class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
@@ -19,6 +20,23 @@ class _CheckoutPageState extends State<CheckoutPage> {
   final cart = CartService.instance;
   final deliveryService = DeliveryLocationService.instance;
   final addressService = UserAddressService.instance;
+
+  String selectedPaymentMethod = "GCash";
+
+  final List<_PaymentOption> paymentOptions = const [
+    _PaymentOption(
+      label: "GCash",
+      subtitle: "Default payment method",
+      assetPath: "assets/images/gcash.jpg",
+      enabled: true,
+    ),
+    _PaymentOption(
+      label: "Cash on Delivery",
+      subtitle: "Coming soon",
+      assetPath: "assets/images/logo1.png",
+      enabled: false,
+    ),
+  ];
 
   @override
   void initState() {
@@ -42,6 +60,11 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   void placeOrder() {
+    if (!addressService.hasCompleteAddress) {
+      _showAddressModal();
+      return;
+    }
+
     final location = deliveryService.selectedLocation;
 
     final subtotal = cart.subtotal;
@@ -49,12 +72,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     final total = subtotal + deliveryFee;
 
     final orderItems = cart.items
-        .map(
-          (item) => CartItem(
-            product: item.product,
-            quantity: item.quantity,
-          ),
-        )
+        .map((item) => CartItem(product: item.product, quantity: item.quantity))
         .toList();
 
     final order = Order(
@@ -65,7 +83,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       deliveryLocation: addressService.checkoutSummary,
       deliveryKm: location.km,
       total: total,
-      paymentMethod: "GCash",
+      paymentMethod: selectedPaymentMethod,
       orderType: "Delivery",
       status: "Preparing",
       createdAt: DateTime.now(),
@@ -77,9 +95,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(
-        builder: (_) => const MyOrdersPage(),
-      ),
+      MaterialPageRoute(builder: (_) => const MyOrdersPage()),
       (route) => false,
     );
   }
@@ -139,8 +155,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             child: Column(
                               children: cart.items.map((item) {
                                 return Padding(
-                                  padding:
-                                      const EdgeInsets.only(bottom: 12),
+                                  padding: const EdgeInsets.only(bottom: 12),
                                   child: Row(
                                     children: [
                                       Container(
@@ -149,8 +164,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         padding: const EdgeInsets.all(7),
                                         decoration: BoxDecoration(
                                           color: Colors.white,
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                         ),
                                         child: Image.asset(
                                           item.product.image,
@@ -167,8 +183,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                             fontFamily: AppFonts.poppins,
                                             fontSize: 14,
                                             fontWeight: FontWeight.w700,
-                                            color:
-                                                AppColors.darkEspresso,
+                                            color: AppColors.darkEspresso,
                                           ),
                                         ),
                                       ),
@@ -178,8 +193,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         style: const TextStyle(
                                           fontFamily: AppFonts.poppins,
                                           fontSize: 13,
-                                          color:
-                                              AppColors.mutedForeground,
+                                          color: AppColors.mutedForeground,
                                         ),
                                       ),
                                     ],
@@ -193,66 +207,27 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
                           _sectionCard(
                             title: "Payment Method",
-                            child: Row(
-                              children: [
-                                Container(
-                                  height: 44,
-                                  width: 44,
-                                  padding: const EdgeInsets.all(6),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius:
-                                        BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: AppColors.softGold
-                                          .withOpacity(0.35),
-                                    ),
-                                  ),
-                                  child: Image.asset(
-                                    "assets/images/gcash.jpg",
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
+                            child: Column(
+                              children: paymentOptions.map((option) {
+                                final selected =
+                                    selectedPaymentMethod == option.label;
 
-                                const SizedBox(width: 12),
-
-                                const Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "GCash",
-                                        style: TextStyle(
-                                          fontFamily:
-                                              AppFonts.poppins,
-                                          fontSize: 15,
-                                          fontWeight:
-                                              FontWeight.w800,
-                                          color: AppColors
-                                              .darkEspresso,
-                                        ),
-                                      ),
-                                      SizedBox(height: 2),
-                                      Text(
-                                        "Default payment method",
-                                        style: TextStyle(
-                                          fontFamily:
-                                              AppFonts.poppins,
-                                          fontSize: 12,
-                                          color: AppColors
-                                              .mutedForeground,
-                                        ),
-                                      ),
-                                    ],
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: _PaymentOptionTile(
+                                    option: option,
+                                    selected: selected,
+                                    onTap: option.enabled
+                                        ? () {
+                                            setState(() {
+                                              selectedPaymentMethod =
+                                                  option.label;
+                                            });
+                                          }
+                                        : null,
                                   ),
-                                ),
-
-                                const Icon(
-                                  Icons.check_circle,
-                                  color: AppColors.softGold,
-                                ),
-                              ],
+                                );
+                              }).toList(),
                             ),
                           ),
 
@@ -278,23 +253,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
                                 _InfoLine(
                                   label: "Distance",
-                                  value:
-                                      "${location.km.toStringAsFixed(1)} km",
+                                  value: "${location.km.toStringAsFixed(1)} km",
                                 ),
 
                                 const SizedBox(height: 8),
 
                                 _InfoLine(
                                   label: "Delivery Fee",
-                                  value:
-                                      "₱${deliveryFee.toStringAsFixed(2)}",
+                                  value: "₱${deliveryFee.toStringAsFixed(2)}",
                                 ),
 
                                 const SizedBox(height: 8),
 
-                                const _InfoLine(
+                                _InfoLine(
                                   label: "Payment",
-                                  value: "GCash only",
+                                  value: selectedPaymentMethod,
                                 ),
 
                                 const SizedBox(height: 8),
@@ -316,31 +289,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ),
 
-            _bottomPanel(
-              subtotal,
-              deliveryFee,
-              total,
-            ),
+            _bottomPanel(subtotal, deliveryFee, total),
           ],
         ),
       ),
     );
   }
 
-  Widget _bottomPanel(
-    double subtotal,
-    double deliveryFee,
-    double total,
-  ) {
+  Widget _bottomPanel(double subtotal, double deliveryFee, double total) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(
-          top: BorderSide(
-            color: AppColors.softGold.withOpacity(0.45),
-          ),
+          top: BorderSide(color: AppColors.softGold.withOpacity(0.45)),
         ),
       ),
       child: SafeArea(
@@ -374,17 +337,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
               width: double.infinity,
               height: 54,
               child: ElevatedButton(
-                onPressed:
-                    cart.items.isEmpty ? null : placeOrder,
+                onPressed: cart.items.isEmpty ? null : placeOrder,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      AppColors.softGold,
-                  foregroundColor:
-                      AppColors.creamWhite,
+                  backgroundColor: AppColors.softGold,
+                  foregroundColor: AppColors.creamWhite,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14),
                   ),
                 ),
                 child: const Text(
@@ -433,23 +392,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
     );
   }
 
-  Widget _sectionCard({
-    required String title,
-    required Widget child,
-  }) {
+  Widget _sectionCard({required String title, required Widget child}) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.creamWhite,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color:
-              AppColors.softGold.withOpacity(0.45),
-        ),
+        border: Border.all(color: AppColors.softGold.withOpacity(0.45)),
       ),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
@@ -466,16 +418,217 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ),
     );
   }
+
+  Future<void> _showAddressModal() {
+    return showDialog<void>(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      height: 46,
+                      width: 46,
+                      decoration: BoxDecoration(
+                        color: AppColors.softGold.withOpacity(0.18),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.location_on_outlined,
+                        color: AppColors.coffeeBrown,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Text(
+                        "Complete your address",
+                        style: TextStyle(
+                          fontFamily: AppFonts.righteous,
+                          fontSize: 22,
+                          color: AppColors.darkEspresso,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  "Add your street, postal code, and phone number to place an order.",
+                  style: TextStyle(
+                    fontFamily: AppFonts.poppins,
+                    fontSize: 13,
+                    color: AppColors.mutedForeground,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.darkEspresso,
+                          side: BorderSide(
+                            color: AppColors.softGold.withOpacity(0.55),
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          "Not now",
+                          style: TextStyle(
+                            fontFamily: AppFonts.poppins,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const DeliveryAddressPage(),
+                            ),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.coffeeBrown,
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          "Complete now",
+                          style: TextStyle(
+                            fontFamily: AppFonts.poppins,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.6,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _PaymentOption {
+  final String label;
+  final String subtitle;
+  final String assetPath;
+  final bool enabled;
+
+  const _PaymentOption({
+    required this.label,
+    required this.subtitle,
+    required this.assetPath,
+    required this.enabled,
+  });
+}
+
+class _PaymentOptionTile extends StatelessWidget {
+  final _PaymentOption option;
+  final bool selected;
+  final VoidCallback? onTap;
+
+  const _PaymentOptionTile({
+    required this.option,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = option.enabled
+        ? AppColors.mutedForeground
+        : AppColors.mutedForeground.withOpacity(0.6);
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Row(
+        children: [
+          Container(
+            height: 44,
+            width: 44,
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppColors.softGold.withOpacity(0.35)),
+            ),
+            child: Image.asset(
+              option.assetPath,
+              fit: BoxFit.contain,
+              color: option.enabled ? null : Colors.grey,
+              colorBlendMode: option.enabled ? null : BlendMode.saturation,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  option.label,
+                  style: TextStyle(
+                    fontFamily: AppFonts.poppins,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: option.enabled ? AppColors.darkEspresso : muted,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  option.subtitle,
+                  style: TextStyle(
+                    fontFamily: AppFonts.poppins,
+                    fontSize: 12,
+                    color: muted,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (selected)
+            const Icon(Icons.check_circle, color: AppColors.softGold)
+          else
+            Icon(Icons.radio_button_unchecked, color: muted),
+        ],
+      ),
+    );
+  }
 }
 
 class _InfoLine extends StatelessWidget {
   final String label;
   final String value;
 
-  const _InfoLine({
-    required this.label,
-    required this.value,
-  });
+  const _InfoLine({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -524,16 +677,14 @@ class _PriceLine extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment:
-          MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(
           label,
           style: TextStyle(
             fontFamily: AppFonts.poppins,
             fontSize: strong ? 16 : 14,
-            fontWeight:
-                strong ? FontWeight.w800 : FontWeight.w500,
+            fontWeight: strong ? FontWeight.w800 : FontWeight.w500,
             color: AppColors.mutedForeground,
           ),
         ),
@@ -542,8 +693,7 @@ class _PriceLine extends StatelessWidget {
           style: TextStyle(
             fontFamily: AppFonts.poppins,
             fontSize: strong ? 22 : 14,
-            fontWeight:
-                strong ? FontWeight.w900 : FontWeight.w700,
+            fontWeight: strong ? FontWeight.w900 : FontWeight.w700,
             color: AppColors.darkEspresso,
           ),
         ),
@@ -556,10 +706,7 @@ class _IconButtonBox extends StatelessWidget {
   final IconData icon;
   final VoidCallback? onTap;
 
-  const _IconButtonBox({
-    required this.icon,
-    this.onTap,
-  });
+  const _IconButtonBox({required this.icon, this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -571,16 +718,9 @@ class _IconButtonBox extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color:
-                AppColors.softGold.withOpacity(0.35),
-          ),
+          border: Border.all(color: AppColors.softGold.withOpacity(0.35)),
         ),
-        child: Icon(
-          icon,
-          size: 20,
-          color: AppColors.darkEspresso,
-        ),
+        child: Icon(icon, size: 20, color: AppColors.darkEspresso),
       ),
     );
   }

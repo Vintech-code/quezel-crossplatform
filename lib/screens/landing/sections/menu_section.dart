@@ -160,15 +160,16 @@ class _MenuSectionState extends State<MenuSection>
                   FadeTransition(
                     opacity: controller,
                     child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0, 0.05),
-                        end: Offset.zero,
-                      ).animate(
-                        CurvedAnimation(
-                          parent: controller,
-                          curve: Curves.easeOut,
-                        ),
-                      ),
+                      position:
+                          Tween<Offset>(
+                            begin: const Offset(0, 0.05),
+                            end: Offset.zero,
+                          ).animate(
+                            CurvedAnimation(
+                              parent: controller,
+                              curve: Curves.easeOut,
+                            ),
+                          ),
                       child: const _MenuHeader(),
                     ),
                   ),
@@ -182,7 +183,7 @@ class _MenuSectionState extends State<MenuSection>
                       children: List.generate(items.length, (index) {
                         final itemWidth =
                             (constraints.maxWidth - ((columns - 1) * 24)) /
-                                columns;
+                            columns;
 
                         return SizedBox(
                           width: itemWidth,
@@ -235,10 +236,7 @@ class _MenuHeader extends StatelessWidget {
         ? Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const _HeaderText(),
-              const _SeeFullMenuButton(),
-            ],
+            children: [const _HeaderText(), const _SeeFullMenuButton()],
           )
         : Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -308,10 +306,7 @@ class _SeeFullMenuButtonState extends State<_SeeFullMenuButton> {
           decoration: BoxDecoration(
             color: hovered ? AppColors.parchment : Colors.transparent,
             borderRadius: BorderRadius.circular(AppRadius.full),
-            border: Border.all(
-              color: AppColors.coffeeBrown,
-              width: 2,
-            ),
+            border: Border.all(color: AppColors.coffeeBrown, width: 2),
           ),
           child: const Text(
             "See Full Menu",
@@ -332,10 +327,7 @@ class _AnimatedMenuCard extends StatefulWidget {
   final _MenuItemData data;
   final int delay;
 
-  const _AnimatedMenuCard({
-    required this.data,
-    required this.delay,
-  });
+  const _AnimatedMenuCard({required this.data, required this.delay});
 
   @override
   State<_AnimatedMenuCard> createState() => _AnimatedMenuCardState();
@@ -379,9 +371,7 @@ class _AnimatedMenuCardState extends State<_AnimatedMenuCard>
         decoration: BoxDecoration(
           color: AppColors.creamWhite,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: AppColors.softGold.withOpacity(0.25),
-          ),
+          border: Border.all(color: AppColors.softGold.withOpacity(0.25)),
           boxShadow: hovered
               ? [
                   BoxShadow(
@@ -402,12 +392,13 @@ class _AnimatedMenuCardState extends State<_AnimatedMenuCard>
         child: FadeTransition(
           opacity: controller,
           child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 0.08),
-              end: Offset.zero,
-            ).animate(
-              CurvedAnimation(parent: controller, curve: Curves.easeOut),
-            ),
+            position:
+                Tween<Offset>(
+                  begin: const Offset(0, 0.08),
+                  end: Offset.zero,
+                ).animate(
+                  CurvedAnimation(parent: controller, curve: Curves.easeOut),
+                ),
             child: Padding(
               padding: EdgeInsets.all(isNarrow ? 16 : 24),
               child: Column(
@@ -443,13 +434,7 @@ class _AnimatedMenuCardState extends State<_AnimatedMenuCard>
 
                   const Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _Star(),
-                      _Star(),
-                      _Star(),
-                      _Star(),
-                      _Star(),
-                    ],
+                    children: [_Star(), _Star(), _Star(), _Star(), _Star()],
                   ),
 
                   SizedBox(height: isNarrow ? 8 : 12),
@@ -528,12 +513,7 @@ class _MenuImage extends StatelessWidget {
                 ),
               ],
             ),
-            child: ClipOval(
-              child: Image.asset(
-                imagePath,
-                fit: BoxFit.cover,
-              ),
-            ),
+            child: ClipOval(child: Image.asset(imagePath, fit: BoxFit.cover)),
           ),
         ],
       ),
@@ -545,10 +525,7 @@ class _CircleBorder extends StatelessWidget {
   final double size;
   final double opacity;
 
-  const _CircleBorder({
-    required this.size,
-    required this.opacity,
-  });
+  const _CircleBorder({required this.size, required this.opacity});
 
   @override
   Widget build(BuildContext context) {
@@ -557,9 +534,7 @@ class _CircleBorder extends StatelessWidget {
       width: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        border: Border.all(
-          color: AppColors.softGold.withOpacity(opacity),
-        ),
+        border: Border.all(color: AppColors.softGold.withOpacity(opacity)),
       ),
     );
   }
@@ -572,11 +547,7 @@ class _Star extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Padding(
       padding: EdgeInsets.symmetric(horizontal: 1),
-      child: Icon(
-        Icons.star,
-        size: 14,
-        color: AppColors.softGold,
-      ),
+      child: Icon(Icons.star, size: 14, color: AppColors.softGold),
     );
   }
 }
@@ -584,9 +555,7 @@ class _Star extends StatelessWidget {
 class _AddToCartButton extends StatefulWidget {
   final VoidCallback onTap;
 
-  const _AddToCartButton({
-    required this.onTap,
-  });
+  const _AddToCartButton({required this.onTap});
 
   @override
   State<_AddToCartButton> createState() => _AddToCartButtonState();
@@ -615,8 +584,7 @@ class _AddToCartButtonState extends State<_AddToCartButton> {
             fontSize: 12,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.6,
-            color:
-                hovered ? AppColors.creamWhite : AppColors.darkEspresso,
+            color: hovered ? AppColors.creamWhite : AppColors.darkEspresso,
           ),
         ),
       ),
