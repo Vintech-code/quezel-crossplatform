@@ -103,13 +103,13 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 },
                 children: [
                   _IntroSlide(
-                    icon: Icons.local_drink_outlined,
+                    imagePath: "assets/images/quezel_animated.png",
                     title: "Cool treats delivered to you",
                     subtitle:
                         "Order your Quezel’s favorites from home and wait for your rider to deliver it.",
                   ),
                   _IntroSlide(
-                    icon: Icons.delivery_dining_outlined,
+                    imagePath: "assets/images/delivery_rider.png",
                     title: "Fast local delivery",
                     subtitle:
                         "Your order is prepared by Quezel’s and delivered by riders within covered areas.",
@@ -177,12 +177,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
 }
 
 class _IntroSlide extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final String? imagePath;
   final String title;
   final String subtitle;
 
   const _IntroSlide({
-    required this.icon,
+    this.icon,
+    this.imagePath,
     required this.title,
     required this.subtitle,
   });
@@ -194,21 +196,28 @@ class _IntroSlide extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            height: 190,
-            width: 190,
-            decoration: BoxDecoration(
-              color: AppColors.creamWhite,
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                color: AppColors.softGold.withOpacity(0.45),
-              ),
-            ),
-            child: Icon(
-              icon,
-              size: 86,
-              color: AppColors.coffeeBrown,
-            ),
+          SizedBox(
+            height: 230,
+            width: 230,
+            child: imagePath != null
+                ? Image.asset(
+                    imagePath!,
+                    fit: BoxFit.contain,
+                  )
+                : Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.creamWhite,
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(
+                        color: AppColors.softGold.withOpacity(0.45),
+                      ),
+                    ),
+                    child: Icon(
+                      icon,
+                      size: 86,
+                      color: AppColors.coffeeBrown,
+                    ),
+                  ),
           ),
           const SizedBox(height: 42),
           Text(
