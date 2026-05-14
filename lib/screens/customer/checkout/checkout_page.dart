@@ -3,9 +3,18 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/services/cart_service.dart';
 import '../../../core/services/order_service.dart';
 import '../../../core/services/delivery_location_service.dart';
+import '../../../core/services/product_catalog_service.dart';
 import '../../../core/services/user_address_service.dart';
+import '../../../core/services/user_profile_service.dart';
 import '../../../models/order.dart';
+import '../../../models/order_status.dart';
 import '../../../models/cart_item.dart';
+import '../widgets/customer_icon_button.dart';
+import '../widgets/customer_top_bar.dart';
+import 'widgets/checkout_info_line.dart';
+import 'widgets/checkout_price_line.dart';
+import 'widgets/checkout_section_card.dart';
+import 'widgets/payment_option_tile.dart';
 import '../orders/my_orders_page.dart';
 import '../profile/delivery_address_page.dart';
 
@@ -20,8 +29,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
   final cart = CartService.instance;
   final deliveryService = DeliveryLocationService.instance;
   final addressService = UserAddressService.instance;
+  final profileService = UserProfileService.instance;
+  final productCatalog = ProductCatalogService.instance;
 
-  String selectedPaymentMethod = "GCash";
+  final String selectedPaymentMethod = "GCash";
 
   final List<_PaymentOption> paymentOptions = const [
     _PaymentOption(
@@ -29,12 +40,6 @@ class _CheckoutPageState extends State<CheckoutPage> {
       subtitle: "Default payment method",
       assetPath: "assets/images/gcash.jpg",
       enabled: true,
-    ),
-    _PaymentOption(
-      label: "Cash on Delivery",
-      subtitle: "Coming soon",
-      assetPath: "assets/images/logo1.png",
-      enabled: false,
     ),
   ];
 
@@ -45,6 +50,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     cart.addListener(_refresh);
     deliveryService.addListener(_refresh);
     addressService.addListener(_refresh);
+    profileService.addListener(_refresh);
   }
 
   @override
@@ -52,6 +58,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     cart.removeListener(_refresh);
     deliveryService.removeListener(_refresh);
     addressService.removeListener(_refresh);
+    profileService.removeListener(_refresh);
     super.dispose();
   }
 
@@ -63,6 +70,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
     if (!addressService.hasCompleteAddress) {
       _showAddressModal();
       return;
+    }
+
+    for (final item in cart.items) {
+      if (!productCatalog.canOrder(item.product)) {
+        _showCheckoutMessage("${item.product.name} is unavailable.");
+        return;
+      }
     }
 
     final location = deliveryService.selectedLocation;
@@ -85,8 +99,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
       total: total,
       paymentMethod: selectedPaymentMethod,
       orderType: "Delivery",
-      status: "Preparing",
+      status: OrderStatus.pending,
       createdAt: DateTime.now(),
+      customerName: profileService.fullName,
+      phoneNumber: addressService.phoneNumber,
     );
 
     OrderService.instance.addOrder(order);
@@ -124,24 +140,16 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
                     const SizedBox(height: 22),
 
-                    const Text(
+                    Text(
                       "Checkout",
-                      style: TextStyle(
-                        fontFamily: AppFonts.righteous,
-                        fontSize: 32,
-                        color: AppColors.darkEspresso,
-                      ),
+                      style: AppTextStyles.sectionTitle.copyWith(fontSize: 32),
                     ),
 
                     const SizedBox(height: 6),
 
                     const Text(
                       "Review your order before confirming payment.",
-                      style: TextStyle(
-                        fontFamily: AppFonts.poppins,
-                        fontSize: 14,
-                        color: AppColors.mutedForeground,
-                      ),
+                      style: AppTextStyles.paragraph,
                     ),
 
                     const SizedBox(height: 18),
@@ -150,7 +158,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       child: ListView(
                         padding: EdgeInsets.zero,
                         children: [
-                          _sectionCard(
+                          CheckoutSectionCard(
                             title: "Order Summary",
                             child: Column(
                               children: cart.items.map((item) {
@@ -179,21 +187,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                       Expanded(
                                         child: Text(
                                           item.product.name,
-                                          style: const TextStyle(
-                                            fontFamily: AppFonts.poppins,
+                                          style: AppTextStyles.navItem.copyWith(
                                             fontSize: 14,
                                             fontWeight: FontWeight.w700,
-                                            color: AppColors.darkEspresso,
                                           ),
                                         ),
                                       ),
 
                                       Text(
                                         "x${item.quantity}",
-                                        style: const TextStyle(
-                                          fontFamily: AppFonts.poppins,
+                                        style: AppTextStyles.bodySmall.copyWith(
                                           fontSize: 13,
-                                          color: AppColors.mutedForeground,
                                         ),
                                       ),
                                     ],
@@ -205,7 +209,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
                           const SizedBox(height: 12),
 
-                          _sectionCard(
+                          CheckoutSectionCard(
                             title: "Payment Method",
                             child: Column(
                               children: paymentOptions.map((option) {
@@ -214,17 +218,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 12),
-                                  child: _PaymentOptionTile(
-                                    option: option,
+                                  child: PaymentOptionTile(
+                                    label: option.label,
+                                    subtitle: option.subtitle,
+                                    assetPath: option.assetPath,
+                                    enabled: option.enabled,
                                     selected: selected,
-                                    onTap: option.enabled
-                                        ? () {
-                                            setState(() {
-                                              selectedPaymentMethod =
-                                                  option.label;
-                                            });
-                                          }
-                                        : null,
+                                    onTap: null,
                                   ),
                                 );
                               }).toList(),
@@ -233,46 +233,62 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
                           const SizedBox(height: 12),
 
-                          _sectionCard(
+                          CheckoutSectionCard(
                             title: "Delivery Details",
                             child: Column(
                               children: [
-                                _InfoLine(
+                                CheckoutInfoLine(
+                                  label: "Customer",
+                                  value: profileService.fullName,
+                                ),
+
+                                const SizedBox(height: 8),
+
+                                CheckoutInfoLine(
+                                  label: "Phone",
+                                  value: addressService.phoneNumber.isEmpty
+                                      ? "Not provided"
+                                      : addressService.phoneNumber,
+                                ),
+
+                                const SizedBox(height: 8),
+
+                                CheckoutInfoLine(
                                   label: "Address",
                                   value: addressService.checkoutSummary,
                                 ),
 
                                 const SizedBox(height: 8),
 
-                                _InfoLine(
+                                CheckoutInfoLine(
                                   label: "Location",
                                   value: location.name,
                                 ),
 
                                 const SizedBox(height: 8),
 
-                                _InfoLine(
+                                CheckoutInfoLine(
                                   label: "Distance",
                                   value: "${location.km.toStringAsFixed(1)} km",
                                 ),
 
                                 const SizedBox(height: 8),
 
-                                _InfoLine(
+                                CheckoutInfoLine(
                                   label: "Delivery Fee",
                                   value: "₱${deliveryFee.toStringAsFixed(2)}",
                                 ),
 
                                 const SizedBox(height: 8),
 
-                                _InfoLine(
+                                CheckoutInfoLine(
                                   label: "Payment",
                                   value: selectedPaymentMethod,
                                 ),
 
                                 const SizedBox(height: 8),
 
-                                const _InfoLine(
+                                const CheckoutInfoLine(
                                   label: "Order Type",
                                   value: "Delivery",
                                 ),
@@ -303,7 +319,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border(
-          top: BorderSide(color: AppColors.softGold.withOpacity(0.45)),
+          top: BorderSide(color: AppColors.softGold.withValues(alpha: 0.45)),
         ),
       ),
       child: SafeArea(
@@ -311,21 +327,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _PriceLine(
+            CheckoutPriceLine(
               label: "Subtotal",
               value: "₱${subtotal.toStringAsFixed(2)}",
             ),
 
             const SizedBox(height: 6),
 
-            _PriceLine(
+            CheckoutPriceLine(
               label: "Delivery Fee",
               value: "₱${deliveryFee.toStringAsFixed(2)}",
             ),
 
             const SizedBox(height: 10),
 
-            _PriceLine(
+            CheckoutPriceLine(
               label: "Total",
               value: "₱${total.toStringAsFixed(2)}",
               strong: true,
@@ -346,13 +362,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   "PLACE ORDER",
-                  style: TextStyle(
-                    fontFamily: AppFonts.poppins,
+                  style: AppTextStyles.navItem.copyWith(
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 1.2,
+                    color: AppColors.creamWhite,
                   ),
                 ),
               ),
@@ -366,56 +382,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
   }
 
   Widget _topBar(BuildContext context) {
-    return Row(
-      children: [
-        _IconButtonBox(
-          icon: Icons.arrow_back_ios_new_rounded,
-          onTap: () => Navigator.pop(context),
-        ),
-
-        const Expanded(
-          child: Center(
-            child: Text(
-              "Checkout",
-              style: TextStyle(
-                fontFamily: AppFonts.poppins,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: AppColors.darkEspresso,
-              ),
-            ),
-          ),
-        ),
-
-        const SizedBox(width: 44),
-      ],
-    );
-  }
-
-  Widget _sectionCard({required String title, required Widget child}) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.creamWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.softGold.withOpacity(0.45)),
+    return CustomerTopBar(
+      leading: CustomerIconButton(
+        icon: Icons.arrow_back_ios_new_rounded,
+        onTap: () => Navigator.pop(context),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontFamily: AppFonts.poppins,
-              fontSize: 15,
-              fontWeight: FontWeight.w800,
-              color: AppColors.darkEspresso,
-            ),
-          ),
-          const SizedBox(height: 14),
-          child,
-        ],
-      ),
+      title: "Checkout",
+      trailing: const SizedBox(width: 44, height: 44),
     );
   }
 
@@ -439,7 +412,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       height: 46,
                       width: 46,
                       decoration: BoxDecoration(
-                        color: AppColors.softGold.withOpacity(0.18),
+                        color: AppColors.softGold.withValues(alpha: 0.18),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(
@@ -462,7 +435,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ),
                 const SizedBox(height: 12),
                 const Text(
-                  "Add your street, postal code, and phone number to place an order.",
+                  "Add your phone number, postal code, and street address before placing an order.",
                   style: TextStyle(
                     fontFamily: AppFonts.poppins,
                     fontSize: 13,
@@ -478,16 +451,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColors.darkEspresso,
                           side: BorderSide(
-                            color: AppColors.softGold.withOpacity(0.55),
+                            color: AppColors.softGold.withValues(alpha: 0.55),
                           ),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           "Not now",
-                          style: TextStyle(
-                            fontFamily: AppFonts.poppins,
+                          style: AppTextStyles.navItem.copyWith(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
                           ),
@@ -514,13 +486,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        child: const Text(
+                        child: Text(
                           "Complete now",
-                          style: TextStyle(
-                            fontFamily: AppFonts.poppins,
+                          style: AppTextStyles.navItem.copyWith(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
-                            letterSpacing: 0.6,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -533,6 +504,21 @@ class _CheckoutPageState extends State<CheckoutPage> {
         );
       },
     );
+  }
+
+  void _showCheckoutMessage(String message) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.darkEspresso,
+          content: Text(
+            message,
+            style: AppTextStyles.navItem.copyWith(color: Colors.white),
+          ),
+        ),
+      );
   }
 }
 
@@ -548,180 +534,4 @@ class _PaymentOption {
     required this.assetPath,
     required this.enabled,
   });
-}
-
-class _PaymentOptionTile extends StatelessWidget {
-  final _PaymentOption option;
-  final bool selected;
-  final VoidCallback? onTap;
-
-  const _PaymentOptionTile({
-    required this.option,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final muted = option.enabled
-        ? AppColors.mutedForeground
-        : AppColors.mutedForeground.withOpacity(0.6);
-
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Row(
-        children: [
-          Container(
-            height: 44,
-            width: 44,
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.softGold.withOpacity(0.35)),
-            ),
-            child: Image.asset(
-              option.assetPath,
-              fit: BoxFit.contain,
-              color: option.enabled ? null : Colors.grey,
-              colorBlendMode: option.enabled ? null : BlendMode.saturation,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  option.label,
-                  style: TextStyle(
-                    fontFamily: AppFonts.poppins,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    color: option.enabled ? AppColors.darkEspresso : muted,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  option.subtitle,
-                  style: TextStyle(
-                    fontFamily: AppFonts.poppins,
-                    fontSize: 12,
-                    color: muted,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (selected)
-            const Icon(Icons.check_circle, color: AppColors.softGold)
-          else
-            Icon(Icons.radio_button_unchecked, color: muted),
-        ],
-      ),
-    );
-  }
-}
-
-class _InfoLine extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _InfoLine({required this.label, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            label,
-            style: const TextStyle(
-              fontFamily: AppFonts.poppins,
-              fontSize: 13,
-              color: AppColors.mutedForeground,
-            ),
-          ),
-        ),
-        Flexible(
-          child: Text(
-            value,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.right,
-            style: const TextStyle(
-              fontFamily: AppFonts.poppins,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: AppColors.darkEspresso,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _PriceLine extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool strong;
-
-  const _PriceLine({
-    required this.label,
-    required this.value,
-    this.strong = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontFamily: AppFonts.poppins,
-            fontSize: strong ? 16 : 14,
-            fontWeight: strong ? FontWeight.w800 : FontWeight.w500,
-            color: AppColors.mutedForeground,
-          ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontFamily: AppFonts.poppins,
-            fontSize: strong ? 22 : 14,
-            fontWeight: strong ? FontWeight.w900 : FontWeight.w700,
-            color: AppColors.darkEspresso,
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _IconButtonBox extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback? onTap;
-
-  const _IconButtonBox({required this.icon, this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        height: 44,
-        width: 44,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.softGold.withOpacity(0.35)),
-        ),
-        child: Icon(icon, size: 20, color: AppColors.darkEspresso),
-      ),
-    );
-  }
 }

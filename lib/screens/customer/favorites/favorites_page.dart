@@ -6,6 +6,7 @@ import '../../../models/product.dart';
 import '../../../widgets/bottom_nav.dart';
 import '../cart/cart_page.dart';
 import '../home/user_mobile_home.dart';
+import '../messages/customer_messages_page.dart';
 import '../product/product_detail_page.dart';
 import '../profile/profile_page.dart';
 
@@ -44,10 +45,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
   }
 
   void _pushPage(Widget page) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => page),
-    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => page));
   }
 
   @override
@@ -97,11 +95,11 @@ class _FavoritesPageState extends State<FavoritesPage> {
                       itemCount: favorites.length,
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        mainAxisExtent: 230,
-                        crossAxisSpacing: 14,
-                        mainAxisSpacing: 14,
-                      ),
+                            crossAxisCount: 2,
+                            mainAxisExtent: 230,
+                            crossAxisSpacing: 14,
+                            mainAxisSpacing: 14,
+                          ),
                       itemBuilder: (context, index) {
                         return _FavoriteCard(product: favorites[index]);
                       },
@@ -110,6 +108,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
             CustomerBottomNav(
               activeItem: CustomerNavItem.favorites,
               onHomeTap: () => _openRoot(const UserMobileHome()),
+              onMessagesTap: () => _pushPage(const CustomerMessagesPage()),
               onCartTap: () => _pushPage(const CartPage()),
               onProfileTap: () => _pushPage(const ProfilePage()),
             ),
@@ -136,9 +135,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.softGold.withOpacity(0.35),
-              ),
+              border: Border.all(color: AppColors.softGold.withOpacity(0.35)),
             ),
             child: const Icon(
               Icons.arrow_back_ios_new_rounded,
@@ -176,9 +173,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(18),
-              border: Border.all(
-                color: AppColors.softGold.withOpacity(0.35),
-              ),
+              border: Border.all(color: AppColors.softGold.withOpacity(0.35)),
             ),
             child: const Icon(
               Icons.favorite_border_rounded,
@@ -214,9 +209,7 @@ class _FavoritesPageState extends State<FavoritesPage> {
 class _FavoriteCard extends StatelessWidget {
   final Product product;
 
-  const _FavoriteCard({
-    required this.product,
-  });
+  const _FavoriteCard({required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -236,9 +229,7 @@ class _FavoriteCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.creamWhite,
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: AppColors.softGold.withOpacity(0.35),
-          ),
+          border: Border.all(color: AppColors.softGold.withOpacity(0.35)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -258,10 +249,7 @@ class _FavoriteCard extends StatelessWidget {
             ),
             Expanded(
               child: Center(
-                child: Image.asset(
-                  product.image,
-                  fit: BoxFit.contain,
-                ),
+                child: Image.asset(product.image, fit: BoxFit.contain),
               ),
             ),
             Text(

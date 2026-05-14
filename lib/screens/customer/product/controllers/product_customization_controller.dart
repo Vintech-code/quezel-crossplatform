@@ -68,13 +68,12 @@ class ProductCustomizationController extends ChangeNotifier {
       description: product.description,
       savings: product.savings,
       isCombo: product.isCombo,
+      availability: product.availability,
+      stock: product.stock,
       ingredients: [
         ...product.ingredients,
         ...selectedAddOns.map(
-          (addOn) => IngredientItem(
-            name: addOn.name,
-            calories: addOn.price,
-          ),
+          (addOn) => IngredientItem(name: addOn.name, calories: addOn.price),
         ),
       ],
       addOns: product.addOns,

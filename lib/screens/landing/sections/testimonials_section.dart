@@ -5,12 +5,10 @@ class TestimonialsSection extends StatefulWidget {
   const TestimonialsSection({super.key});
 
   @override
-  State<TestimonialsSection> createState() =>
-      _TestimonialsSectionState();
+  State<TestimonialsSection> createState() => _TestimonialsSectionState();
 }
 
-class _TestimonialsSectionState
-    extends State<TestimonialsSection>
+class _TestimonialsSectionState extends State<TestimonialsSection>
     with SingleTickerProviderStateMixin {
   late AnimationController controller;
 
@@ -28,8 +26,7 @@ class _TestimonialsSectionState
       title: "Creative director",
     ),
     _TestimonialData(
-      quote:
-          "Warm, slow, intentional. The playlist alone is worth a visit.",
+      quote: "Warm, slow, intentional. The playlist alone is worth a visit.",
       name: "Nina S.",
       title: "Writer",
     ),
@@ -68,29 +65,26 @@ class _TestimonialsSectionState
       ),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: AppSpacing.maxWidth,
-          ),
+          constraints: const BoxConstraints(maxWidth: AppSpacing.maxWidth),
           child: LayoutBuilder(
             builder: (context, constraints) {
-              final columns = _columnsForWidth(
-                constraints.maxWidth,
-              );
+              final columns = _columnsForWidth(constraints.maxWidth);
 
               return Column(
                 children: [
                   FadeTransition(
                     opacity: controller,
                     child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0, 0.04),
-                        end: Offset.zero,
-                      ).animate(
-                        CurvedAnimation(
-                          parent: controller,
-                          curve: Curves.easeOut,
-                        ),
-                      ),
+                      position:
+                          Tween<Offset>(
+                            begin: const Offset(0, 0.04),
+                            end: Offset.zero,
+                          ).animate(
+                            CurvedAnimation(
+                              parent: controller,
+                              curve: Curves.easeOut,
+                            ),
+                          ),
                       child: _SectionHeader(
                         isDesktop: constraints.maxWidth >= 768,
                       ),
@@ -102,23 +96,20 @@ class _TestimonialsSectionState
                   Wrap(
                     spacing: isNarrow ? 18 : 24,
                     runSpacing: isNarrow ? 18 : 24,
-                    children: List.generate(
-                      testimonials.length,
-                      (index) {
-                        final width =
-                            (constraints.maxWidth -
-                                    ((columns - 1) * (isNarrow ? 18 : 24))) /
-                                columns;
+                    children: List.generate(testimonials.length, (index) {
+                      final width =
+                          (constraints.maxWidth -
+                              ((columns - 1) * (isNarrow ? 18 : 24))) /
+                          columns;
 
-                        return SizedBox(
-                          width: width,
-                          child: _AnimatedTestimonialCard(
-                            data: testimonials[index],
-                            delay: index * 120,
-                          ),
-                        );
-                      },
-                    ),
+                      return SizedBox(
+                        width: width,
+                        child: _AnimatedTestimonialCard(
+                          data: testimonials[index],
+                          delay: index * 120,
+                        ),
+                      );
+                    }),
                   ),
                 ],
               );
@@ -133,45 +124,34 @@ class _TestimonialsSectionState
 class _SectionHeader extends StatelessWidget {
   final bool isDesktop;
 
-  const _SectionHeader({
-    required this.isDesktop,
-  });
+  const _SectionHeader({required this.isDesktop});
 
   @override
   Widget build(BuildContext context) {
     if (isDesktop) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment:
-            MainAxisAlignment.spaceBetween,
-        children: const [
-          _HeaderText(),
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const _HeaderText(),
           Text(
             "4.9 average rating",
-            style: TextStyle(
-              fontFamily: AppFonts.poppins,
-              fontSize: 14,
-              color: AppColors.mutedForeground,
-            ),
+            style: AppTextStyles.paragraph.copyWith(fontSize: 14),
           ),
         ],
       );
     }
 
-    return const Column(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _HeaderText(),
-        SizedBox(height: 16),
+        const _HeaderText(),
+        const SizedBox(height: 16),
         Align(
           alignment: Alignment.centerLeft,
           child: Text(
             "4.9 average rating",
-            style: TextStyle(
-              fontFamily: AppFonts.poppins,
-              fontSize: 14,
-              color: AppColors.mutedForeground,
-            ),
+            style: AppTextStyles.paragraph.copyWith(fontSize: 14),
           ),
         ),
       ],
@@ -189,23 +169,12 @@ class _HeaderText extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Guest stories",
-          style: TextStyle(
-            fontFamily: AppFonts.poppins,
-            fontSize: 14,
-            letterSpacing: 4.2,
-            color: AppColors.coffeeBrown,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
+        const Text("Guest stories", style: AppTextStyles.sectionLabel),
         const SizedBox(height: 12),
         Text(
           "What people are saying",
-          style: TextStyle(
-            fontFamily: AppFonts.righteous,
+          style: AppTextStyles.sectionTitle.copyWith(
             fontSize: isNarrow ? 30 : 34,
-            color: AppColors.darkEspresso,
           ),
         ),
       ],
@@ -217,18 +186,14 @@ class _AnimatedTestimonialCard extends StatefulWidget {
   final _TestimonialData data;
   final int delay;
 
-  const _AnimatedTestimonialCard({
-    required this.data,
-    required this.delay,
-  });
+  const _AnimatedTestimonialCard({required this.data, required this.delay});
 
   @override
   State<_AnimatedTestimonialCard> createState() =>
       _AnimatedTestimonialCardState();
 }
 
-class _AnimatedTestimonialCardState
-    extends State<_AnimatedTestimonialCard>
+class _AnimatedTestimonialCardState extends State<_AnimatedTestimonialCard>
     with SingleTickerProviderStateMixin {
   late AnimationController controller;
   bool hovered = false;
@@ -242,12 +207,9 @@ class _AnimatedTestimonialCardState
       duration: const Duration(milliseconds: 600),
     );
 
-    Future.delayed(
-      Duration(milliseconds: widget.delay),
-      () {
-        if (mounted) controller.forward();
-      },
-    );
+    Future.delayed(Duration(milliseconds: widget.delay), () {
+      if (mounted) controller.forward();
+    });
   }
 
   @override
@@ -265,21 +227,11 @@ class _AnimatedTestimonialCardState
       onExit: (_) => setState(() => hovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
-        transform: Matrix4.translationValues(
-          0,
-          hovered ? -4 : 0,
-          0,
-        ),
+        transform: Matrix4.translationValues(0, hovered ? -4 : 0, 0),
         decoration: BoxDecoration(
           color: AppColors.creamWhite,
-          borderRadius: BorderRadius.circular(
-            AppRadius.lg,
-          ),
-          border: Border.all(
-            color: AppColors.softGold.withOpacity(
-              0.20,
-            ),
-          ),
+          borderRadius: BorderRadius.circular(AppRadius.lg),
+          border: Border.all(color: AppColors.softGold.withOpacity(0.20)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.06),
@@ -292,29 +244,24 @@ class _AnimatedTestimonialCardState
         child: FadeTransition(
           opacity: controller,
           child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 0.05),
-              end: Offset.zero,
-            ).animate(
-              CurvedAnimation(
-                parent: controller,
-                curve: Curves.easeOut,
-              ),
-            ),
+            position:
+                Tween<Offset>(
+                  begin: const Offset(0, 0.05),
+                  end: Offset.zero,
+                ).animate(
+                  CurvedAnimation(parent: controller, curve: Curves.easeOut),
+                ),
             child: Padding(
               padding: EdgeInsets.all(isNarrow ? 20 : 24),
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     "\"${widget.data.quote}\"",
-                    style: TextStyle(
-                      fontFamily: AppFonts.poppins,
+                    style: AppTextStyles.bodyLarge.copyWith(
                       fontSize: isNarrow ? 16 : 18,
                       height: 1.55,
-                      color:
-                          AppColors.darkEspresso,
+                      color: AppColors.darkEspresso,
                       fontWeight: FontWeight.w300,
                     ),
                   ),
@@ -323,27 +270,15 @@ class _AnimatedTestimonialCardState
 
                   Text(
                     widget.data.name,
-                    style: const TextStyle(
-                      fontFamily: AppFonts.poppins,
-                      fontSize: 14,
-                      fontWeight:
-                          FontWeight.w600,
-                      color:
-                          AppColors.darkEspresso,
+                    style: AppTextStyles.navItem.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.darkEspresso,
                     ),
                   ),
 
                   const SizedBox(height: 4),
 
-                  Text(
-                    widget.data.title,
-                    style: const TextStyle(
-                      fontFamily: AppFonts.poppins,
-                      fontSize: 12,
-                      color:
-                          AppColors.mutedForeground,
-                    ),
-                  ),
+                  Text(widget.data.title, style: AppTextStyles.bodySmall),
                 ],
               ),
             ),

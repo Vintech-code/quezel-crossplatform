@@ -16,8 +16,7 @@ class _HowItWorksSectionState extends State<HowItWorksSection>
     _StepData(
       step: "01",
       title: "Browse",
-      detail:
-          "Explore our digital menu from your phone or the counter kiosk.",
+      detail: "Explore our digital menu from your phone or the counter kiosk.",
     ),
     _StepData(
       step: "02",
@@ -28,8 +27,7 @@ class _HowItWorksSectionState extends State<HowItWorksSection>
     _StepData(
       step: "03",
       title: "Track",
-      detail:
-          "Get real-time updates on your order status while you wait.",
+      detail: "Get real-time updates on your order status while you wait.",
     ),
     _StepData(
       step: "04",
@@ -73,9 +71,7 @@ class _HowItWorksSectionState extends State<HowItWorksSection>
       ),
       child: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: AppSpacing.maxWidth,
-          ),
+          constraints: const BoxConstraints(maxWidth: AppSpacing.maxWidth),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final columns = _columnsForWidth(constraints.maxWidth);
@@ -85,15 +81,16 @@ class _HowItWorksSectionState extends State<HowItWorksSection>
                   FadeTransition(
                     opacity: controller,
                     child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0, 0.05),
-                        end: Offset.zero,
-                      ).animate(
-                        CurvedAnimation(
-                          parent: controller,
-                          curve: Curves.easeOut,
-                        ),
-                      ),
+                      position:
+                          Tween<Offset>(
+                            begin: const Offset(0, 0.05),
+                            end: Offset.zero,
+                          ).animate(
+                            CurvedAnimation(
+                              parent: controller,
+                              curve: Curves.easeOut,
+                            ),
+                          ),
                       child: Column(
                         children: [
                           const Text(
@@ -102,13 +99,11 @@ class _HowItWorksSectionState extends State<HowItWorksSection>
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 16),
-                          const Text(
+                          Text(
                             "How Quezel's Works",
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: AppFonts.righteous,
-                            fontSize: 36,
-                              color: AppColors.darkEspresso,
+                            style: AppTextStyles.sectionTitle.copyWith(
+                              fontSize: 36,
                             ),
                           ),
                         ],
@@ -144,9 +139,8 @@ class _HowItWorksSectionState extends State<HowItWorksSection>
                         runSpacing: 24,
                         children: List.generate(steps.length, (index) {
                           final width =
-                              (constraints.maxWidth -
-                                      ((columns - 1) * 24)) /
-                                  columns;
+                              (constraints.maxWidth - ((columns - 1) * 24)) /
+                              columns;
 
                           return SizedBox(
                             width: width,
@@ -199,12 +193,9 @@ class _AnimatedStepCardState extends State<_AnimatedStepCard>
       duration: const Duration(milliseconds: 600),
     );
 
-    Future.delayed(
-      Duration(milliseconds: widget.delay),
-      () {
-        if (mounted) controller.forward();
-      },
-    );
+    Future.delayed(Duration(milliseconds: widget.delay), () {
+      if (mounted) controller.forward();
+    });
   }
 
   @override
@@ -220,23 +211,17 @@ class _AnimatedStepCardState extends State<_AnimatedStepCard>
       onExit: (_) => setState(() => hovered = false),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        transform: Matrix4.translationValues(
-          0,
-          hovered ? -5 : 0,
-          0,
-        ),
+        transform: Matrix4.translationValues(0, hovered ? -5 : 0, 0),
         child: FadeTransition(
           opacity: controller,
           child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 0.08),
-              end: Offset.zero,
-            ).animate(
-              CurvedAnimation(
-                parent: controller,
-                curve: Curves.easeOut,
-              ),
-            ),
+            position:
+                Tween<Offset>(
+                  begin: const Offset(0, 0.08),
+                  end: Offset.zero,
+                ).animate(
+                  CurvedAnimation(parent: controller, curve: Curves.easeOut),
+                ),
             child: Container(
               padding: EdgeInsets.all(widget.compact ? 20 : 32),
               decoration: BoxDecoration(
@@ -263,19 +248,12 @@ class _AnimatedStepCardState extends State<_AnimatedStepCard>
                     decoration: BoxDecoration(
                       color: AppColors.parchment,
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColors.softGold,
-                        width: 1,
-                      ),
+                      border: Border.all(color: AppColors.softGold, width: 1),
                     ),
                     child: Center(
                       child: Text(
                         widget.data.step,
-                        style: const TextStyle(
-                          fontFamily: AppFonts.righteous,
-                          fontSize: 20,
-                          color: AppColors.darkEspresso,
-                        ),
+                        style: AppTextStyles.cardTitle.copyWith(fontSize: 20),
                       ),
                     ),
                   ),
@@ -285,10 +263,8 @@ class _AnimatedStepCardState extends State<_AnimatedStepCard>
                   Text(
                     widget.data.title,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: AppFonts.righteous,
+                    style: AppTextStyles.sectionTitle.copyWith(
                       fontSize: widget.compact ? 24 : 28,
-                      color: AppColors.darkEspresso,
                     ),
                   ),
 
@@ -297,12 +273,7 @@ class _AnimatedStepCardState extends State<_AnimatedStepCard>
                   Text(
                     widget.data.detail,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontFamily: AppFonts.poppins,
-                      fontSize: 14,
-                      height: 1.7,
-                      color: AppColors.mutedForeground,
-                    ),
+                    style: AppTextStyles.paragraph,
                   ),
                 ],
               ),

@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import '../../../core/services/order_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../models/order.dart';
+import '../../../models/order_status.dart';
 import '../cart/cart_page.dart';
 import '../home/user_mobile_home.dart';
+import 'order_tracking_page.dart';
 
 class MyOrdersPage extends StatefulWidget {
   const MyOrdersPage({super.key});
@@ -53,22 +55,19 @@ class _MyOrdersPageState extends State<MyOrdersPage>
   @override
   Widget build(BuildContext context) {
     final toReceiveOrders = orderService.orders
-        .where(
-          (order) =>
-              order.status == "Preparing" || order.status == "Out for delivery",
-        )
+        .where((order) => OrderStatus.activeStatuses.contains(order.status))
         .toList();
 
     final completedOrders = orderService.orders
-        .where((order) => order.status == "Completed")
+        .where((order) => order.status == OrderStatus.delivered)
         .toList();
 
     final refundOrders = orderService.orders
-        .where((order) => order.status == "Refund")
+        .where((order) => OrderStatus.refundStatuses.contains(order.status))
         .toList();
 
     final cancelledOrders = orderService.orders
-        .where((order) => order.status == "Cancelled")
+        .where((order) => order.status == OrderStatus.cancelled)
         .toList();
 
     return Scaffold(
@@ -166,15 +165,23 @@ class _MyOrdersPageState extends State<MyOrdersPage>
     return ListView.separated(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
       itemCount: orders.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
+      separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         return _OrderCard(
           order: orders[index],
           onCancel: () => orderService.cancelOrder(orders[index].id),
-          onRequestRefund: () => orderService.requestRefund(orders[index].id),
+          onRequestRefund: () => _openTracking(orders[index]),
           onReorder: () => _reorder(orders[index]),
+          onTrack: () => _openTracking(orders[index]),
         );
       },
+    );
+  }
+
+  void _openTracking(Order order) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => OrderTrackingPage(orderId: order.id)),
     );
   }
 
@@ -230,7 +237,7 @@ class _MyOrdersPageState extends State<MyOrdersPage>
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppColors.softGold.withOpacity(0.45)),
+        border: Border.all(color: AppColors.softGold.withValues(alpha: 0.45)),
       ),
       child: TabBar(
         controller: tabController,
@@ -265,12 +272,14 @@ class _OrderCard extends StatelessWidget {
   final VoidCallback onCancel;
   final VoidCallback onRequestRefund;
   final VoidCallback onReorder;
+  final VoidCallback onTrack;
 
   const _OrderCard({
     required this.order,
     required this.onCancel,
     required this.onRequestRefund,
     required this.onReorder,
+    required this.onTrack,
   });
 
   @override
@@ -281,118 +290,127 @@ class _OrderCard extends StatelessWidget {
         ? order.deliveryKm.toStringAsFixed(0)
         : order.deliveryKm.toStringAsFixed(1);
 
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.creamWhite,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.softGold.withOpacity(0.45)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.receipt_long_outlined,
-                size: 22,
-                color: AppColors.coffeeBrown,
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  order.id,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: AppFonts.poppins,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.darkEspresso,
+    return GestureDetector(
+      onTap: onTrack,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColors.creamWhite,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.softGold.withValues(alpha: 0.45)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(
+                  Icons.receipt_long_outlined,
+                  size: 22,
+                  color: AppColors.coffeeBrown,
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    order.id,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontFamily: AppFonts.poppins,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.darkEspresso,
+                    ),
                   ),
                 ),
-              ),
-              _StatusBadge(status: order.status),
-            ],
-          ),
-          const SizedBox(height: 14),
-          _InfoRow(label: "Date", value: date),
-          const SizedBox(height: 8),
-          _InfoRow(label: "Payment", value: order.paymentMethod),
-          const SizedBox(height: 8),
-          _InfoRow(label: "Order Type", value: order.orderType),
-          const SizedBox(height: 8),
-          _InfoRow(
-            label: "Address",
-            value: "${order.deliveryLocation} • $distance km",
-          ),
-          const SizedBox(height: 12),
-          Divider(height: 1, color: AppColors.softGold.withOpacity(0.35)),
-          const SizedBox(height: 12),
-          Column(
-            children: order.items.map((item) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 9),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        item.product.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                _StatusBadge(status: order.status),
+              ],
+            ),
+            const SizedBox(height: 14),
+            _InfoRow(label: "Date", value: date),
+            const SizedBox(height: 8),
+            _InfoRow(label: "Payment", value: order.paymentMethod),
+            const SizedBox(height: 8),
+            _InfoRow(label: "Order Type", value: order.orderType),
+            const SizedBox(height: 8),
+            _InfoRow(
+              label: "Address",
+              value: "${order.deliveryLocation} • $distance km",
+            ),
+            const SizedBox(height: 12),
+            _OrderTracking(status: order.status),
+            const SizedBox(height: 12),
+            Divider(
+              height: 1,
+              color: AppColors.softGold.withValues(alpha: 0.35),
+            ),
+            const SizedBox(height: 12),
+            Column(
+              children: order.items.map((item) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 9),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          item.product.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontFamily: AppFonts.poppins,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.darkEspresso,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text(
+                        "x${item.quantity}",
                         style: const TextStyle(
                           fontFamily: AppFonts.poppins,
                           fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.darkEspresso,
+                          color: AppColors.mutedForeground,
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      "x${item.quantity}",
-                      style: const TextStyle(
-                        fontFamily: AppFonts.poppins,
-                        fontSize: 13,
-                        color: AppColors.mutedForeground,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 3),
-          _InfoRow(
-            label: "Subtotal",
-            value: "₱${order.subtotal.toStringAsFixed(2)}",
-          ),
-          const SizedBox(height: 8),
-          _InfoRow(
-            label: "Delivery Fee",
-            value: "₱${order.deliveryFee.toStringAsFixed(2)}",
-          ),
-          const SizedBox(height: 10),
-          _InfoRow(
-            label: "Total",
-            value: "₱${order.total.toStringAsFixed(2)}",
-            strong: true,
-          ),
-          _actions(),
-        ],
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+            const SizedBox(height: 3),
+            _InfoRow(
+              label: "Subtotal",
+              value: "₱${order.subtotal.toStringAsFixed(2)}",
+            ),
+            const SizedBox(height: 8),
+            _InfoRow(
+              label: "Delivery Fee",
+              value: "₱${order.deliveryFee.toStringAsFixed(2)}",
+            ),
+            const SizedBox(height: 10),
+            _InfoRow(
+              label: "Total",
+              value: "₱${order.total.toStringAsFixed(2)}",
+              strong: true,
+            ),
+            _actions(),
+          ],
+        ),
       ),
     );
   }
 
   Widget _actions() {
-    if (order.status == "Preparing") {
+    if (order.status == OrderStatus.pending ||
+        order.status == OrderStatus.accepted) {
       return Padding(
         padding: const EdgeInsets.only(top: 16),
         child: _OrderActionButton(
@@ -404,34 +422,27 @@ class _OrderCard extends StatelessWidget {
       );
     }
 
-    if (order.status == "Out for delivery") {
+    if (order.status == OrderStatus.preparing) {
       return const Padding(
         padding: EdgeInsets.only(top: 14),
-        child: Row(
-          children: [
-            Icon(
-              Icons.delivery_dining_outlined,
-              size: 18,
-              color: AppColors.mutedForeground,
-            ),
-            SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                "Your order is on the way.",
-                style: TextStyle(
-                  fontFamily: AppFonts.poppins,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.mutedForeground,
-                ),
-              ),
-            ),
-          ],
+        child: _TrackingNote(
+          icon: Icons.restaurant_menu_rounded,
+          text: "Your order is being prepared.",
         ),
       );
     }
 
-    if (order.status == "Completed") {
+    if (order.status == OrderStatus.outForDelivery) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 14),
+        child: _TrackingNote(
+          icon: Icons.delivery_dining_outlined,
+          text: "Your order is on the way.",
+        ),
+      );
+    }
+
+    if (order.status == OrderStatus.delivered) {
       return Padding(
         padding: const EdgeInsets.only(top: 16),
         child: Row(
@@ -457,7 +468,7 @@ class _OrderCard extends StatelessWidget {
       );
     }
 
-    if (order.status == "Cancelled") {
+    if (order.status == OrderStatus.cancelled) {
       return Padding(
         padding: const EdgeInsets.only(top: 16),
         child: _OrderActionButton(
@@ -495,6 +506,94 @@ class _OrderCard extends StatelessWidget {
   }
 }
 
+class _OrderTracking extends StatelessWidget {
+  final String status;
+
+  const _OrderTracking({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    const steps = [
+      OrderStatus.pending,
+      OrderStatus.accepted,
+      OrderStatus.preparing,
+      OrderStatus.outForDelivery,
+      OrderStatus.delivered,
+    ];
+    final currentIndex = steps.indexOf(status);
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: steps.map((step) {
+        final stepIndex = steps.indexOf(step);
+        final isActive = currentIndex >= stepIndex && currentIndex >= 0;
+        final color = isActive
+            ? AppColors.coffeeBrown
+            : AppColors.mutedForeground;
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: isActive ? 0.14 : 0.08),
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: color.withValues(alpha: isActive ? 0.65 : 0.25),
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isActive ? Icons.check_circle_rounded : Icons.circle_outlined,
+                size: 13,
+                color: color,
+              ),
+              const SizedBox(width: 5),
+              Text(
+                step,
+                style: AppTextStyles.navItem.copyWith(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w800,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
+  }
+}
+
+class _TrackingNote extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _TrackingNote({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: AppColors.mutedForeground),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(
+              fontFamily: AppFonts.poppins,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.mutedForeground,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _StatusBadge extends StatelessWidget {
   final String status;
 
@@ -505,12 +604,12 @@ class _StatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: AppColors.softGold.withOpacity(0.18),
+        color: AppColors.softGold.withValues(alpha: 0.18),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: AppColors.softGold.withOpacity(0.55)),
+        border: Border.all(color: AppColors.softGold.withValues(alpha: 0.55)),
       ),
       child: Text(
-        status,
+        OrderStatus.label(status),
         style: const TextStyle(
           fontFamily: AppFonts.poppins,
           fontSize: 11,
@@ -597,7 +696,7 @@ class _OrderActionButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
               color: outlined
-                  ? AppColors.softGold.withOpacity(0.55)
+                  ? AppColors.softGold.withValues(alpha: 0.55)
                   : AppColors.coffeeBrown,
             ),
           ),
@@ -628,7 +727,7 @@ class _IconButtonBox extends StatelessWidget {
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.softGold.withOpacity(0.45)),
+          border: Border.all(color: AppColors.softGold.withValues(alpha: 0.45)),
         ),
         child: Icon(icon, size: 20, color: AppColors.darkEspresso),
       ),
@@ -661,7 +760,9 @@ class _OrdersPlaceholder extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: AppColors.softGold.withOpacity(0.45)),
+                border: Border.all(
+                  color: AppColors.softGold.withValues(alpha: 0.45),
+                ),
               ),
               child: Icon(icon, size: 38, color: AppColors.coffeeBrown),
             ),

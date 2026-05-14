@@ -241,3 +241,31 @@ Defined in `lib/main.dart`:
 - Most state is in memory through service classes.
 - Admin and Rider are planned roles, but customer completion is the current priority.
 - Avoid adding backend, maps, or real auth dependencies until the customer flow is finished and stable.
+
+Customer selects product
+↓
+Adds to cart
+↓
+Checks out
+↓
+Mock order is created
+↓
+Customer sees Pending status
+↓
+Admin opens Orders screen
+↓
+Admin accepts order
+↓
+Customer tracking changes to Accepted
+↓
+Admin marks Preparing
+↓
+Customer tracking changes to Preparing
+↓
+Admin marks Out for Delivery
+↓
+Customer tracking changes to Out for Delivery
+↓
+Admin marks Delivered
+↓
+Customer sees Delivered

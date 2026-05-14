@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/constants/app_routes.dart';
 import '../../../core/theme/app_theme.dart';
 
 class AuthChoicePage extends StatelessWidget {
@@ -21,11 +22,11 @@ class AuthChoicePage extends StatelessWidget {
   });
 
   void _goHome(BuildContext context) {
-    Navigator.pushReplacementNamed(context, "/");
+    Navigator.pushReplacementNamed(context, AppRoutes.landing);
   }
 
   void _demoContinue(BuildContext context) {
-    Navigator.pushReplacementNamed(context, "/user/onboarding");
+    Navigator.pushReplacementNamed(context, AppRoutes.onboarding);
   }
 
   @override
@@ -150,11 +151,9 @@ class AuthChoicePage extends StatelessWidget {
                               Text(
                                 title,
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontFamily: AppFonts.righteous,
+                                style: AppTextStyles.sectionTitle.copyWith(
                                   fontSize: 40,
                                   height: 1,
-                                  color: AppColors.darkEspresso,
                                 ),
                               ),
 
@@ -163,12 +162,9 @@ class AuthChoicePage extends StatelessWidget {
                               Text(
                                 subtitle,
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontFamily: AppFonts.poppins,
-                                  fontSize: 14,
+                                style: AppTextStyles.paragraph.copyWith(
                                   fontWeight: FontWeight.w500,
                                   height: 1.45,
-                                  color: AppColors.mutedForeground,
                                 ),
                               ),
 
@@ -177,13 +173,7 @@ class AuthChoicePage extends StatelessWidget {
                               Text(
                                 modeLabel,
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontFamily: AppFonts.poppins,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w800,
-                                  letterSpacing: 2.2,
-                                  color: AppColors.coffeeBrown,
-                                ),
+                                style: AppTextStyles.overline,
                               ),
 
                               SizedBox(height: isShort ? 34 : 62),
@@ -241,8 +231,7 @@ class AuthChoicePage extends StatelessWidget {
                                 children: [
                                   Text(
                                     alternateText,
-                                    style: const TextStyle(
-                                      fontFamily: AppFonts.poppins,
+                                    style: AppTextStyles.paragraph.copyWith(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w500,
                                       color: AppColors.mutedForeground,
@@ -257,8 +246,7 @@ class AuthChoicePage extends StatelessWidget {
                                     },
                                     child: Text(
                                       alternateActionText,
-                                      style: const TextStyle(
-                                        fontFamily: AppFonts.poppins,
+                                      style: AppTextStyles.navItem.copyWith(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w800,
                                         color: AppColors.coffeeBrown,
@@ -312,9 +300,7 @@ class _AuthButton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 18),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppRadius.lg),
-              border: Border.all(
-                color: AppColors.softGold.withOpacity(0.36),
-              ),
+              border: Border.all(color: AppColors.softGold.withOpacity(0.36)),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.04),
@@ -325,10 +311,7 @@ class _AuthButton extends StatelessWidget {
             ),
             child: Row(
               children: [
-                SizedBox(
-                  width: 34,
-                  child: Center(child: icon),
-                ),
+                SizedBox(width: 34, child: Center(child: icon)),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -336,9 +319,7 @@ class _AuthButton extends StatelessWidget {
                     textAlign: TextAlign.center,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontFamily: AppFonts.poppins,
-                      fontSize: 14,
+                    style: AppTextStyles.buttonLabel.copyWith(
                       fontWeight: FontWeight.w800,
                       color: AppColors.darkEspresso,
                     ),
@@ -367,15 +348,13 @@ class _DividerOr extends StatelessWidget {
             color: AppColors.softGold.withOpacity(0.48),
           ),
         ),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 18),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18),
           child: Text(
             "or",
-            style: TextStyle(
-              fontFamily: AppFonts.poppins,
+            style: AppTextStyles.paragraph.copyWith(
               fontSize: 14,
               fontWeight: FontWeight.w500,
-              color: AppColors.mutedForeground,
             ),
           ),
         ),
@@ -410,9 +389,7 @@ class _BackgroundRibbon extends StatelessWidget {
         width: width,
         decoration: BoxDecoration(
           color: AppColors.coffeeBrown.withOpacity(0.06),
-          border: Border.all(
-            color: AppColors.coffeeBrown.withOpacity(0.08),
-          ),
+          border: Border.all(color: AppColors.coffeeBrown.withOpacity(0.08)),
           borderRadius: BorderRadius.circular(AppRadius.full),
         ),
       ),

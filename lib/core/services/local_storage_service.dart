@@ -2,7 +2,9 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../models/cart_item.dart';
 import '../../models/order.dart';
+import '../../models/order_status.dart';
 import '../../models/product.dart';
+import '../../models/product_availability.dart';
 
 class LocalStorageService {
   static final LocalStorageService instance = LocalStorageService._internal();
@@ -128,6 +130,10 @@ class LocalStorageService {
       isCombo: _asBool(map['isCombo']),
       ingredients: ingredients,
       addOns: addOns,
+      availability: ProductAvailabilityX.fromValue(
+        _asString(map['availability']),
+      ),
+      stock: _asInt(map['stock'], fallback: 20),
     );
   }
 
@@ -142,6 +148,8 @@ class LocalStorageService {
       'isCombo': product.isCombo,
       'ingredients': product.ingredients.map(_ingredientToMap).toList(),
       'addOns': product.addOns.map(_addOnToMap).toList(),
+      'availability': product.availability.value,
+      'stock': product.stock,
     };
   }
 
@@ -193,8 +201,13 @@ class LocalStorageService {
       total: _asDouble(map['total']),
       paymentMethod: _asString(map['paymentMethod']),
       orderType: _asString(map['orderType']),
-      status: _asString(map['status']),
+      status: OrderStatus.normalize(_asString(map['status'])),
       createdAt: createdAt,
+      customerName: _asString(map['customerName']),
+      phoneNumber: _asString(map['phoneNumber']),
+      refundReason: _asNullableString(map['refundReason']),
+      refundNotes: _asNullableString(map['refundNotes']),
+      hasRefundProofPlaceholder: _asBool(map['hasRefundProofPlaceholder']),
     );
   }
 
@@ -211,6 +224,11 @@ class LocalStorageService {
       'orderType': order.orderType,
       'status': order.status,
       'createdAt': order.createdAt.toIso8601String(),
+      'customerName': order.customerName,
+      'phoneNumber': order.phoneNumber,
+      'refundReason': order.refundReason,
+      'refundNotes': order.refundNotes,
+      'hasRefundProofPlaceholder': order.hasRefundProofPlaceholder,
     };
   }
 

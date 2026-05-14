@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/services/cart_service.dart';
+import '../../../core/services/product_catalog_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../models/product.dart';
 import '../cart/cart_page.dart';
@@ -15,14 +16,10 @@ import 'widgets/product_price_section.dart';
 import 'widgets/quantity_selector.dart';
 import 'widgets/selected_addons_preview.dart';
 
-
 class ProductDetailPage extends StatefulWidget {
   final Product product;
 
-  const ProductDetailPage({
-    super.key,
-    required this.product,
-  });
+  const ProductDetailPage({super.key, required this.product});
 
   @override
   State<ProductDetailPage> createState() => _ProductDetailPageState();
@@ -31,6 +28,7 @@ class ProductDetailPage extends StatefulWidget {
 class _ProductDetailPageState extends State<ProductDetailPage>
     with TickerProviderStateMixin {
   final cart = CartService.instance;
+  final productCatalog = ProductCatalogService.instance;
 
   final GlobalKey cartKey = GlobalKey();
   final GlobalKey buttonKey = GlobalKey();
@@ -51,6 +49,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
 
     controller = ProductCustomizationController(widget.product);
     cart.addListener(_refresh);
+    productCatalog.addListener(_refresh);
 
     bubbleController = AnimationController(
       vsync: this,
@@ -67,20 +66,19 @@ class _ProductDetailPageState extends State<ProductDetailPage>
       curve: Curves.easeInOutCubic,
     );
 
-    cartScaleAnimation = TweenSequence<double>([
-      TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.18), weight: 50),
-      TweenSequenceItem(tween: Tween(begin: 1.18, end: 1.0), weight: 50),
-    ]).animate(
-      CurvedAnimation(
-        parent: cartBounceController,
-        curve: Curves.easeOut,
-      ),
-    );
+    cartScaleAnimation =
+        TweenSequence<double>([
+          TweenSequenceItem(tween: Tween(begin: 1.0, end: 1.18), weight: 50),
+          TweenSequenceItem(tween: Tween(begin: 1.18, end: 1.0), weight: 50),
+        ]).animate(
+          CurvedAnimation(parent: cartBounceController, curve: Curves.easeOut),
+        );
   }
 
   @override
   void dispose() {
     cart.removeListener(_refresh);
+    productCatalog.removeListener(_refresh);
     controller.dispose();
     bubbleController.dispose();
     cartBounceController.dispose();
@@ -103,12 +101,21 @@ class _ProductDetailPageState extends State<ProductDetailPage>
   }
 
   void addToCart() {
+    if (!productCatalog.canOrder(widget.product)) {
+      _showProductMessage("${widget.product.name} is currently unavailable.");
+      return;
+    }
+
     _prepareBubblePosition();
 
-    cart.addToCart(
+    final added = cart.addToCart(
       controller.cartProduct,
       quantity: controller.quantity,
     );
+    if (!added) {
+      _showProductMessage("${widget.product.name} is currently unavailable.");
+      return;
+    }
 
     setState(() => showBubble = true);
     controller.resetAfterCart();
@@ -120,6 +127,10 @@ class _ProductDetailPageState extends State<ProductDetailPage>
       cartBounceController.forward(from: 0);
     });
 
+    _showProductMessage("${widget.product.name} added to cart");
+  }
+
+  void _showProductMessage(String message) {
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -132,7 +143,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
             borderRadius: BorderRadius.circular(14),
           ),
           content: Text(
-            "${widget.product.name} added to cart",
+            message,
             style: const TextStyle(
               fontFamily: AppFonts.poppins,
               fontSize: 13,
@@ -260,14 +271,10 @@ class _ProductDetailPageState extends State<ProductDetailPage>
               const SizedBox(height: 26),
               _description(),
               const SizedBox(height: 20),
-              SelectedAddOnsPreview(
-                selectedAddOns: controller.selectedAddOns,
-              ),
+              SelectedAddOnsPreview(selectedAddOns: controller.selectedAddOns),
               if (controller.selectedAddOns.isNotEmpty)
                 const SizedBox(height: 20),
-              IngredientExpandableList(
-                ingredients: widget.product.ingredients,
-              ),
+              IngredientExpandableList(ingredients: widget.product.ingredients),
               const SizedBox(height: 24),
             ],
           ),
@@ -319,10 +326,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         const ProductInfoItem(icon: Icons.star_rounded, text: "4.9"),
-        const ProductInfoItem(
-          icon: Icons.timer_outlined,
-          text: "10-15 min",
-        ),
+        const ProductInfoItem(icon: Icons.timer_outlined, text: "10-15 min"),
         ProductInfoItem(
           icon: widget.product.isCombo
               ? Icons.fastfood_outlined
@@ -369,11 +373,9 @@ class _ProductDetailPageState extends State<ProductDetailPage>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
-          color: AppColors.softGold.withOpacity(0.16),
+          color: AppColors.softGold.withValues(alpha: 0.16),
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: AppColors.softGold.withOpacity(0.55),
-          ),
+          border: Border.all(color: AppColors.softGold.withValues(alpha: 0.55)),
         ),
         child: Text(
           widget.product.savings!,
@@ -392,12 +394,13 @@ class _ProductDetailPageState extends State<ProductDetailPage>
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
+        final available = productCatalog.canOrder(widget.product);
         return Row(
           children: [
             QuantitySelector(
               quantity: controller.quantity,
-              onDecrease: controller.decreaseQuantity,
-              onIncrease: controller.increaseQuantity,
+              onDecrease: available ? controller.decreaseQuantity : null,
+              onIncrease: available ? controller.increaseQuantity : null,
             ),
             const SizedBox(width: 20),
             Expanded(
@@ -405,7 +408,9 @@ class _ProductDetailPageState extends State<ProductDetailPage>
               child: ElevatedButton(
                 onPressed: addToCart,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.softGold,
+                  backgroundColor: available
+                      ? AppColors.softGold
+                      : AppColors.mutedForeground,
                   foregroundColor: AppColors.creamWhite,
                   padding: const EdgeInsets.symmetric(vertical: 18),
                   shape: RoundedRectangleBorder(
@@ -450,10 +455,7 @@ class _CircleIcon extends StatelessWidget {
           color: Colors.white,
           shape: BoxShape.circle,
         ),
-        child: Icon(
-          icon,
-          color: iconColor,
-        ),
+        child: Icon(icon, color: iconColor),
       ),
     );
   }

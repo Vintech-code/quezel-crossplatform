@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import 'core/constants/app_routes.dart';
 import 'core/services/cart_service.dart';
 import 'core/services/favorite_service.dart';
 import 'core/services/local_storage_service.dart';
 import 'core/services/order_service.dart';
+import 'screens/admin/dashboard/admin_dashboard.dart';
 import 'screens/customer/home/user_mobile_home.dart';
 import 'screens/landing/auth/sign_in_page.dart';
 import 'screens/landing/auth/sign_up_page.dart';
@@ -31,13 +33,14 @@ class QuezelApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Quezel",
-      initialRoute: "/",
+      initialRoute: AppRoutes.landing,
       routes: {
-        "/": (context) => const LandingPage(),
-        "/auth/sign-in": (context) => const SignInPage(),
-        "/auth/sign-up": (context) => const SignUpPage(),
-        "/user/onboarding": (context) => const OnboardingPage(),
-        "/user/dashboard": (context) => const UserMobileHome(),
+        AppRoutes.landing: (context) => const LandingPage(),
+        AppRoutes.signIn: (context) => const SignInPage(),
+        AppRoutes.signUp: (context) => const SignUpPage(),
+        AppRoutes.onboarding: (context) => const OnboardingPage(),
+        AppRoutes.userDashboard: (context) => const UserMobileHome(),
+        AppRoutes.adminDashboard: (context) => const AdminDashboard(),
       },
       onUnknownRoute: (settings) {
         return MaterialPageRoute(builder: (context) => const LandingPage());

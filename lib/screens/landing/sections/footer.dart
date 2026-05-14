@@ -8,8 +8,7 @@ class Footer extends StatefulWidget {
   State<Footer> createState() => _FooterState();
 }
 
-class _FooterState extends State<Footer>
-    with SingleTickerProviderStateMixin {
+class _FooterState extends State<Footer> with SingleTickerProviderStateMixin {
   late AnimationController controller;
 
   @override
@@ -44,9 +43,7 @@ class _FooterState extends State<Footer>
         position: Tween<Offset>(
           begin: const Offset(0, 0.04),
           end: Offset.zero,
-        ).animate(
-          CurvedAnimation(parent: controller, curve: Curves.easeOut),
-        ),
+        ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOut)),
         child: Container(
           padding: EdgeInsets.symmetric(
             horizontal: isNarrow ? 16 : 24,
@@ -63,16 +60,14 @@ class _FooterState extends State<Footer>
           ),
           child: Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: AppSpacing.maxWidth,
-              ),
+              constraints: const BoxConstraints(maxWidth: AppSpacing.maxWidth),
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final columns = _columnsForWidth(constraints.maxWidth);
                   final spacing = isNarrow ? 24.0 : 40.0;
                   final itemWidth =
                       (constraints.maxWidth - ((columns - 1) * spacing)) /
-                          columns;
+                      columns;
 
                   return Column(
                     children: [
@@ -163,25 +158,13 @@ class _FooterBrand extends StatelessWidget {
               fit: BoxFit.contain,
             ),
             const SizedBox(width: 12),
-            const Text(
-              "Quezel",
-              style: TextStyle(
-                fontFamily: AppFonts.righteous,
-                fontSize: 20,
-                color: AppColors.darkEspresso,
-              ),
-            ),
+            const Text("Quezel", style: AppTextStyles.navLogo),
           ],
         ),
         const SizedBox(height: 12),
         const Text(
           "A cozy cafe experience blending local flavors, refreshing treats, and a modern ordering system.",
-          style: TextStyle(
-            fontFamily: AppFonts.poppins,
-            fontSize: 14,
-            height: 1.7,
-            color: AppColors.mutedForeground,
-          ),
+          style: AppTextStyles.paragraph,
         ),
       ],
     );
@@ -192,10 +175,7 @@ class _FooterLinks extends StatelessWidget {
   final String title;
   final List<String> items;
 
-  const _FooterLinks({
-    required this.title,
-    required this.items,
-  });
+  const _FooterLinks({required this.title, required this.items});
 
   @override
   Widget build(BuildContext context) {
@@ -204,12 +184,7 @@ class _FooterLinks extends StatelessWidget {
       children: [
         Text(
           title,
-          style: const TextStyle(
-            fontFamily: AppFonts.poppins,
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.darkEspresso,
-          ),
+          style: AppTextStyles.navItem.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         ...items.map(
@@ -242,13 +217,9 @@ class _FooterTextItemState extends State<_FooterTextItem> {
       onExit: (_) => setState(() => hovered = false),
       child: Text(
         widget.text,
-        style: TextStyle(
-          fontFamily: AppFonts.poppins,
-          fontSize: 14,
+        style: AppTextStyles.paragraph.copyWith(
           height: 1.5,
-          color: hovered
-              ? AppColors.darkEspresso
-              : AppColors.mutedForeground,
+          color: hovered ? AppColors.darkEspresso : AppColors.mutedForeground,
         ),
       ),
     );
@@ -266,11 +237,7 @@ class _FooterBottom extends StatelessWidget {
       const _SocialIcons(),
       const Text(
         "Copyright 2026 Quezel. All rights reserved.",
-        style: TextStyle(
-          fontFamily: AppFonts.poppins,
-          fontSize: 12,
-          color: AppColors.mutedForeground,
-        ),
+        style: AppTextStyles.bodySmall,
       ),
     ];
 
@@ -280,11 +247,7 @@ class _FooterBottom extends StatelessWidget {
             children: content,
           )
         : Column(
-            children: [
-              content[0],
-              const SizedBox(height: 16),
-              content[1],
-            ],
+            children: [content[0], const SizedBox(height: 16), content[1]],
           );
   }
 }
@@ -328,9 +291,7 @@ class _SocialIconState extends State<_SocialIcon> {
         child: Icon(
           widget.icon,
           size: 18,
-          color: hovered
-              ? AppColors.darkEspresso
-              : AppColors.mutedForeground,
+          color: hovered ? AppColors.darkEspresso : AppColors.mutedForeground,
         ),
       ),
     );

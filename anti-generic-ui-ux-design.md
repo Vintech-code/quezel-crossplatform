@@ -332,6 +332,30 @@ Inline magic numbers are forbidden. Every value must point to a token.
 }
 ```
 
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  13. REQUIRED: Flutter Implementation Parity
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  This project uses Flutter. Apply the same anti-generic rules using the
+  project design tokens and shared widgets.
+
+  Required Flutter rules:
+  - Use AppColors/AppTextStyles/AppRadius/AppShadows from app_theme.dart.
+  - Do not hardcode repeated TextStyle/BoxDecoration/padding in widgets.
+  - Avoid nested card-on-card surfaces with nearly identical colors and borders.
+  - Keep borders visible (no same-tone border on same-tone background).
+  - Reuse shared widgets (buttons, chips, cards, headers) instead of cloning UI.
+  - Keep screens layout-only; move repeated UI blocks into widgets/.
+
+  Allowed:
+  - Small one-off styles when they are unique and not repeated.
+  - Local adjustments via copyWith on AppTextStyles.
+
+  Forbidden:
+  - Copy-paste UI blocks across admin/customer/landing without extraction.
+  - Inline magic numbers for typography/spacing when an existing token exists.
+
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

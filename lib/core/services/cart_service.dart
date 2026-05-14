@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../../models/cart_item.dart';
 import '../../models/product.dart';
 import 'local_storage_service.dart';
+import 'product_catalog_service.dart';
 
 class CartService extends ChangeNotifier {
   static final CartService instance = CartService._internal();
@@ -32,7 +33,11 @@ class CartService extends ChangeNotifier {
     );
   }
 
-  void addToCart(Product product, {int quantity = 1}) {
+  bool addToCart(Product product, {int quantity = 1}) {
+    if (!ProductCatalogService.instance.canOrder(product)) {
+      return false;
+    }
+
     final index = _items.indexWhere(
       (item) => item.product.name == product.name,
     );
@@ -45,6 +50,7 @@ class CartService extends ChangeNotifier {
 
     notifyListeners();
     _persist();
+    return true;
   }
 
   void increase(CartItem item) {

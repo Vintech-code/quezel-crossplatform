@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../core/services/cart_service.dart';
-import '../../../models/cart_item.dart';
+import '../widgets/customer_icon_button.dart';
+import '../widgets/customer_top_bar.dart';
+import 'widgets/cart_empty_state.dart';
+import 'widgets/cart_item_line.dart';
+import 'widgets/cart_summary_panel.dart';
 import '../checkout/checkout_page.dart';
 import '../home/user_mobile_home.dart';
 
@@ -49,37 +53,39 @@ class _CartPageState extends State<CartPage> {
                     _topBar(context),
                     const SizedBox(height: 24),
 
-                    const Text(
+                    Text(
                       "My Cart",
-                      style: TextStyle(
-                        fontFamily: AppFonts.righteous,
-                        fontSize: 32,
-                        color: AppColors.darkEspresso,
-                      ),
+                      style: AppTextStyles.sectionTitle.copyWith(fontSize: 32),
                     ),
 
                     const SizedBox(height: 6),
 
                     Text(
                       "${cart.itemCount} item(s) ready for checkout",
-                      style: const TextStyle(
-                        fontFamily: AppFonts.poppins,
-                        fontSize: 14,
-                        color: AppColors.mutedForeground,
-                      ),
+                      style: AppTextStyles.paragraph,
                     ),
 
                     const SizedBox(height: 22),
 
                     Expanded(
-                      child: cart.items.isEmpty ? _emptyCart() : _cartList(),
+                      child: cart.items.isEmpty
+                          ? const CartEmptyState()
+                          : _cartList(),
                     ),
                   ],
                 ),
               ),
             ),
 
-            if (cart.items.isNotEmpty) _bottomCheckoutPanel(),
+            if (cart.items.isNotEmpty)
+              CartSummaryPanel(
+                onCheckout: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CheckoutPage()),
+                  );
+                },
+              ),
           ],
         ),
       ),
@@ -87,76 +93,30 @@ class _CartPageState extends State<CartPage> {
   }
 
   Widget _topBar(BuildContext context) {
-    return Row(
-      children: [
-        _IconButtonBox(
-          icon: Icons.arrow_back_ios_new_rounded,
-          onTap: () {
-            if (Navigator.canPop(context)) {
-              Navigator.pop(context);
-              return;
-            }
+    return CustomerTopBar(
+      leading: CustomerIconButton(
+        icon: Icons.arrow_back_ios_new_rounded,
+        iconSize: 21,
+        bordered: false,
+        onTap: () {
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context);
+            return;
+          }
 
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const UserMobileHome()),
-              (route) => false,
-            );
-          },
-        ),
-
-        const Expanded(
-          child: Center(
-            child: Text(
-              "Cart",
-              style: TextStyle(
-                fontFamily: AppFonts.poppins,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-                color: AppColors.darkEspresso,
-              ),
-            ),
-          ),
-        ),
-
-        _IconButtonBox(
-          icon: Icons.delete_outline_rounded,
-          onTap: cart.items.isEmpty ? null : cart.clearCart,
-        ),
-      ],
-    );
-  }
-
-  Widget _emptyCart() {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(
-            Icons.shopping_cart_outlined,
-            size: 54,
-            color: AppColors.coffeeBrown,
-          ),
-          const SizedBox(height: 18),
-          const Text(
-            "Your cart is empty",
-            style: TextStyle(
-              fontFamily: AppFonts.righteous,
-              fontSize: 24,
-              color: AppColors.darkEspresso,
-            ),
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            "Add Quezel’s treats to start your order.",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: AppFonts.poppins,
-              fontSize: 14,
-              color: AppColors.mutedForeground,
-            ),
-          ),
-        ],
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const UserMobileHome()),
+            (route) => false,
+          );
+        },
+      ),
+      title: "Cart",
+      trailing: CustomerIconButton(
+        icon: Icons.delete_outline_rounded,
+        iconSize: 21,
+        bordered: false,
+        onTap: cart.items.isEmpty ? null : cart.clearCart,
       ),
     );
   }
@@ -171,279 +131,8 @@ class _CartPageState extends State<CartPage> {
         color: AppColors.darkEspresso.withOpacity(0.10),
       ),
       itemBuilder: (context, index) {
-        return _CartItemLine(item: cart.items[index]);
+        return CartItemLine(item: cart.items[index]);
       },
-    );
-  }
-
-  Widget _bottomCheckoutPanel() {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.creamWhite,
-        border: Border(
-          top: BorderSide(
-            color: AppColors.darkEspresso.withOpacity(0.12),
-          ),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
-        child: SafeArea(
-          top: false,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _PriceRow(
-                label: "Subtotal",
-                value: "₱${cart.subtotal.toStringAsFixed(2)}",
-              ),
-              const SizedBox(height: 6),
-              const _PriceRow(
-                label: "Payment",
-                value: "GCash only",
-              ),
-              const SizedBox(height: 14),
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const CheckoutPage(),
-                      ),
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.softGold,
-                    foregroundColor: AppColors.creamWhite,
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: const Text(
-                    "CHECKOUT",
-                    style: TextStyle(
-                      fontFamily: AppFonts.poppins,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 6),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _CartItemLine extends StatelessWidget {
-  final CartItem item;
-
-  const _CartItemLine({
-    required this.item,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cart = CartService.instance;
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Image.asset(
-            item.product.image,
-            height: 72,
-            width: 72,
-            fit: BoxFit.contain,
-          ),
-
-          const SizedBox(width: 14),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  item.product.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: AppFonts.poppins,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.darkEspresso,
-                  ),
-                ),
-
-                const SizedBox(height: 4),
-
-                Text(
-                  item.product.price,
-                  style: const TextStyle(
-                    fontFamily: AppFonts.poppins,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.coffeeBrown,
-                  ),
-                ),
-
-                const SizedBox(height: 10),
-
-                Row(
-                  children: [
-                    _QtyButton(
-                      icon: Icons.remove,
-                      onTap: () => cart.decrease(item),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text(
-                        item.quantity.toString().padLeft(2, "0"),
-                        style: const TextStyle(
-                          fontFamily: AppFonts.poppins,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                    _QtyButton(
-                      icon: Icons.add,
-                      filled: true,
-                      onTap: () => cart.increase(item),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(width: 8),
-
-          GestureDetector(
-            onTap: () => cart.remove(item),
-            child: const Icon(
-              Icons.close_rounded,
-              size: 22,
-              color: AppColors.mutedForeground,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QtyButton extends StatelessWidget {
-  final IconData icon;
-  final bool filled;
-  final VoidCallback onTap;
-
-  const _QtyButton({
-    required this.icon,
-    required this.onTap,
-    this.filled = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: filled ? AppColors.darkEspresso : Colors.transparent,
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: filled
-                ? AppColors.darkEspresso
-                : AppColors.darkEspresso.withOpacity(0.22),
-          ),
-        ),
-        child: SizedBox(
-          height: 30,
-          width: 30,
-          child: Icon(
-            icon,
-            size: 17,
-            color: filled ? Colors.white : AppColors.darkEspresso,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _IconButtonBox extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback? onTap;
-
-  const _IconButtonBox({
-    required this.icon,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Opacity(
-        opacity: onTap == null ? 0.45 : 1,
-        child: SizedBox(
-          height: 44,
-          width: 44,
-          child: Center(
-            child: Icon(
-              icon,
-              size: 21,
-              color: AppColors.darkEspresso,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _PriceRow extends StatelessWidget {
-  final String label;
-  final String value;
-
-  const _PriceRow({
-    required this.label,
-    required this.value,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontFamily: AppFonts.poppins,
-            fontSize: 14,
-            color: AppColors.mutedForeground,
-          ),
-        ),
-        Text(
-          value,
-          style: const TextStyle(
-            fontFamily: AppFonts.poppins,
-            fontSize: 14,
-            fontWeight: FontWeight.w800,
-            color: AppColors.darkEspresso,
-          ),
-        ),
-      ],
     );
   }
 }

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../core/theme/app_theme.dart';
 import 'widgets/navbar.dart';
 import 'sections/hero_section.dart';
 import 'sections/features_section.dart';
@@ -40,8 +42,8 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   void _handleScroll() {
-    final shouldShow = _scrollController.hasClients &&
-        _scrollController.offset > 420;
+    final shouldShow =
+        _scrollController.hasClients && _scrollController.offset > 420;
     if (shouldShow != _showScrollTop) {
       setState(() => _showScrollTop = shouldShow);
     }
@@ -72,7 +74,7 @@ class _LandingPageState extends State<LandingPage> {
     const headerHeight = 66.0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F9FD),
+      backgroundColor: AppColors.warmBeige,
       floatingActionButton: AnimatedScale(
         scale: _showScrollTop ? 1 : 0,
         duration: const Duration(milliseconds: 180),
@@ -83,7 +85,7 @@ class _LandingPageState extends State<LandingPage> {
             duration: const Duration(milliseconds: 180),
             child: FloatingActionButton.small(
               heroTag: "landing-scroll-top",
-              backgroundColor: const Color(0xFFFF1E00),
+              backgroundColor: AppColors.coffeeBrown,
               foregroundColor: Colors.white,
               elevation: 4,
               onPressed: _scrollToTop,
@@ -153,10 +155,7 @@ class _LandingHeaderDelegate extends SliverPersistentHeaderDelegate {
   final double height;
   final Widget child;
 
-  const _LandingHeaderDelegate({
-    required this.height,
-    required this.child,
-  });
+  const _LandingHeaderDelegate({required this.height, required this.child});
 
   @override
   double get minExtent => height;

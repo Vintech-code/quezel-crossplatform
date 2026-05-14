@@ -36,9 +36,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(
-          builder: (_) => const UserMobileHome(),
-        ),
+        MaterialPageRoute(builder: (_) => const UserMobileHome()),
       );
       return;
     }
@@ -54,9 +52,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(
-        builder: (_) => const UserMobileHome(),
-      ),
+      MaterialPageRoute(builder: (_) => const UserMobileHome()),
     );
   }
 
@@ -79,13 +75,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   const SizedBox(width: 12),
                   GestureDetector(
                     onTap: skip,
-                    child: const Text(
+                    child: Text(
                       "Skip",
-                      style: TextStyle(
-                        fontFamily: AppFonts.poppins,
+                      style: AppTextStyles.navItem.copyWith(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.darkEspresso,
                       ),
                     ),
                   ),
@@ -144,11 +138,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   ),
                   child: Text(
                     currentPage == 2 ? "START ORDERING" : "NEXT",
-                    style: const TextStyle(
-                      fontFamily: AppFonts.poppins,
+                    style: AppTextStyles.navItem.copyWith(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 1.2,
+                      color: AppColors.creamWhite,
                     ),
                   ),
                 ),
@@ -200,10 +194,7 @@ class _IntroSlide extends StatelessWidget {
             height: 230,
             width: 230,
             child: imagePath != null
-                ? Image.asset(
-                    imagePath!,
-                    fit: BoxFit.contain,
-                  )
+                ? Image.asset(imagePath!, fit: BoxFit.contain)
                 : Container(
                     decoration: BoxDecoration(
                       color: AppColors.creamWhite,
@@ -212,34 +203,23 @@ class _IntroSlide extends StatelessWidget {
                         color: AppColors.softGold.withOpacity(0.45),
                       ),
                     ),
-                    child: Icon(
-                      icon,
-                      size: 86,
-                      color: AppColors.coffeeBrown,
-                    ),
+                    child: Icon(icon, size: 86, color: AppColors.coffeeBrown),
                   ),
           ),
           const SizedBox(height: 42),
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontFamily: AppFonts.righteous,
+            style: AppTextStyles.sectionTitle.copyWith(
               fontSize: 34,
               height: 1.12,
-              color: AppColors.darkEspresso,
             ),
           ),
           const SizedBox(height: 14),
           Text(
             subtitle,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontFamily: AppFonts.poppins,
-              fontSize: 14,
-              height: 1.6,
-              color: AppColors.mutedForeground,
-            ),
+            style: AppTextStyles.paragraph.copyWith(height: 1.6),
           ),
         ],
       ),
@@ -265,23 +245,14 @@ class _LocationSlide extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             "Choose your location",
-            style: TextStyle(
-              fontFamily: AppFonts.righteous,
-              fontSize: 32,
-              color: AppColors.darkEspresso,
-            ),
+            style: AppTextStyles.sectionTitle.copyWith(fontSize: 32),
           ),
           const SizedBox(height: 6),
           const Text(
             "Your delivery fee will be set automatically based on your selected area.",
-            style: TextStyle(
-              fontFamily: AppFonts.poppins,
-              fontSize: 14,
-              height: 1.5,
-              color: AppColors.mutedForeground,
-            ),
+            style: AppTextStyles.paragraph,
           ),
           const SizedBox(height: 18),
 
@@ -322,9 +293,7 @@ class _LocationSlide extends StatelessWidget {
                         Expanded(
                           child: Text(
                             location.name,
-                            style: const TextStyle(
-                              fontFamily: AppFonts.poppins,
-                              fontSize: 14,
+                            style: AppTextStyles.navItem.copyWith(
                               fontWeight: FontWeight.w700,
                               color: AppColors.darkEspresso,
                             ),
@@ -332,18 +301,12 @@ class _LocationSlide extends StatelessWidget {
                         ),
                         Text(
                           "${location.km % 1 == 0 ? location.km.toStringAsFixed(0) : location.km.toStringAsFixed(1)} km",
-                          style: const TextStyle(
-                            fontFamily: AppFonts.poppins,
-                            fontSize: 12,
-                            color: AppColors.mutedForeground,
-                          ),
+                          style: AppTextStyles.bodySmall,
                         ),
                         const SizedBox(width: 12),
                         Text(
                           "₱${location.fee.toStringAsFixed(0)}",
-                          style: const TextStyle(
-                            fontFamily: AppFonts.poppins,
-                            fontSize: 14,
+                          style: AppTextStyles.navItem.copyWith(
                             fontWeight: FontWeight.w900,
                             color: AppColors.coffeeBrown,
                           ),

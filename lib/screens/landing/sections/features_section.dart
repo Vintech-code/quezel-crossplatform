@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_theme.dart';
+
 class FeaturesSection extends StatefulWidget {
   const FeaturesSection({super.key});
 
@@ -10,13 +12,6 @@ class FeaturesSection extends StatefulWidget {
 class _FeaturesSectionState extends State<FeaturesSection>
     with SingleTickerProviderStateMixin {
   late AnimationController controller;
-
-  static const parchment = Color(0xFFE8F9FD);
-  static const creamWhite = Color(0xFFE8F9FD);
-  static const darkEspresso = Color(0xFF000000);
-  static const coffeeBrown = Color(0xFFFF1E00);
-  static const softGold = Color(0xFF59CE8F);
-  static const mutedForeground = Color(0xFF4B5563);
 
   final List<_FeatureData> features = const [
     _FeatureData(
@@ -72,7 +67,7 @@ class _FeaturesSectionState extends State<FeaturesSection>
     final isNarrow = MediaQuery.of(context).size.width < 768;
 
     return Container(
-      color: parchment,
+      color: AppColors.parchment,
       padding: EdgeInsets.symmetric(
         horizontal: isNarrow ? 16 : 24,
         vertical: isNarrow ? 56 : 88,
@@ -89,37 +84,29 @@ class _FeaturesSectionState extends State<FeaturesSection>
                   FadeTransition(
                     opacity: controller,
                     child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0, 0.08),
-                        end: Offset.zero,
-                      ).animate(
-                        CurvedAnimation(
-                          parent: controller,
-                          curve: Curves.easeOut,
-                        ),
-                      ),
+                      position:
+                          Tween<Offset>(
+                            begin: const Offset(0, 0.08),
+                            end: Offset.zero,
+                          ).animate(
+                            CurvedAnimation(
+                              parent: controller,
+                              curve: Curves.easeOut,
+                            ),
+                          ),
                       child: Column(
                         children: [
                           const Text(
                             "More than just a cafe",
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: "Poppins",
-                              fontSize: 14,
-                              letterSpacing: 4.2,
-                              color: coffeeBrown,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: AppTextStyles.sectionLabel,
                           ),
                           const SizedBox(height: 16),
                           Text(
                             "Modern Convenience meets Cozy Comfort",
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontFamily: "Righteous",
+                            style: AppTextStyles.sectionTitle.copyWith(
                               fontSize: isNarrow ? 32 : 40,
-                              color: darkEspresso,
-                              height: 1.15,
                             ),
                           ),
                         ],
@@ -135,8 +122,8 @@ class _FeaturesSectionState extends State<FeaturesSection>
                     children: List.generate(features.length, (index) {
                       final itemWidth =
                           (constraints.maxWidth -
-                                  ((columns - 1) * (isNarrow ? 18 : 32))) /
-                              columns;
+                              ((columns - 1) * (isNarrow ? 18 : 32))) /
+                          columns;
 
                       return SizedBox(
                         width: itemWidth,
@@ -161,10 +148,7 @@ class _AnimatedFeatureCard extends StatefulWidget {
   final int delay;
   final _FeatureData data;
 
-  const _AnimatedFeatureCard({
-    required this.delay,
-    required this.data,
-  });
+  const _AnimatedFeatureCard({required this.delay, required this.data});
 
   @override
   State<_AnimatedFeatureCard> createState() => _AnimatedFeatureCardState();
@@ -174,11 +158,6 @@ class _AnimatedFeatureCardState extends State<_AnimatedFeatureCard>
     with SingleTickerProviderStateMixin {
   late AnimationController controller;
   bool hovered = false;
-
-  static const creamWhite = Color(0xFFE8F9FD);
-  static const darkEspresso = Color(0xFF000000);
-  static const softGold = Color(0xFF59CE8F);
-  static const mutedForeground = Color(0xFF4B5563);
 
   @override
   void initState() {
@@ -214,22 +193,20 @@ class _AnimatedFeatureCardState extends State<_AnimatedFeatureCard>
         child: FadeTransition(
           opacity: controller,
           child: SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 0.08),
-              end: Offset.zero,
-            ).animate(
-              CurvedAnimation(
-                parent: controller,
-                curve: Curves.easeOut,
-              ),
-            ),
+            position:
+                Tween<Offset>(
+                  begin: const Offset(0, 0.08),
+                  end: Offset.zero,
+                ).animate(
+                  CurvedAnimation(parent: controller, curve: Curves.easeOut),
+                ),
             child: Container(
               padding: EdgeInsets.all(isNarrow ? 20 : 28),
               decoration: BoxDecoration(
-                color: creamWhite,
+                color: AppColors.creamWhite,
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: softGold.withOpacity(0.35),
+                  color: AppColors.softGold.withOpacity(0.35),
                   width: 1,
                 ),
                 boxShadow: [
@@ -247,32 +224,28 @@ class _AnimatedFeatureCardState extends State<_AnimatedFeatureCard>
                   Container(
                     padding: EdgeInsets.all(isNarrow ? 10 : 12),
                     decoration: const BoxDecoration(
-                      color: darkEspresso,
+                      color: AppColors.darkEspresso,
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
                       widget.data.icon,
                       size: 24,
-                      color: softGold,
+                      color: AppColors.softGold,
                     ),
                   ),
                   SizedBox(height: isNarrow ? 14 : 16),
                   Text(
                     widget.data.title,
-                    style: TextStyle(
-                      fontFamily: "Righteous",
+                    style: AppTextStyles.cardTitle.copyWith(
                       fontSize: isNarrow ? 19 : 20,
-                      color: darkEspresso,
                     ),
                   ),
                   SizedBox(height: isNarrow ? 10 : 16),
                   Text(
                     widget.data.description,
-                    style: TextStyle(
-                      fontFamily: "Poppins",
+                    style: AppTextStyles.paragraph.copyWith(
                       fontSize: isNarrow ? 13 : 14,
                       height: 1.55,
-                      color: mutedForeground,
                     ),
                   ),
                 ],

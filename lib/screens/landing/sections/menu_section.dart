@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/constants/app_routes.dart';
 import '../../../core/theme/app_theme.dart';
 
 class MenuSection extends StatefulWidget {
@@ -259,23 +261,12 @@ class _HeaderText extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "A taste of local",
-          style: TextStyle(
-            fontFamily: AppFonts.poppins,
-            fontSize: 14,
-            letterSpacing: 4.2,
-            fontWeight: FontWeight.w500,
-            color: AppColors.coffeeBrown,
-          ),
-        ),
+        const Text("A taste of local", style: AppTextStyles.sectionLabel),
         const SizedBox(height: 12),
         Text(
           "Curated Menu Highlights",
-          style: TextStyle(
-            fontFamily: AppFonts.righteous,
+          style: AppTextStyles.sectionTitle.copyWith(
             fontSize: isNarrow ? 32 : 40,
-            color: AppColors.darkEspresso,
           ),
         ),
       ],
@@ -308,15 +299,7 @@ class _SeeFullMenuButtonState extends State<_SeeFullMenuButton> {
             borderRadius: BorderRadius.circular(AppRadius.full),
             border: Border.all(color: AppColors.coffeeBrown, width: 2),
           ),
-          child: const Text(
-            "See Full Menu",
-            style: TextStyle(
-              fontFamily: AppFonts.poppins,
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.darkEspresso,
-            ),
-          ),
+          child: const Text("See Full Menu", style: AppTextStyles.buttonLabel),
         ),
       ),
     );
@@ -409,11 +392,10 @@ class _AnimatedMenuCardState extends State<_AnimatedMenuCard>
                   Text(
                     widget.data.category.toUpperCase(),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontFamily: AppFonts.poppins,
+                    style: AppTextStyles.navItem.copyWith(
                       fontSize: 12,
-                      letterSpacing: 1.2,
                       fontWeight: FontWeight.w700,
+                      letterSpacing: 1.2,
                       color: AppColors.softGold,
                     ),
                   ),
@@ -423,11 +405,7 @@ class _AnimatedMenuCardState extends State<_AnimatedMenuCard>
                   Text(
                     widget.data.name,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      fontFamily: AppFonts.righteous,
-                      fontSize: 18,
-                      color: AppColors.darkEspresso,
-                    ),
+                    style: AppTextStyles.cardTitle.copyWith(fontSize: 18),
                   ),
 
                   const SizedBox(height: 6),
@@ -444,11 +422,9 @@ class _AnimatedMenuCardState extends State<_AnimatedMenuCard>
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      fontFamily: AppFonts.poppins,
+                    style: AppTextStyles.paragraph.copyWith(
                       fontSize: isNarrow ? 12 : 14,
                       height: 1.4,
-                      color: AppColors.mutedForeground,
                     ),
                   ),
 
@@ -456,11 +432,9 @@ class _AnimatedMenuCardState extends State<_AnimatedMenuCard>
 
                   Text(
                     widget.data.price,
-                    style: const TextStyle(
-                      fontFamily: AppFonts.poppins,
+                    style: AppTextStyles.buttonLabel.copyWith(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
-                      color: AppColors.darkEspresso,
                     ),
                   ),
 
@@ -468,7 +442,7 @@ class _AnimatedMenuCardState extends State<_AnimatedMenuCard>
 
                   _AddToCartButton(
                     onTap: () {
-                      Navigator.pushNamed(context, "/auth/sign-in");
+                      Navigator.pushNamed(context, AppRoutes.signIn);
                     },
                   ),
                 ],
@@ -579,10 +553,8 @@ class _AddToCartButtonState extends State<_AddToCartButton> {
         ),
         child: Text(
           "Add to Cart",
-          style: TextStyle(
-            fontFamily: AppFonts.poppins,
+          style: AppTextStyles.buttonLabel.copyWith(
             fontSize: 12,
-            fontWeight: FontWeight.w600,
             letterSpacing: 0.6,
             color: hovered ? AppColors.creamWhite : AppColors.darkEspresso,
           ),

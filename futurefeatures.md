@@ -7,6 +7,9 @@ order tracking
 estimated delivery time
 delivery status updates
 
+Admin panel
+Role-based messenger threads (customer, admin, rider)
+
 Delivery feature
 Customer address
 Delivery fee computation

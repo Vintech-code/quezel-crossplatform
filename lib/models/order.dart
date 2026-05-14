@@ -12,6 +12,11 @@ class Order {
   final String orderType;
   final String status;
   final DateTime createdAt;
+  final String customerName;
+  final String phoneNumber;
+  final String? refundReason;
+  final String? refundNotes;
+  final bool hasRefundProofPlaceholder;
 
   const Order({
     required this.id,
@@ -25,6 +30,11 @@ class Order {
     required this.orderType,
     required this.status,
     required this.createdAt,
+    this.customerName = "Quezel Customer",
+    this.phoneNumber = "",
+    this.refundReason,
+    this.refundNotes,
+    this.hasRefundProofPlaceholder = false,
   });
 
   Order copyWith({
@@ -39,6 +49,11 @@ class Order {
     String? orderType,
     String? status,
     DateTime? createdAt,
+    String? customerName,
+    String? phoneNumber,
+    String? refundReason,
+    String? refundNotes,
+    bool? hasRefundProofPlaceholder,
   }) {
     return Order(
       id: id ?? this.id,
@@ -52,6 +67,12 @@ class Order {
       orderType: orderType ?? this.orderType,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
+      customerName: customerName ?? this.customerName,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      refundReason: refundReason ?? this.refundReason,
+      refundNotes: refundNotes ?? this.refundNotes,
+      hasRefundProofPlaceholder:
+          hasRefundProofPlaceholder ?? this.hasRefundProofPlaceholder,
     );
   }
 }

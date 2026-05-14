@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_theme.dart';
+
 class AboutSection extends StatefulWidget {
   const AboutSection({super.key});
 
@@ -15,13 +17,6 @@ class _AboutSectionState extends State<AboutSection>
   Timer? timer;
 
   int activeIndex = 0;
-
-  static const creamWhite = Color(0xFFE8F9FD);
-  static const parchment = Color(0xFFE8F9FD);
-  static const darkEspresso = Color(0xFF000000);
-  static const coffeeBrown = Color(0xFFFF1E00);
-  static const softGold = Color(0xFF59CE8F);
-  static const mutedForeground = Color(0xFF4B5563);
 
   final List<_AboutImageData> aboutImages = const [
     _AboutImageData(path: "assets/images/pic1.jpg", alt: "Photo 1"),
@@ -71,7 +66,7 @@ class _AboutSectionState extends State<AboutSection>
     final isNarrow = MediaQuery.of(context).size.width < 768;
 
     return Container(
-      color: creamWhite,
+      color: AppColors.creamWhite,
       padding: EdgeInsets.symmetric(
         horizontal: isNarrow ? 16 : 24,
         vertical: isNarrow ? 72 : 128,
@@ -110,12 +105,10 @@ class _AboutSectionState extends State<AboutSection>
     return FadeTransition(
       opacity: leftController,
       child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(-0.08, 0),
-          end: Offset.zero,
-        ).animate(
-          CurvedAnimation(parent: leftController, curve: Curves.easeOut),
-        ),
+        position: Tween<Offset>(begin: const Offset(-0.08, 0), end: Offset.zero)
+            .animate(
+              CurvedAnimation(parent: leftController, curve: Curves.easeOut),
+            ),
         child: Stack(
           clipBehavior: Clip.none,
           children: [
@@ -127,10 +120,10 @@ class _AboutSectionState extends State<AboutSection>
                 width: 192,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: softGold.withOpacity(0.20),
+                  color: AppColors.softGold.withOpacity(0.20),
                   boxShadow: [
                     BoxShadow(
-                      color: softGold.withOpacity(0.25),
+                      color: AppColors.softGold.withOpacity(0.25),
                       blurRadius: 80,
                       spreadRadius: 20,
                     ),
@@ -143,24 +136,13 @@ class _AboutSectionState extends State<AboutSection>
               aspectRatio: 4 / 5,
               child: Container(
                 decoration: BoxDecoration(
-                  color: parchment,
+                  color: AppColors.parchment,
                   borderRadius: BorderRadius.circular(32),
                   border: Border.all(
-                    color: softGold.withOpacity(0.25),
+                    color: AppColors.softGold.withOpacity(0.25),
                     width: 1,
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.12),
-                      blurRadius: 32,
-                      offset: const Offset(0, 8),
-                    ),
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.10),
-                      blurRadius: 64,
-                      offset: const Offset(0, 24),
-                    ),
-                  ],
+                  boxShadow: AppShadows.diffuseLg,
                 ),
                 clipBehavior: Clip.antiAlias,
                 child: Stack(
@@ -200,7 +182,7 @@ class _AboutSectionState extends State<AboutSection>
                               begin: Alignment.bottomCenter,
                               end: Alignment.topCenter,
                               colors: [
-                                darkEspresso.withOpacity(0.28),
+                                AppColors.darkEspresso.withOpacity(0.28),
                                 Colors.transparent,
                               ],
                             ),
@@ -216,10 +198,10 @@ class _AboutSectionState extends State<AboutSection>
                       child: Text(
                         "Since 2025",
                         style: TextStyle(
-                          fontFamily: "Righteous",
+                          fontFamily: AppFonts.righteous,
                           fontSize: 40,
-                          color: creamWhite,
                           fontWeight: FontWeight.w500,
+                          color: AppColors.creamWhite,
                         ),
                       ),
                     ),
@@ -253,8 +235,13 @@ class _AboutSectionState extends State<AboutSection>
                         width: 10,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: isActive ? softGold : Colors.transparent,
-                          border: Border.all(color: softGold, width: 1),
+                          color: isActive
+                              ? AppColors.softGold
+                              : Colors.transparent,
+                          border: Border.all(
+                            color: AppColors.softGold,
+                            width: 1,
+                          ),
                         ),
                       ),
                     ),
@@ -274,63 +261,44 @@ class _AboutSectionState extends State<AboutSection>
     return FadeTransition(
       opacity: rightController,
       child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(0, 0.06),
-          end: Offset.zero,
-        ).animate(
-          CurvedAnimation(parent: rightController, curve: Curves.easeOut),
-        ),
+        position: Tween<Offset>(begin: const Offset(0, 0.06), end: Offset.zero)
+            .animate(
+              CurvedAnimation(parent: rightController, curve: Curves.easeOut),
+            ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Our Story",
-              style: TextStyle(
-                fontFamily: "Poppins",
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 4.2,
-                color: coffeeBrown,
-              ),
-            ),
+            const Text("Our Story", style: AppTextStyles.sectionLabel),
             const SizedBox(height: 16),
             Text(
               "More than a cafe.\nA community hub.",
-              style: TextStyle(
-                fontFamily: "Righteous",
+              style: AppTextStyles.sectionTitle.copyWith(
                 fontSize: isNarrow ? 34 : 48,
                 height: 1.1,
-                color: darkEspresso,
               ),
             ),
             const SizedBox(height: 28),
             Text(
               "Quezel's started with a simple idea inspired by the hot weather: refreshing treats people could enjoy and cool down with. What began with halo-halo soon expanded into favorites like Mais Con Yelo and Crema de Leche.",
-              style: TextStyle(
-                fontFamily: "Poppins",
+              style: AppTextStyles.bodyLarge.copyWith(
                 fontSize: isNarrow ? 15 : 18,
                 height: 1.7,
-                color: mutedForeground,
               ),
             ),
             const SizedBox(height: 24),
             Text(
               "As Quezel's grew, the founders added affordable snacks and combo meals, including fries, sandwiches, and quick bites.",
-              style: TextStyle(
-                fontFamily: "Poppins",
+              style: AppTextStyles.bodyLarge.copyWith(
                 fontSize: isNarrow ? 15 : 18,
                 height: 1.7,
-                color: mutedForeground,
               ),
             ),
             const SizedBox(height: 24),
             Text(
               "The name Quezel's comes from the founders' names, Jeque Jhon Roxas and Hazel Ann Cababaros, and their shared dream of serving the community with food made from the heart.",
-              style: TextStyle(
-                fontFamily: "Poppins",
+              style: AppTextStyles.bodyLarge.copyWith(
                 fontSize: isNarrow ? 15 : 18,
                 height: 1.7,
-                color: mutedForeground,
               ),
             ),
             const SizedBox(height: 48),
@@ -356,44 +324,27 @@ class _StatBlock extends StatelessWidget {
   final String value;
   final String label;
 
-  const _StatBlock({
-    required this.value,
-    required this.label,
-  });
-
-  static const darkEspresso = Color(0xFF000000);
-  static const softGold = Color(0xFF59CE8F);
-  static const mutedForeground = Color(0xFF4B5563);
+  const _StatBlock({required this.value, required this.label});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(left: 24),
       decoration: const BoxDecoration(
-        border: Border(
-          left: BorderSide(color: softGold, width: 2),
-        ),
+        border: Border(left: BorderSide(color: AppColors.softGold, width: 2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            value,
-            style: const TextStyle(
-              fontFamily: "Righteous",
-              fontSize: 30,
-              color: darkEspresso,
-            ),
-          ),
+          Text(value, style: AppTextStyles.sectionTitle.copyWith(fontSize: 30)),
           const SizedBox(height: 8),
           Text(
             label.toUpperCase(),
-            style: const TextStyle(
-              fontFamily: "Poppins",
+            style: AppTextStyles.navItem.copyWith(
               fontSize: 14,
               fontWeight: FontWeight.w500,
               letterSpacing: 1.8,
-              color: mutedForeground,
+              color: AppColors.mutedForeground,
             ),
           ),
         ],
@@ -406,8 +357,5 @@ class _AboutImageData {
   final String path;
   final String alt;
 
-  const _AboutImageData({
-    required this.path,
-    required this.alt,
-  });
+  const _AboutImageData({required this.path, required this.alt});
 }

@@ -4,10 +4,19 @@ import '../../../core/services/order_service.dart';
 import '../../../core/services/user_address_service.dart';
 import '../../../core/services/user_profile_service.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../models/order_status.dart';
+import '../widgets/customer_icon_button.dart';
+import '../widgets/customer_top_bar.dart';
+import '../../admin/dashboard/admin_dashboard.dart';
 import '../home/user_mobile_home.dart';
 import '../orders/my_orders_page.dart';
 import '../orders/transaction_history_page.dart';
 import 'delivery_address_page.dart';
+import 'widgets/profile_edit_input.dart';
+import 'widgets/profile_header.dart';
+import 'widgets/profile_info_card.dart';
+import 'widgets/profile_menu_item.dart';
+import 'widgets/profile_metric_tile.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -64,21 +73,14 @@ class _ProfilePageState extends State<ProfilePage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 "Setup Profile",
-                style: TextStyle(
-                  fontFamily: AppFonts.righteous,
-                  fontSize: 26,
-                  color: AppColors.darkEspresso,
-                ),
+                style: AppTextStyles.sectionTitle.copyWith(fontSize: 26),
               ),
               const SizedBox(height: 16),
-              _EditInput(
-                label: "Full Name",
-                controller: nameController,
-              ),
+              ProfileEditInput(label: "Full Name", controller: nameController),
               const SizedBox(height: 12),
-              _EditInput(
+              ProfileEditInput(
                 label: "Email",
                 controller: emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -103,13 +105,13 @@ class _ProfilePageState extends State<ProfilePage> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     "SAVE PROFILE",
-                    style: TextStyle(
-                      fontFamily: AppFonts.poppins,
+                    style: AppTextStyles.navItem.copyWith(
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
                       letterSpacing: 1.1,
+                      color: Colors.white,
                     ),
                   ),
                 ),
@@ -127,8 +129,9 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final totalOrders = orders.orders.length;
-    final completedOrders =
-        orders.orders.where((order) => order.status == "Completed").length;
+    final completedOrders = orders.orders
+        .where((order) => order.status == OrderStatus.delivered)
+        .length;
 
     return Scaffold(
       backgroundColor: AppColors.warmBeige,
@@ -146,21 +149,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
+                    Text(
                       "Profile",
-                      style: TextStyle(
-                        fontFamily: AppFonts.righteous,
-                        fontSize: 32,
-                        color: AppColors.darkEspresso,
-                      ),
+                      style: AppTextStyles.sectionTitle.copyWith(fontSize: 32),
                     ),
                     const SizedBox(height: 18),
-                    _profileHeader(),
+                    ProfileHeader(onEditProfile: _openEditProfile),
                     const SizedBox(height: 14),
                     Row(
                       children: [
                         Expanded(
-                          child: _MetricTile(
+                          child: ProfileMetricTile(
                             label: "Orders",
                             value: totalOrders.toString(),
                             icon: Icons.receipt_long_outlined,
@@ -168,7 +167,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: _MetricTile(
+                          child: ProfileMetricTile(
                             label: "Completed",
                             value: completedOrders.toString(),
                             icon: Icons.check_circle_outline_rounded,
@@ -186,14 +185,14 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                         );
                       },
-                      child: _InfoCard(
+                      child: ProfileInfoCard(
                         title: "Delivery Address",
                         value: addressService.profileSummary,
                         icon: Icons.delivery_dining_outlined,
                       ),
                     ),
                     const SizedBox(height: 18),
-                    _ProfileMenuItem(
+                    ProfileMenuItem(
                       icon: Icons.delivery_dining_outlined,
                       title: "My Orders",
                       subtitle: "Track active deliveries",
@@ -206,7 +205,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         );
                       },
                     ),
-                    _ProfileMenuItem(
+                    ProfileMenuItem(
                       icon: Icons.history_rounded,
                       title: "Order History",
                       subtitle: "View all previous transactions",
@@ -219,13 +218,26 @@ class _ProfilePageState extends State<ProfilePage> {
                         );
                       },
                     ),
-                    _ProfileMenuItem(
+                    ProfileMenuItem(
                       icon: Icons.help_outline_rounded,
                       title: "Help Center",
                       subtitle: "Contact support for order concerns",
                       onTap: () {},
                     ),
-                    _ProfileMenuItem(
+                    ProfileMenuItem(
+                      icon: Icons.admin_panel_settings_outlined,
+                      title: "Admin Panel",
+                      subtitle: "Switch to admin overview",
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const AdminDashboard(),
+                          ),
+                        );
+                      },
+                    ),
+                    ProfileMenuItem(
                       icon: Icons.logout_rounded,
                       title: "Logout",
                       subtitle: "Sign out from your account",
@@ -242,410 +254,23 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _profileHeader() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.creamWhite,
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: AppColors.softGold.withOpacity(0.45),
-        ),
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 66,
-            width: 66,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: AppColors.softGold.withOpacity(0.55),
-                width: 1.4,
-              ),
-            ),
-            child: Center(
-              child: Text(
-                profileService.initials,
-                style: const TextStyle(
-                  fontFamily: AppFonts.poppins,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: AppColors.coffeeBrown,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  profileService.fullName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: AppFonts.poppins,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.darkEspresso,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  profileService.email,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: AppFonts.poppins,
-                    fontSize: 13,
-                    color: AppColors.mutedForeground,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 38,
-                  child: OutlinedButton.icon(
-                    onPressed: _openEditProfile,
-                    icon: const Icon(Icons.edit_outlined, size: 17),
-                    label: const Text("Edit Profile"),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.darkEspresso,
-                      side: BorderSide(
-                        color: AppColors.softGold.withOpacity(0.55),
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      textStyle: const TextStyle(
-                        fontFamily: AppFonts.poppins,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _topBar(BuildContext context) {
-    return Row(
-      children: [
-        GestureDetector(
-          onTap: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const UserMobileHome()),
-              (route) => false,
-            );
-          },
-          child: Container(
-            height: 44,
-            width: 44,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.softGold.withOpacity(0.35),
-              ),
-            ),
-            child: const Icon(
-              Icons.arrow_back_ios_new_rounded,
-              size: 20,
-              color: AppColors.darkEspresso,
-            ),
-          ),
-        ),
-        const Expanded(
-          child: Center(
-            child: Text(
-              "Profile",
-              style: TextStyle(
-                fontFamily: AppFonts.poppins,
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: AppColors.darkEspresso,
-              ),
-            ),
-          ),
-        ),
-        GestureDetector(
-          onTap: _openEditProfile,
-          child: Container(
-            height: 44,
-            width: 44,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.softGold.withOpacity(0.35),
-              ),
-            ),
-            child: const Icon(
-              Icons.settings_outlined,
-              size: 20,
-              color: AppColors.darkEspresso,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _MetricTile extends StatelessWidget {
-  final String label;
-  final String value;
-  final IconData icon;
-
-  const _MetricTile({
-    required this.label,
-    required this.value,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: AppColors.softGold.withOpacity(0.35),
-        ),
+    return CustomerTopBar(
+      leading: CustomerIconButton(
+        icon: Icons.arrow_back_ios_new_rounded,
+        onTap: () {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (_) => const UserMobileHome()),
+            (route) => false,
+          );
+        },
       ),
-      child: Row(
-        children: [
-          Icon(icon, color: AppColors.coffeeBrown),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: const TextStyle(
-                    fontFamily: AppFonts.poppins,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.darkEspresso,
-                  ),
-                ),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontFamily: AppFonts.poppins,
-                    fontSize: 12,
-                    color: AppColors.mutedForeground,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+      title: "Profile",
+      trailing: CustomerIconButton(
+        icon: Icons.settings_outlined,
+        onTap: _openEditProfile,
       ),
-    );
-  }
-}
-
-class _InfoCard extends StatelessWidget {
-  final String title;
-  final String value;
-  final IconData icon;
-
-  const _InfoCard({
-    required this.title,
-    required this.value,
-    required this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: AppColors.creamWhite,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: AppColors.softGold.withOpacity(0.35),
-        ),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: AppColors.coffeeBrown),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontFamily: AppFonts.poppins,
-                    fontSize: 13,
-                    color: AppColors.mutedForeground,
-                  ),
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  value,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontFamily: AppFonts.poppins,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    color: AppColors.darkEspresso,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 6),
-          const Icon(
-            Icons.chevron_right_rounded,
-            size: 20,
-            color: AppColors.mutedForeground,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ProfileMenuItem extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final bool isDanger;
-  final VoidCallback onTap;
-
-  const _ProfileMenuItem({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-    this.isDanger = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isDanger ? AppColors.coffeeBrown : AppColors.darkEspresso;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 10),
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: AppColors.softGold.withOpacity(0.35),
-          ),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: color),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontFamily: AppFonts.poppins,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: color,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: const TextStyle(
-                      fontFamily: AppFonts.poppins,
-                      fontSize: 12,
-                      color: AppColors.mutedForeground,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: AppColors.mutedForeground.withOpacity(0.8),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EditInput extends StatelessWidget {
-  final String label;
-  final TextEditingController controller;
-  final TextInputType? keyboardType;
-
-  const _EditInput({
-    required this.label,
-    required this.controller,
-    this.keyboardType,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontFamily: AppFonts.poppins,
-            fontSize: 13,
-            fontWeight: FontWeight.w800,
-            color: AppColors.darkEspresso,
-          ),
-        ),
-        const SizedBox(height: 7),
-        TextField(
-          controller: controller,
-          keyboardType: keyboardType,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: AppColors.warmBeige,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 13,
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: AppColors.softGold.withOpacity(0.35),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(
-                color: AppColors.coffeeBrown,
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }

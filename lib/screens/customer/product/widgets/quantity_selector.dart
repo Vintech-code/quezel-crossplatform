@@ -4,8 +4,8 @@ import '../../../../core/theme/app_theme.dart';
 
 class QuantitySelector extends StatelessWidget {
   final int quantity;
-  final VoidCallback onDecrease;
-  final VoidCallback onIncrease;
+  final VoidCallback? onDecrease;
+  final VoidCallback? onIncrease;
 
   const QuantitySelector({
     super.key,
@@ -18,10 +18,7 @@ class QuantitySelector extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _QtyButton(
-          icon: Icons.remove,
-          onTap: onDecrease,
-        ),
+        _QtyButton(icon: Icons.remove, onTap: onDecrease),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12),
           child: Text(
@@ -32,11 +29,7 @@ class QuantitySelector extends StatelessWidget {
             ),
           ),
         ),
-        _QtyButton(
-          icon: Icons.add,
-          filled: true,
-          onTap: onIncrease,
-        ),
+        _QtyButton(icon: Icons.add, filled: true, onTap: onIncrease),
       ],
     );
   }
@@ -45,7 +38,7 @@ class QuantitySelector extends StatelessWidget {
 class _QtyButton extends StatelessWidget {
   final IconData icon;
   final bool filled;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
 
   const _QtyButton({
     required this.icon,
@@ -61,15 +54,23 @@ class _QtyButton extends StatelessWidget {
         height: 46,
         width: 46,
         decoration: BoxDecoration(
-          color: filled ? AppColors.darkEspresso : Colors.white,
+          color: onTap == null
+              ? AppColors.mutedForeground.withValues(alpha: 0.18)
+              : filled
+              ? AppColors.darkEspresso
+              : Colors.white,
           shape: BoxShape.circle,
           border: Border.all(
-            color: AppColors.darkEspresso.withOpacity(0.15),
+            color: AppColors.darkEspresso.withValues(alpha: 0.15),
           ),
         ),
         child: Icon(
           icon,
-          color: filled ? Colors.white : AppColors.darkEspresso,
+          color: onTap == null
+              ? AppColors.mutedForeground
+              : filled
+              ? Colors.white
+              : AppColors.darkEspresso,
         ),
       ),
     );

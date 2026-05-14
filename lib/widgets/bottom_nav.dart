@@ -3,17 +3,13 @@ import 'package:flutter/material.dart';
 import '../core/services/cart_service.dart';
 import '../core/theme/app_theme.dart';
 
-enum CustomerNavItem {
-  home,
-  favorites,
-  cart,
-  profile,
-}
+enum CustomerNavItem { home, favorites, messages, cart, profile }
 
 class CustomerBottomNav extends StatelessWidget {
   final CustomerNavItem activeItem;
   final VoidCallback? onHomeTap;
   final VoidCallback? onFavoritesTap;
+  final VoidCallback? onMessagesTap;
   final VoidCallback? onCartTap;
   final VoidCallback? onProfileTap;
 
@@ -22,6 +18,7 @@ class CustomerBottomNav extends StatelessWidget {
     required this.activeItem,
     this.onHomeTap,
     this.onFavoritesTap,
+    this.onMessagesTap,
     this.onCartTap,
     this.onProfileTap,
   });
@@ -33,9 +30,7 @@ class CustomerBottomNav extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.creamWhite,
         border: Border(
-          top: BorderSide(
-            color: AppColors.softGold.withOpacity(0.5),
-          ),
+          top: BorderSide(color: AppColors.softGold.withOpacity(0.5)),
         ),
         boxShadow: [
           BoxShadow(
@@ -63,6 +58,14 @@ class CustomerBottomNav extends StatelessWidget {
                   ? null
                   : onFavoritesTap,
             ),
+            _NavButton(
+              icon: Icons.chat_bubble_outline_rounded,
+              label: "Messages",
+              active: activeItem == CustomerNavItem.messages,
+              onTap: activeItem == CustomerNavItem.messages
+                  ? null
+                  : onMessagesTap,
+            ),
             AnimatedBuilder(
               animation: CartService.instance,
               builder: (context, _) {
@@ -79,7 +82,9 @@ class CustomerBottomNav extends StatelessWidget {
               icon: Icons.person_outline_rounded,
               label: "Profile",
               active: activeItem == CustomerNavItem.profile,
-              onTap: activeItem == CustomerNavItem.profile ? null : onProfileTap,
+              onTap: activeItem == CustomerNavItem.profile
+                  ? null
+                  : onProfileTap,
             ),
           ],
         ),
@@ -155,8 +160,7 @@ class _NavButton extends StatelessWidget {
                       child: Text(
                         badgeCount > 99 ? "99+" : badgeCount.toString(),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontFamily: AppFonts.poppins,
+                        style: AppTextStyles.navLabel.copyWith(
                           fontSize: 9,
                           fontWeight: FontWeight.w900,
                           color: Colors.white,
@@ -171,9 +175,7 @@ class _NavButton extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                fontFamily: AppFonts.poppins,
-                fontSize: 10,
+              style: AppTextStyles.navLabel.copyWith(
                 fontWeight: active ? FontWeight.w800 : FontWeight.w600,
                 color: active ? AppColors.coffeeBrown : inactiveColor,
               ),

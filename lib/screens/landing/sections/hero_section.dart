@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+import '../../../core/constants/app_routes.dart';
+import '../../../core/theme/app_theme.dart';
+
 class HeroSection extends StatefulWidget {
   final VoidCallback? onExploreMenu;
 
-  const HeroSection({
-    super.key,
-    this.onExploreMenu,
-  });
+  const HeroSection({super.key, this.onExploreMenu});
 
   @override
   State<HeroSection> createState() => _HeroSectionState();
@@ -40,13 +40,6 @@ class _HeroSectionState extends State<HeroSection>
     super.dispose();
   }
 
-  static const warmBeige = Color(0xFFE8F9FD);
-  static const darkEspresso = Color(0xFF000000);
-  static const coffeeBrown = Color(0xFFFF1E00);
-  static const softGold = Color(0xFF59CE8F);
-  static const creamWhite = Color(0xFFE8F9FD);
-  static const parchment = Color(0xFFE8F9FD);
-
   final List<_CategoryChipData> chips = const [
     _CategoryChipData("Dishes", Icons.restaurant, 0),
     _CategoryChipData("Dessert", Icons.icecream, 0.2),
@@ -61,7 +54,7 @@ class _HeroSectionState extends State<HeroSection>
     final isDesktop = width >= 900;
 
     return Container(
-      color: warmBeige,
+      color: AppColors.warmBeige,
       constraints: BoxConstraints(minHeight: isDesktop ? 720 : 640),
       padding: EdgeInsets.fromLTRB(
         isDesktop ? 24 : 16,
@@ -79,10 +72,10 @@ class _HeroSectionState extends State<HeroSection>
               width: 640,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: parchment.withOpacity(0.5),
+                color: AppColors.parchment.withOpacity(0.5),
                 boxShadow: [
                   BoxShadow(
-                    color: parchment.withOpacity(0.9),
+                    color: AppColors.parchment.withOpacity(0.9),
                     blurRadius: 90,
                     spreadRadius: 40,
                   ),
@@ -97,15 +90,9 @@ class _HeroSectionState extends State<HeroSection>
               child: isDesktop
                   ? Row(
                       children: [
-                        Expanded(
-                          flex: 6,
-                          child: _leftContent(context),
-                        ),
+                        Expanded(flex: 6, child: _leftContent(context)),
                         const SizedBox(width: 48),
-                        Expanded(
-                          flex: 4,
-                          child: _rightContent(isDesktop),
-                        ),
+                        Expanded(flex: 4, child: _rightContent(isDesktop)),
                       ],
                     )
                   : Column(
@@ -127,33 +114,20 @@ class _HeroSectionState extends State<HeroSection>
     return FadeTransition(
       opacity: fadeController,
       child: SlideTransition(
-        position: Tween<Offset>(
-          begin: const Offset(-0.08, 0),
-          end: Offset.zero,
-        ).animate(
-          CurvedAnimation(parent: fadeController, curve: Curves.easeOut),
-        ),
+        position: Tween<Offset>(begin: const Offset(-0.08, 0), end: Offset.zero)
+            .animate(
+              CurvedAnimation(parent: fadeController, curve: Curves.easeOut),
+            ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-            "Quezel's Cafe Hub",
-              style: TextStyle(
-                fontFamily: "Poppins",
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 4.2,
-                color: coffeeBrown,
-              ),
-            ),
+            const Text("Quezel's Cafe Hub", style: AppTextStyles.sectionLabel),
             const SizedBox(height: 16),
             Text(
               "BITE with SMILE & DRINK with Freshness",
-              style: TextStyle(
-                fontFamily: "Righteous",
+              style: AppTextStyles.sectionTitle.copyWith(
                 fontSize: MediaQuery.of(context).size.width >= 768 ? 72 : 42,
                 height: 1.05,
-                color: darkEspresso,
               ),
             ),
             const SizedBox(height: 24),
@@ -161,11 +135,9 @@ class _HeroSectionState extends State<HeroSection>
               constraints: BoxConstraints(maxWidth: 576),
               child: Text(
                 "Order your favorite artisanal coffee, breakfast, and halo-halo effortlessly. Experience our cozy lounge or grab flavor on the go with our smart ordering system.",
-                style: TextStyle(
-                  fontFamily: "Poppins",
+                style: AppTextStyles.bodyLarge.copyWith(
                   fontSize: MediaQuery.of(context).size.width >= 768 ? 18 : 15,
-                  height: 1.6,
-                  color: Color(0xFF333333),
+                  color: AppColors.darkEspresso.withOpacity(0.82),
                 ),
               ),
             ),
@@ -176,18 +148,18 @@ class _HeroSectionState extends State<HeroSection>
               children: [
                 _HeroButton(
                   text: "Order Now",
-                  backgroundColor: darkEspresso,
-                  textColor: creamWhite,
-                  borderColor: darkEspresso,
+                  backgroundColor: AppColors.darkEspresso,
+                  textColor: AppColors.creamWhite,
+                  borderColor: AppColors.darkEspresso,
                   onTap: () {
-                    Navigator.pushNamed(context, "/auth/sign-in");
+                    Navigator.pushNamed(context, AppRoutes.signIn);
                   },
                 ),
                 _HeroButton(
                   text: "Explore Menu",
                   backgroundColor: Colors.transparent,
-                  textColor: darkEspresso,
-                  borderColor: coffeeBrown,
+                  textColor: AppColors.darkEspresso,
+                  borderColor: AppColors.coffeeBrown,
                   onTap: widget.onExploreMenu ?? () {},
                 ),
               ],
@@ -221,10 +193,10 @@ class _HeroSectionState extends State<HeroSection>
                       width: 224,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: softGold.withOpacity(0.2),
+                        color: AppColors.softGold.withOpacity(0.2),
                         boxShadow: [
                           BoxShadow(
-                            color: softGold.withOpacity(0.25),
+                            color: AppColors.softGold.withOpacity(0.25),
                             blurRadius: 80,
                             spreadRadius: 20,
                           ),
@@ -236,7 +208,8 @@ class _HeroSectionState extends State<HeroSection>
                   AnimatedBuilder(
                     animation: floatController,
                     builder: (context, child) {
-                      final y = math.sin(floatController.value * 2 * math.pi) * -10;
+                      final y =
+                          math.sin(floatController.value * 2 * math.pi) * -10;
                       return Transform.translate(
                         offset: Offset(0, y),
                         child: child,
@@ -330,25 +303,11 @@ class _HeroButtonState extends State<_HeroButton> {
                 color: widget.backgroundColor,
                 borderRadius: BorderRadius.circular(999),
                 border: Border.all(color: widget.borderColor),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.08),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.12),
-                    blurRadius: 32,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
+                boxShadow: AppShadows.diffuse,
               ),
               child: Text(
                 widget.text,
-                style: TextStyle(
-                  fontFamily: "Poppins",
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                style: AppTextStyles.buttonLabel.copyWith(
                   color: widget.textColor,
                 ),
               ),
@@ -378,12 +337,6 @@ class _FloatingChip extends StatefulWidget {
 class _FloatingChipState extends State<_FloatingChip>
     with SingleTickerProviderStateMixin {
   late AnimationController controller;
-
-  static const coffeeBrown = Color(0xFFFF1E00);
-  static const darkEspresso = Color(0xFF000000);
-  static const creamWhite = Color(0xFFE8F9FD);
-  static const parchment = Color(0xFFE8F9FD);
-  static const borderColor = Color(0xFF59CE8F);
 
   @override
   void initState() {
@@ -430,20 +383,14 @@ class _StaticChip extends StatelessWidget {
 
   const _StaticChip({required this.data});
 
-  static const coffeeBrown = Color(0xFFFF1E00);
-  static const darkEspresso = Color(0xFF000000);
-  static const creamWhite = Color(0xFFE8F9FD);
-  static const parchment = Color(0xFFE8F9FD);
-  static const borderColor = Color(0xFF59CE8F);
-
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: creamWhite,
+        color: AppColors.creamWhite,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: borderColor.withOpacity(0.45)),
+        border: Border.all(color: AppColors.softGold.withOpacity(0.45)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.10),
@@ -459,23 +406,17 @@ class _StaticChip extends StatelessWidget {
             height: 24,
             width: 24,
             decoration: const BoxDecoration(
-              color: parchment,
+              color: AppColors.parchment,
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              data.icon,
-              size: 15,
-              color: coffeeBrown,
-            ),
+            child: Icon(data.icon, size: 15, color: AppColors.coffeeBrown),
           ),
           const SizedBox(width: 8),
           Text(
             data.label,
-            style: const TextStyle(
-              fontFamily: "Poppins",
+            style: AppTextStyles.buttonLabel.copyWith(
               fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: darkEspresso,
+              color: AppColors.darkEspresso,
             ),
           ),
         ],

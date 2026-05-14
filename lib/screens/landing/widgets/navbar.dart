@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_theme.dart';
+
 class Navbar extends StatelessWidget {
   final VoidCallback onTop;
   final VoidCallback onAbout;
@@ -18,14 +20,10 @@ class Navbar extends StatelessWidget {
     required this.onStories,
   });
 
-  static const warmBeige = Color(0xFFE8F9FD);
-  static const darkEspresso = Color(0xFF000000);
-  static const coffeeBrown = Color(0xFFFF1E00);
-
   void _openSectionMenu(BuildContext context) {
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: warmBeige,
+      backgroundColor: AppColors.warmBeige,
       showDragHandle: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(22)),
@@ -86,21 +84,21 @@ class Navbar extends StatelessWidget {
     final isDesktop = width >= 768;
 
     return Material(
-      color: warmBeige,
+      color: AppColors.warmBeige,
       elevation: 0,
       child: Container(
         decoration: BoxDecoration(
-          color: warmBeige,
+          color: AppColors.warmBeige,
           border: Border(
             bottom: BorderSide(
-              color: darkEspresso.withOpacity(0.12),
+              color: AppColors.darkEspresso.withOpacity(0.12),
               width: 1,
             ),
           ),
         ),
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1152),
+            constraints: const BoxConstraints(maxWidth: AppSpacing.maxWidth),
             child: Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: isDesktop ? 24 : 16,
@@ -122,11 +120,7 @@ class Navbar extends StatelessWidget {
                       "Quezel",
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: "Righteous",
-                        fontSize: 20,
-                        color: darkEspresso,
-                      ),
+                      style: AppTextStyles.navLogo,
                     ),
                   ),
                   if (isDesktop) ...[
@@ -143,7 +137,7 @@ class Navbar extends StatelessWidget {
                     tooltip: "Open section menu",
                     onPressed: () => _openSectionMenu(context),
                     style: IconButton.styleFrom(
-                      backgroundColor: coffeeBrown,
+                      backgroundColor: AppColors.coffeeBrown,
                       foregroundColor: Colors.white,
                       fixedSize: const Size(42, 42),
                       shape: RoundedRectangleBorder(
@@ -166,10 +160,7 @@ class _NavItem extends StatefulWidget {
   final String text;
   final VoidCallback onTap;
 
-  const _NavItem({
-    required this.text,
-    required this.onTap,
-  });
+  const _NavItem({required this.text, required this.onTap});
 
   @override
   State<_NavItem> createState() => _NavItemState();
@@ -177,9 +168,6 @@ class _NavItem extends StatefulWidget {
 
 class _NavItemState extends State<_NavItem> {
   bool hovered = false;
-
-  static const darkEspresso = Color(0xFF000000);
-  static const softGold = Color(0xFF59CE8F);
 
   @override
   Widget build(BuildContext context) {
@@ -190,11 +178,9 @@ class _NavItemState extends State<_NavItem> {
         onTap: widget.onTap,
         child: Text(
           widget.text,
-          style: TextStyle(
-            fontFamily: "Poppins",
-            fontSize: 14,
+          style: AppTextStyles.navItem.copyWith(
             fontWeight: FontWeight.w600,
-            color: hovered ? softGold : darkEspresso,
+            color: hovered ? AppColors.softGold : AppColors.darkEspresso,
           ),
         ),
       ),
@@ -221,18 +207,18 @@ class _SheetNavItem extends StatelessWidget {
         height: 38,
         width: 38,
         decoration: BoxDecoration(
-          color: Navbar.coffeeBrown.withOpacity(0.10),
+          color: AppColors.coffeeBrown.withOpacity(0.10),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, color: Navbar.coffeeBrown, size: 20),
+        child: Icon(icon, color: AppColors.coffeeBrown, size: 20),
       ),
       title: Text(
         text,
         style: const TextStyle(
-          fontFamily: "Poppins",
+          fontFamily: AppFonts.poppins,
           fontSize: 15,
           fontWeight: FontWeight.w700,
-          color: Navbar.darkEspresso,
+          color: AppColors.darkEspresso,
         ),
       ),
       onTap: onTap,
