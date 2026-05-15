@@ -3,6 +3,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../core/services/cart_service.dart';
 import '../../../core/services/order_service.dart';
 import '../../../core/services/delivery_location_service.dart';
+import '../../../widgets/adaptive_image.dart';
 import '../../../core/services/product_catalog_service.dart';
 import '../../../core/services/user_address_service.dart';
 import '../../../core/services/user_profile_service.dart';
@@ -176,8 +177,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                             12,
                                           ),
                                         ),
-                                        child: Image.asset(
-                                          item.product.image,
+                                        child: AdaptiveImage(
+                                          path: item.product.image,
                                           fit: BoxFit.contain,
                                         ),
                                       ),

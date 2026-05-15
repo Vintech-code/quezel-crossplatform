@@ -6,10 +6,7 @@ import '../../../../models/product.dart';
 class IngredientExpandableList extends StatefulWidget {
   final List<IngredientItem> ingredients;
 
-  const IngredientExpandableList({
-    super.key,
-    required this.ingredients,
-  });
+  const IngredientExpandableList({super.key, required this.ingredients});
 
   @override
   State<IngredientExpandableList> createState() =>
@@ -29,7 +26,7 @@ class _IngredientExpandableListState extends State<IngredientExpandableList> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          "Ingredients & Calories",
+          "Ingredients",
           style: TextStyle(
             fontFamily: AppFonts.poppins,
             fontSize: 16,
@@ -38,9 +35,7 @@ class _IngredientExpandableListState extends State<IngredientExpandableList> {
           ),
         ),
         const SizedBox(height: 12),
-        Column(
-          children: visibleIngredients.map(_ingredientRow).toList(),
-        ),
+        Column(children: visibleIngredients.map(_ingredientRow).toList()),
         if (widget.ingredients.length > 3)
           GestureDetector(
             onTap: () => setState(() => showAll = !showAll),
@@ -78,28 +73,13 @@ class _IngredientExpandableListState extends State<IngredientExpandableList> {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: "${ingredient.name} ",
-                    style: const TextStyle(
-                      fontFamily: AppFonts.poppins,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.darkEspresso,
-                    ),
-                  ),
-                  TextSpan(
-                    text: "• ${ingredient.calories}",
-                    style: const TextStyle(
-                      fontFamily: AppFonts.poppins,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.mutedForeground,
-                    ),
-                  ),
-                ],
+            child: Text(
+              ingredient.name,
+              style: const TextStyle(
+                fontFamily: AppFonts.poppins,
+                fontSize: 14,
+                fontWeight: FontWeight.w700,
+                color: AppColors.darkEspresso,
               ),
             ),
           ),

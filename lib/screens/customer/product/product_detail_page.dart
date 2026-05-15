@@ -8,7 +8,6 @@ import '../cart/cart_page.dart';
 import 'controllers/product_customization_controller.dart';
 import 'widgets/animated_cart_badge.dart';
 import 'widgets/flying_cart_bubble.dart';
-import 'widgets/ingredient_expandable_list.dart';
 import 'widgets/product_addons_sheet.dart';
 import 'widgets/product_image_card.dart';
 import 'widgets/product_info_item.dart';
@@ -264,8 +263,6 @@ class _ProductDetailPageState extends State<ProductDetailPage>
                 selectedAddOnsCount: controller.selectedAddOns.length,
                 onAddOnsTap: _showAddOnsSheet,
               ),
-              const SizedBox(height: 4),
-              _caloriesText(),
               const SizedBox(height: 22),
               _infoRow(),
               const SizedBox(height: 26),
@@ -274,7 +271,6 @@ class _ProductDetailPageState extends State<ProductDetailPage>
               SelectedAddOnsPreview(selectedAddOns: controller.selectedAddOns),
               if (controller.selectedAddOns.isNotEmpty)
                 const SizedBox(height: 20),
-              IngredientExpandableList(ingredients: widget.product.ingredients),
               const SizedBox(height: 24),
             ],
           ),
@@ -303,21 +299,6 @@ class _ProductDetailPageState extends State<ProductDetailPage>
           iconColor: AppColors.coffeeBrown,
         ),
       ],
-    );
-  }
-
-  Widget _caloriesText() {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(
-        widget.product.kcal,
-        style: const TextStyle(
-          fontFamily: AppFonts.poppins,
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: AppColors.mutedForeground,
-        ),
-      ),
     );
   }
 

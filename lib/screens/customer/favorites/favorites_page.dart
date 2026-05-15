@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/services/favorite_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../models/product.dart';
+import '../../../widgets/adaptive_image.dart';
 import '../../../widgets/bottom_nav.dart';
 import '../cart/cart_page.dart';
 import '../home/user_mobile_home.dart';
@@ -249,7 +250,7 @@ class _FavoriteCard extends StatelessWidget {
             ),
             Expanded(
               child: Center(
-                child: Image.asset(product.image, fit: BoxFit.contain),
+                child: AdaptiveImage(path: product.image, fit: BoxFit.contain),
               ),
             ),
             Text(
@@ -266,20 +267,6 @@ class _FavoriteCard extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                const Icon(
-                  Icons.local_fire_department,
-                  size: 14,
-                  color: AppColors.coffeeBrown,
-                ),
-                Text(
-                  product.kcal,
-                  style: const TextStyle(
-                    fontFamily: AppFonts.poppins,
-                    fontSize: 11,
-                    color: AppColors.mutedForeground,
-                  ),
-                ),
-                const Spacer(),
                 Text(
                   product.price,
                   style: const TextStyle(

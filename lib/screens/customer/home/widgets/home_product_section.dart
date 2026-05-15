@@ -4,6 +4,7 @@ import '../../../../core/services/favorite_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../models/product.dart';
 import '../../../../models/product_availability.dart';
+import '../../../../widgets/adaptive_image.dart';
 
 class HomeProductSection extends StatelessWidget {
   final String title;
@@ -138,7 +139,10 @@ class _HomeProductCard extends StatelessWidget {
               ),
               Expanded(
                 child: Center(
-                  child: Image.asset(product.image, fit: BoxFit.contain),
+                  child: AdaptiveImage(
+                    path: product.image,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
               Text(
@@ -153,16 +157,6 @@ class _HomeProductCard extends StatelessWidget {
               const SizedBox(height: 8),
               Row(
                 children: [
-                  const Icon(
-                    Icons.local_fire_department,
-                    size: 14,
-                    color: AppColors.coffeeBrown,
-                  ),
-                  Text(
-                    product.kcal,
-                    style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
-                  ),
-                  const Spacer(),
                   Text(
                     product.price,
                     style: AppTextStyles.navItem.copyWith(
@@ -173,13 +167,6 @@ class _HomeProductCard extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 4),
-              Text(
-                "Stock: ${product.stock}",
-                style: AppTextStyles.bodySmall.copyWith(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
             ],
           ),
         ),

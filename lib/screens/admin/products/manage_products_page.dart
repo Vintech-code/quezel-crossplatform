@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-
 import '../../../core/services/product_catalog_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../models/product.dart';
 import '../../../models/product_availability.dart';
+import '../../../widgets/adaptive_image.dart';
 import '../widgets/admin_section_header.dart';
 import '../widgets/admin_shell.dart';
 import '../widgets/admin_stat_card.dart';
-import '../widgets/admin_status_chip.dart';
 import '../widgets/admin_surface_card.dart';
+import 'product_editor_page.dart';
 
 class ManageProductsPage extends StatefulWidget {
   const ManageProductsPage({super.key});
@@ -36,13 +36,27 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
     if (mounted) setState(() {});
   }
 
+  void _openAddProductPage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const ProductEditorPage()),
+    );
+  }
+
+  void _openEditProductPage(Product product) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => ProductEditorPage(product: product)),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final products = catalog.products;
 
     return AdminShell(
       title: "Product Management",
-      subtitle: "Toggle availability and mock stock without a backend.",
+      subtitle: "Update availability for menu items without a backend.",
       activeSection: AdminSection.products,
       body: [
         const AdminSectionHeader(
@@ -59,9 +73,9 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
               accent: AppColors.softGold,
             ),
             _MetricCardData(
-              label: "Low / Empty",
-              value: catalog.lowStockCount.toString(),
-              icon: Icons.warning_amber_rounded,
+              label: "Unavailable",
+              value: catalog.unavailableCount.toString(),
+              icon: Icons.block_rounded,
               accent: AppColors.coffeeBrown,
             ),
             _MetricCardData(
@@ -73,12 +87,55 @@ class _ManageProductsPageState extends State<ManageProductsPage> {
           ],
         ),
         const SizedBox(height: 20),
-        AdminSectionHeader(
-          title: "Menu Items",
-          trailing: "${products.length} products",
+        Row(
+          children: [
+            Text(
+              "Menu Items",
+              style: AppTextStyles.navItem.copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: AppColors.darkEspresso,
+              ),
+            ),
+            const Spacer(),
+            Text(
+              "${products.length} products",
+              style: AppTextStyles.bodySmall.copyWith(
+                fontSize: 11,
+                color: AppColors.mutedForeground,
+              ),
+            ),
+            const SizedBox(width: 10),
+            ElevatedButton.icon(
+              onPressed: _openAddProductPage,
+              icon: const Icon(Icons.add_rounded, size: 16),
+              label: const Text("Add product"),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.coffeeBrown,
+                foregroundColor: Colors.white,
+                elevation: 0,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                textStyle: const TextStyle(
+                  fontFamily: AppFonts.poppins,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 12),
-        _ProductGrid(products: products, catalog: catalog),
+        const SizedBox(height: 10),
+        _ProductGrid(
+          products: products,
+          catalog: catalog,
+          onEdit: _openEditProductPage,
+        ),
       ],
     );
   }
@@ -140,8 +197,13 @@ class _MetricRow extends StatelessWidget {
 class _ProductGrid extends StatelessWidget {
   final List<Product> products;
   final ProductCatalogService catalog;
+  final ValueChanged<Product> onEdit;
 
-  const _ProductGrid({required this.products, required this.catalog});
+  const _ProductGrid({
+    required this.products,
+    required this.catalog,
+    required this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -160,12 +222,19 @@ class _ProductGrid extends StatelessWidget {
           itemCount: products.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            mainAxisExtent: 235,
-            crossAxisSpacing: 14,
-            mainAxisSpacing: 14,
+            mainAxisExtent: 200,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
           ),
           itemBuilder: (context, index) {
-            return _ProductCard(product: products[index], catalog: catalog);
+            final product = products[index];
+            final category = catalog.categoryForProduct(product.name) ?? "Menu";
+            return _ProductCard(
+              product: product,
+              category: category,
+              catalog: catalog,
+              onEdit: () => onEdit(product),
+            );
           },
         );
       },
@@ -175,124 +244,163 @@ class _ProductGrid extends StatelessWidget {
 
 class _ProductCard extends StatelessWidget {
   final Product product;
+  final String category;
   final ProductCatalogService catalog;
+  final VoidCallback onEdit;
 
-  const _ProductCard({required this.product, required this.catalog});
+  const _ProductCard({
+    required this.product,
+    required this.category,
+    required this.catalog,
+    required this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
     return AdminSurfaceCard(
-      padding: const EdgeInsets.all(14),
-      radius: 16,
-      child: Column(
+      padding: const EdgeInsets.all(12),
+      radius: AppRadius.md,
+      child: Row(
         children: [
-          Row(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(14),
-                child: Container(
-                  height: 64,
-                  width: 64,
-                  color: AppColors.warmBeige,
-                  child: Image.asset(product.image, fit: BoxFit.cover),
-                ),
+          Container(
+            height: 96,
+            width: 96,
+            decoration: BoxDecoration(
+              color: AppColors.warmBeige,
+              borderRadius: BorderRadius.circular(AppRadius.md),
+              border: Border.all(
+                color: AppColors.softGold.withValues(alpha: 0.35),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            child: Center(
+              child: AdaptiveImage(
+                path: product.image,
+                fit: BoxFit.contain,
+                height: 72,
+                width: 72,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  product.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.navItem.copyWith(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  product.description?.trim().isNotEmpty == true
+                      ? product.description!
+                      : "No description added",
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
-                      product.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                      product.price,
                       style: AppTextStyles.navItem.copyWith(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w900,
+                        color: AppColors.coffeeBrown,
                       ),
                     ),
-                    const SizedBox(height: 5),
-                    Text(product.price, style: AppTextStyles.bodySmall),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.softGold.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(AppRadius.md),
+                        border: Border.all(
+                          color: AppColors.softGold.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      child: Text(
+                        category,
+                        style: AppTextStyles.bodySmall.copyWith(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
-              ),
-              AdminStatusChip(
-                label: product.availability.label,
-                color: product.availability.color,
-              ),
-            ],
+              ],
+            ),
           ),
-          const Spacer(),
-          Row(
+          const SizedBox(width: 10),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _StockButton(
-                icon: Icons.remove_rounded,
-                onTap: () => catalog.setStock(product, product.stock - 1),
-              ),
-              Expanded(
-                child: Center(
-                  child: Text(
-                    "Stock ${product.stock}",
-                    style: AppTextStyles.navItem.copyWith(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w800,
+              InkWell(
+                onTap: onEdit,
+                borderRadius: BorderRadius.circular(AppRadius.md),
+                child: Container(
+                  height: 34,
+                  width: 34,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(AppRadius.md),
+                    border: Border.all(
+                      color: AppColors.softGold.withValues(alpha: 0.5),
                     ),
+                  ),
+                  child: const Icon(
+                    Icons.edit_outlined,
+                    size: 16,
+                    color: AppColors.coffeeBrown,
                   ),
                 ),
               ),
-              _StockButton(
-                icon: Icons.add_rounded,
-                onTap: () => catalog.setStock(product, product.stock + 1),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: 160,
+                child: DropdownButtonFormField<ProductAvailability>(
+                  initialValue: product.availability,
+                  decoration: InputDecoration(
+                    hintText: "Status",
+                    floatingLabelBehavior: FloatingLabelBehavior.never,
+                    isDense: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                  ),
+                  isExpanded: true,
+                  items: ProductAvailability.values.map((status) {
+                    return DropdownMenuItem(
+                      value: status,
+                      child: Text(status.label),
+                    );
+                  }).toList(),
+                  onChanged: (status) {
+                    if (status == null) return;
+                    catalog.setAvailability(product, status);
+                  },
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<ProductAvailability>(
-            initialValue: product.availability,
-            decoration: InputDecoration(
-              labelText: "Status",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 10,
-              ),
-            ),
-            items: ProductAvailability.values.map((status) {
-              return DropdownMenuItem(value: status, child: Text(status.label));
-            }).toList(),
-            onChanged: (status) {
-              if (status == null) return;
-              catalog.setAvailability(product, status);
-            },
-          ),
         ],
-      ),
-    );
-  }
-}
-
-class _StockButton extends StatelessWidget {
-  final IconData icon;
-  final VoidCallback onTap;
-
-  const _StockButton({required this.icon, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        height: 34,
-        width: 34,
-        decoration: BoxDecoration(
-          color: AppColors.softGold.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: AppColors.softGold.withValues(alpha: 0.55)),
-        ),
-        child: Icon(icon, size: 18, color: AppColors.darkEspresso),
       ),
     );
   }

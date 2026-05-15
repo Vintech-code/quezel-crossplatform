@@ -133,19 +133,20 @@ class Navbar extends StatelessWidget {
                     _NavItem(text: "Stories", onTap: onStories),
                     const SizedBox(width: 20),
                   ],
-                  IconButton(
-                    tooltip: "Open section menu",
-                    onPressed: () => _openSectionMenu(context),
-                    style: IconButton.styleFrom(
-                      backgroundColor: AppColors.coffeeBrown,
-                      foregroundColor: Colors.white,
-                      fixedSize: const Size(42, 42),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                  if (!isDesktop)
+                    IconButton(
+                      tooltip: "Open section menu",
+                      onPressed: () => _openSectionMenu(context),
+                      style: IconButton.styleFrom(
+                        backgroundColor: AppColors.coffeeBrown,
+                        foregroundColor: Colors.white,
+                        fixedSize: const Size(42, 42),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                       ),
+                      icon: const Icon(Icons.menu_rounded),
                     ),
-                    icon: const Icon(Icons.menu_rounded),
-                  ),
                 ],
               ),
             ),

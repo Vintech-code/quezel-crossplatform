@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/services/cart_service.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../models/cart_item.dart';
+import '../../../../widgets/adaptive_image.dart';
 import 'cart_qty_button.dart';
 
 class CartItemLine extends StatelessWidget {
@@ -19,8 +20,8 @@ class CartItemLine extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Image.asset(
-            item.product.image,
+          AdaptiveImage(
+            path: item.product.image,
             height: 72,
             width: 72,
             fit: BoxFit.contain,

@@ -37,6 +37,19 @@ class ProductCatalogService extends ChangeNotifier {
     return _sections.values.expand((items) => items).toList();
   }
 
+  List<String> get categories {
+    return _sections.keys.toList();
+  }
+
+  String? categoryForProduct(String productName) {
+    for (final entry in _sections.entries) {
+      if (entry.value.any((product) => product.name == productName)) {
+        return entry.key;
+      }
+    }
+    return null;
+  }
+
   int get availableCount {
     return products
         .where(
@@ -48,6 +61,17 @@ class ProductCatalogService extends ChangeNotifier {
   int get hiddenCount {
     return products
         .where((product) => product.availability == ProductAvailability.hidden)
+        .length;
+  }
+
+  int get unavailableCount {
+    return products
+        .where(
+          (product) =>
+              product.availability == ProductAvailability.outOfStock ||
+              product.availability ==
+                  ProductAvailability.temporarilyUnavailable,
+        )
         .length;
   }
 
@@ -78,6 +102,39 @@ class ProductCatalogService extends ChangeNotifier {
       product.name,
       (item) => item.copyWith(availability: availability),
     );
+  }
+
+  void addProduct({required String category, required Product product}) {
+    final key = category.trim();
+    if (key.isEmpty) return;
+    _sections.putIfAbsent(key, () => []);
+    _sections[key]!.insert(0, product);
+    notifyListeners();
+  }
+
+  void updateProduct({required String originalName, required Product product}) {
+    _updateProduct(originalName, (_) => product);
+  }
+
+  void updateProductInCategory({
+    required String originalName,
+    required String originalCategory,
+    required String newCategory,
+    required Product product,
+  }) {
+    if (originalCategory == newCategory) {
+      updateProduct(originalName: originalName, product: product);
+      return;
+    }
+
+    final oldList = _sections[originalCategory];
+    if (oldList != null) {
+      oldList.removeWhere((item) => item.name == originalName);
+    }
+
+    _sections.putIfAbsent(newCategory, () => []);
+    _sections[newCategory]!.insert(0, product);
+    notifyListeners();
   }
 
   void setStock(Product product, int stock) {

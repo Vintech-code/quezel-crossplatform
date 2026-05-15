@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../../core/services/order_service.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../models/cart_item.dart';
 import '../../../models/order.dart';
 import '../../../models/order_status.dart';
+import '../../../widgets/adaptive_image.dart';
 import '../widgets/admin_shell.dart';
 import '../widgets/admin_status_chip.dart';
 import '../widgets/admin_surface_card.dart';
@@ -38,6 +40,13 @@ class _ManageOrdersPageState extends State<ManageOrdersPage> {
   @override
   Widget build(BuildContext context) {
     final orders = orderService.orders;
+    final pendingOrders = orders
+        .where((order) => order.status == OrderStatus.pending)
+        .toList();
+    final pendingTotal = pendingOrders.fold<double>(
+      0,
+      (sum, order) => sum + order.total,
+    );
     final filteredOrders = _filteredOrders(orders);
 
     return AdminShell(
@@ -45,13 +54,16 @@ class _ManageOrdersPageState extends State<ManageOrdersPage> {
       subtitle: "Review customer details and update mock order status.",
       activeSection: AdminSection.orders,
       body: [
+        if (pendingOrders.isNotEmpty)
+          _NewOrderQueue(orders: pendingOrders, totalValue: pendingTotal),
+        if (pendingOrders.isNotEmpty) const SizedBox(height: 12),
         _OrderStageSummary(orders: orders),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
         _OrderFilterTabs(
           selected: selectedFilter,
           onSelected: (filter) => setState(() => selectedFilter = filter),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: 10),
         filteredOrders.isEmpty
             ? const _EmptyOrdersState()
             : _OrdersGrid(
@@ -115,6 +127,202 @@ class _ManageOrdersPageState extends State<ManageOrdersPage> {
   }
 }
 
+String _formatTime(DateTime value) {
+  final hour = value.hour;
+  final minute = value.minute;
+  final isPm = hour >= 12;
+  final displayHour = hour % 12 == 0 ? 12 : hour % 12;
+  final minuteText = minute.toString().padLeft(2, '0');
+  return "$displayHour:$minuteText ${isPm ? 'PM' : 'AM'}";
+}
+
+class _NewOrderQueue extends StatelessWidget {
+  final List<Order> orders;
+  final double totalValue;
+
+  const _NewOrderQueue({required this.orders, required this.totalValue});
+
+  @override
+  Widget build(BuildContext context) {
+    final preview = orders.take(3).toList();
+    final latest = orders.isEmpty ? null : orders.first.createdAt;
+
+    return AdminSurfaceCard(
+      padding: const EdgeInsets.all(14),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                height: 36,
+                width: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.coffeeBrown.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: AppColors.coffeeBrown.withOpacity(0.5),
+                  ),
+                ),
+                child: const Icon(
+                  Icons.local_shipping_outlined,
+                  size: 18,
+                  color: AppColors.coffeeBrown,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Incoming queue",
+                      style: AppTextStyles.navItem.copyWith(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "Customer orders waiting for admin review",
+                      style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _QueueMetric(
+                label: "Pending",
+                value: orders.length.toString(),
+                tone: AppColors.softGold,
+              ),
+              _QueueMetric(
+                label: "Queue value",
+                value: "Php ${totalValue.toStringAsFixed(2)}",
+                tone: AppColors.coffeeBrown,
+              ),
+              if (latest != null)
+                _QueueMetric(
+                  label: "Latest",
+                  value: _formatTime(latest),
+                  tone: AppColors.mutedForeground,
+                ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: preview.map((order) {
+              return _QueuePreviewCard(order: order);
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QueueMetric extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color tone;
+
+  const _QueueMetric({
+    required this.label,
+    required this.value,
+    required this.tone,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: tone.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: tone.withOpacity(0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: AppTextStyles.bodySmall.copyWith(fontSize: 10)),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: AppTextStyles.navItem.copyWith(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: tone,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QueuePreviewCard extends StatelessWidget {
+  final Order order;
+
+  const _QueuePreviewCard({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      constraints: const BoxConstraints(minWidth: 220),
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: AppColors.warmBeige,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: AppColors.softGold.withOpacity(0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            order.customerName.isEmpty ? "Customer order" : order.customerName,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.navItem.copyWith(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            "${order.items.length} items · ${order.orderType}",
+            style: AppTextStyles.bodySmall.copyWith(fontSize: 10),
+          ),
+          const SizedBox(height: 6),
+          Row(
+            children: [
+              Text(
+                "Php ${order.total.toStringAsFixed(2)}",
+                style: AppTextStyles.navItem.copyWith(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                _formatTime(order.createdAt),
+                style: AppTextStyles.bodySmall.copyWith(fontSize: 10),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _OrderFilterOption {
   static const all = "All";
   static const pending = "Pending";
@@ -149,7 +357,7 @@ class _OrderFilterTabs extends StatelessWidget {
         children: _OrderFilterOption.values.map((filter) {
           final active = filter == selected;
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsets.only(right: 6),
             child: ChoiceChip(
               selected: active,
               label: Text(filter),
@@ -179,35 +387,60 @@ class _OrderStageSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 10,
-      runSpacing: 10,
-      children: [
-        _StageChip(
-          label: "Pending",
-          count: _count(OrderStatus.pending),
-          icon: Icons.schedule_rounded,
-          color: AppColors.mutedForeground,
-        ),
-        _StageChip(
-          label: "Preparing",
-          count: _count(OrderStatus.preparing),
-          icon: Icons.restaurant_menu_rounded,
-          color: AppColors.softGold,
-        ),
-        _StageChip(
-          label: "Delivered",
-          count: _count(OrderStatus.delivered),
-          icon: Icons.verified_rounded,
-          color: AppColors.coffeeBrown,
-        ),
-        _StageChip(
-          label: "Refunds",
-          count: _count(OrderStatus.refundRequested),
-          icon: Icons.assignment_return_outlined,
-          color: AppColors.mutedForeground,
-        ),
-      ],
+    final cards = [
+      _StageStatData(
+        label: "Pending",
+        count: _count(OrderStatus.pending),
+        icon: Icons.schedule_rounded,
+        color: AppColors.mutedForeground,
+      ),
+      _StageStatData(
+        label: "Preparing",
+        count: _count(OrderStatus.preparing),
+        icon: Icons.restaurant_menu_rounded,
+        color: AppColors.softGold,
+      ),
+      _StageStatData(
+        label: "Out for Delivery",
+        count: _count(OrderStatus.outForDelivery),
+        icon: Icons.local_shipping_outlined,
+        color: AppColors.coffeeBrown,
+      ),
+      _StageStatData(
+        label: "Refunds",
+        count: _count(OrderStatus.refundRequested),
+        icon: Icons.assignment_return_outlined,
+        color: AppColors.mutedForeground,
+      ),
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth >= 900;
+
+        if (isWide) {
+          return Row(
+            children: cards
+                .map(
+                  (card) => Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        right: card == cards.last ? 0 : 10,
+                      ),
+                      child: _StageStatCard(data: card),
+                    ),
+                  ),
+                )
+                .toList(),
+          );
+        }
+
+        return Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: cards.map((card) => _StageStatCard(data: card)).toList(),
+        );
+      },
     );
   }
 
@@ -216,39 +449,65 @@ class _OrderStageSummary extends StatelessWidget {
   }
 }
 
-class _StageChip extends StatelessWidget {
+class _StageStatData {
   final String label;
   final int count;
   final IconData icon;
   final Color color;
 
-  const _StageChip({
+  const _StageStatData({
     required this.label,
     required this.count,
     required this.icon,
     required this.color,
   });
+}
+
+class _StageStatCard extends StatelessWidget {
+  final _StageStatData data;
+
+  const _StageStatCard({required this.data});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.55)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: data.color.withOpacity(0.45)),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 15, color: color),
-          const SizedBox(width: 7),
-          Text(
-            "$label  $count",
-            style: AppTextStyles.navItem.copyWith(
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-              color: color,
+          Container(
+            height: 34,
+            width: 34,
+            decoration: BoxDecoration(
+              color: data.color.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(color: data.color.withOpacity(0.5)),
+            ),
+            child: Icon(data.icon, size: 18, color: data.color),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  data.label,
+                  style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  data.count.toString(),
+                  style: AppTextStyles.navItem.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.darkEspresso,
+                  ),
+                ),
+              ],
             ),
           ),
         ],
@@ -291,9 +550,9 @@ class _OrdersGrid extends StatelessWidget {
           itemCount: orders.length,
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
-            mainAxisExtent: 390,
-            crossAxisSpacing: 14,
-            mainAxisSpacing: 14,
+            mainAxisExtent: 360,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
           ),
           itemBuilder: (context, index) {
             final order = orders[index];
@@ -332,8 +591,8 @@ class _OrderCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AdminSurfaceCard(
-      padding: const EdgeInsets.all(14),
-      radius: 18,
+      padding: const EdgeInsets.all(12),
+      radius: 16,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -345,57 +604,57 @@ class _OrderCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.navItem.copyWith(
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
               ),
+              Text(
+                _formatTime(order.createdAt),
+                style: AppTextStyles.bodySmall.copyWith(fontSize: 10),
+              ),
+              const SizedBox(width: 8),
               AdminStatusChip(
                 label: OrderStatus.label(order.status),
                 color: _statusColor(order.status),
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
           _InfoLine(icon: Icons.person_outline, value: order.customerName),
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
           _InfoLine(icon: Icons.phone_outlined, value: order.phoneNumber),
-          const SizedBox(height: 6),
+          const SizedBox(height: 5),
           _InfoLine(icon: Icons.place_outlined, value: order.deliveryLocation),
-          const SizedBox(height: 6),
-          _InfoLine(
-            icon: Icons.payments_outlined,
-            value: "${order.paymentMethod} | ${order.orderType}",
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 6,
+            runSpacing: 6,
+            children: [
+              _MetaPill(label: order.orderType, color: AppColors.softGold),
+              _MetaPill(
+                label: order.paymentMethod,
+                color: AppColors.coffeeBrown,
+              ),
+              _MetaPill(
+                label: "${order.items.length} items",
+                color: AppColors.mutedForeground,
+              ),
+            ],
           ),
           if (order.status == OrderStatus.refundRequested) ...[
             const SizedBox(height: 8),
             _RefundNote(order: order),
           ],
-          const SizedBox(height: 12),
-          Expanded(
-            child: ListView.separated(
-              padding: EdgeInsets.zero,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: order.items.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 10),
-              itemBuilder: (context, index) {
-                final item = order.items[index];
-                return _OrderItemRow(
-                  image: item.product.image,
-                  name: item.product.name,
-                  price: item.product.price,
-                  quantity: item.quantity,
-                );
-              },
-            ),
-          ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 10),
+          Expanded(child: _OrderItemPreview(items: order.items)),
+          const SizedBox(height: 10),
           Row(
             children: [
               Text(
                 "Php ${order.total.toStringAsFixed(2)}",
                 style: AppTextStyles.navItem.copyWith(
-                  fontSize: 14,
+                  fontSize: 13,
                   fontWeight: FontWeight.w900,
                 ),
               ),
@@ -428,6 +687,40 @@ class _OrderCard extends StatelessWidget {
       default:
         return AppColors.softGold;
     }
+  }
+}
+
+class _OrderItemPreview extends StatelessWidget {
+  final List<CartItem> items;
+
+  const _OrderItemPreview({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    final visibleItems = items.take(2).toList();
+    final remaining = items.length - visibleItems.length;
+
+    return Column(
+      children: [
+        for (final item in visibleItems) ...[
+          _OrderItemRow(
+            image: item.product.image,
+            name: item.product.name,
+            price: item.product.price,
+            quantity: item.quantity,
+          ),
+          const SizedBox(height: 8),
+        ],
+        if (remaining > 0)
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              "+$remaining more items",
+              style: AppTextStyles.bodySmall.copyWith(fontSize: 10),
+            ),
+          ),
+      ],
+    );
   }
 }
 
@@ -511,17 +804,44 @@ class _InfoLine extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, size: 15, color: AppColors.mutedForeground),
-        const SizedBox(width: 7),
+        Icon(icon, size: 14, color: AppColors.mutedForeground),
+        const SizedBox(width: 6),
         Expanded(
           child: Text(
             value.isEmpty ? "Not provided" : value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTextStyles.bodySmall.copyWith(fontSize: 11),
+            style: AppTextStyles.bodySmall.copyWith(fontSize: 10),
           ),
         ),
       ],
+    );
+  }
+}
+
+class _MetaPill extends StatelessWidget {
+  final String label;
+  final Color color;
+
+  const _MetaPill({required this.label, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withOpacity(0.55)),
+      ),
+      child: Text(
+        label,
+        style: AppTextStyles.navItem.copyWith(
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          color: color,
+        ),
+      ),
     );
   }
 }
@@ -541,11 +861,11 @@ class _RefundNote extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
-        "Refund: ${order.refundReason ?? "No reason"}",
+        "Refund reason: ${order.refundReason ?? "No reason"}",
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
         style: AppTextStyles.bodySmall.copyWith(
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: FontWeight.w700,
         ),
       ),
@@ -573,13 +893,13 @@ class _OrderItemRow extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: Container(
-            height: 42,
-            width: 42,
+            height: 38,
+            width: 38,
             color: AppColors.warmBeige,
-            child: Image.asset(image, fit: BoxFit.cover),
+            child: AdaptiveImage(path: image, fit: BoxFit.cover),
           ),
         ),
-        const SizedBox(width: 10),
+        const SizedBox(width: 8),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -589,21 +909,18 @@ class _OrderItemRow extends StatelessWidget {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: AppTextStyles.navItem.copyWith(
-                  fontSize: 12,
+                  fontSize: 11,
                   fontWeight: FontWeight.w800,
                 ),
               ),
-              Text(
-                price,
-                style: AppTextStyles.bodySmall.copyWith(fontSize: 10),
-              ),
+              Text(price, style: AppTextStyles.bodySmall.copyWith(fontSize: 9)),
             ],
           ),
         ),
         Text(
           "x$quantity",
           style: AppTextStyles.bodySmall.copyWith(
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -652,7 +969,7 @@ class _SmallActionButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 34,
+      height: 32,
       child: ElevatedButton(
         onPressed: onTap,
         style: ElevatedButton.styleFrom(
@@ -665,7 +982,7 @@ class _SmallActionButton extends StatelessWidget {
           ),
           textStyle: const TextStyle(
             fontFamily: AppFonts.poppins,
-            fontSize: 11,
+            fontSize: 10,
             fontWeight: FontWeight.w800,
           ),
         ),
@@ -683,7 +1000,7 @@ class _DonePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: AppColors.softGold.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(999),
@@ -692,7 +1009,7 @@ class _DonePill extends StatelessWidget {
       child: Text(
         OrderStatus.label(status),
         style: AppTextStyles.navItem.copyWith(
-          fontSize: 11,
+          fontSize: 10,
           fontWeight: FontWeight.w800,
         ),
       ),

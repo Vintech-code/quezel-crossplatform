@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
+import '../../../../widgets/adaptive_image.dart';
 
 class ProductImageCard extends StatelessWidget {
   final String image;
 
-  const ProductImageCard({
-    super.key,
-    required this.image,
-  });
+  const ProductImageCard({super.key, required this.image});
 
   @override
   Widget build(BuildContext context) {
@@ -20,10 +18,7 @@ class ProductImageCard extends StatelessWidget {
         color: AppColors.creamWhite,
         borderRadius: BorderRadius.circular(28),
       ),
-      child: Image.asset(
-        image,
-        fit: BoxFit.contain,
-      ),
+      child: AdaptiveImage(path: image, fit: BoxFit.contain),
     );
   }
 }

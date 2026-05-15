@@ -2,15 +2,13 @@ import 'package:flutter/material.dart';
 
 import '../../../../core/theme/app_theme.dart';
 import '../../../../models/product.dart';
+import '../../../../widgets/adaptive_image.dart';
 import '../controllers/product_customization_controller.dart';
 
 class ProductAddOnsSheet extends StatelessWidget {
   final ProductCustomizationController controller;
 
-  const ProductAddOnsSheet({
-    super.key,
-    required this.controller,
-  });
+  const ProductAddOnsSheet({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -51,8 +49,8 @@ class ProductAddOnsSheet extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: Image.asset(
-                        controller.product.image,
+                      child: AdaptiveImage(
+                        path: controller.product.image,
                         fit: BoxFit.contain,
                       ),
                     ),
@@ -156,8 +154,9 @@ class _AddOnTile extends StatelessWidget {
           color: selected ? AppColors.softGold.withOpacity(0.18) : Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color:
-                selected ? AppColors.softGold : AppColors.softGold.withOpacity(0.35),
+            color: selected
+                ? AppColors.softGold
+                : AppColors.softGold.withOpacity(0.35),
           ),
         ),
         child: Row(

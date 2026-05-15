@@ -7,6 +7,8 @@ import '../inventory/inventory_page.dart';
 import '../orders/manage_orders_page.dart';
 import '../products/manage_products_page.dart';
 import '../users/manage_users_page.dart';
+import 'admin_header.dart';
+import 'admin_icon_button.dart';
 import 'admin_top_bar.dart';
 
 enum AdminSection { dashboard, products, orders, inventory, users, analytics }
@@ -43,13 +45,25 @@ class AdminShell extends StatelessWidget {
                     onSelect: (section) => _openSection(context, section),
                   ),
                   Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(28, 20, 28, 20),
-                      child: _AdminContent(
-                        title: title,
-                        subtitle: subtitle,
-                        body: body,
-                      ),
+                    child: Column(
+                      children: [
+                        AdminHeader(
+                          title: title,
+                          subtitle: subtitle,
+                          actions: [
+                            AdminIconButton(
+                              icon: Icons.notifications_outlined,
+                              onTap: () {},
+                            ),
+                          ],
+                        ),
+                        Expanded(
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
+                            child: _AdminContent(body: body),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -65,14 +79,11 @@ class AdminShell extends StatelessWidget {
                     onMenu: () => _showNavSheet(context),
                   ),
                 ),
+                AdminHeader(title: title, subtitle: subtitle),
                 Expanded(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
-                    child: _AdminContent(
-                      title: title,
-                      subtitle: subtitle,
-                      body: body,
-                    ),
+                    padding: const EdgeInsets.fromLTRB(18, 14, 18, 18),
+                    child: _AdminContent(body: body),
                   ),
                 ),
               ],
@@ -146,33 +157,15 @@ class AdminShell extends StatelessWidget {
 }
 
 class _AdminContent extends StatelessWidget {
-  final String title;
-  final String subtitle;
   final List<Widget> body;
 
-  const _AdminContent({
-    required this.title,
-    required this.subtitle,
-    required this.body,
-  });
+  const _AdminContent({required this.body});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: AppTextStyles.sectionTitle.copyWith(fontSize: 30),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          subtitle,
-          style: AppTextStyles.bodySmall.copyWith(fontSize: 13),
-        ),
-        const SizedBox(height: 18),
-        ...body,
-      ],
+      children: [...body],
     );
   }
 }
@@ -197,10 +190,7 @@ class _AdminSidebar extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Quezel Admin",
-            style: AppTextStyles.navLogo,
-          ),
+          const Text("Quezel Admin", style: AppTextStyles.navLogo),
           const SizedBox(height: 18),
           ..._adminNavItems.map(
             (item) => _NavRowItem(
