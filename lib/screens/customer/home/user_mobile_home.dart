@@ -1,21 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../../../data/customer_home_data.dart';
 import '../../../core/services/product_catalog_service.dart';
-import '../../../core/theme/app_theme.dart';
+import '../../../data/customer_home_data.dart';
 import '../../../models/product.dart';
-import '../home/widgets/home_category_tabs.dart';
-import '../home/widgets/home_empty_state.dart';
-import '../home/widgets/home_product_section.dart';
-import '../home/widgets/home_search_bar.dart';
-import '../home/widgets/home_top_bar.dart';
-import '../../../widgets/bottom_nav.dart';
-import '../cart/cart_page.dart';
-import '../favorites/favorites_page.dart';
 import '../messages/customer_messages_page.dart';
+import '../menu/customer_menu_page.dart';
 import '../orders/my_orders_page.dart';
 import '../product/product_detail_page.dart';
 import '../profile/profile_page.dart';
+import 'user_home_mobile_view.dart';
+import 'user_home_web_view.dart';
 
 class UserMobileHome extends StatefulWidget {
   const UserMobileHome({super.key});
@@ -72,6 +66,10 @@ class _UserMobileHomeState extends State<UserMobileHome> {
     return filtered;
   }
 
+  Map<String, List<Product>> get allProductSections {
+    return productCatalog.customerSections;
+  }
+
   void _openRoot(Widget page) {
     Navigator.pushAndRemoveUntil(
       context,
@@ -84,88 +82,41 @@ class _UserMobileHomeState extends State<UserMobileHome> {
     Navigator.push(context, MaterialPageRoute(builder: (_) => page));
   }
 
+  void _openProduct(Product product) {
+    _pushPage(ProductDetailPage(product: product));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final visibleSections = filteredProductSections;
+    final isWide = MediaQuery.sizeOf(context).width >= 900;
 
-    return Scaffold(
-      backgroundColor: AppColors.warmBeige,
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(22, 16, 22, 12),
-              child: HomeTopBar(
-                onProfileTap: () => _openRoot(const ProfilePage()),
-                onOrdersTap: () => _pushPage(const MyOrdersPage()),
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(22, 14, 22, 18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Fresh and Cool\nTreats for You",
-                      style: AppTextStyles.sectionTitle.copyWith(
-                        fontSize: 34,
-                        height: 1.1,
-                      ),
-                    ),
-                    const SizedBox(height: 22),
-                    HomeSearchBar(
-                      onChanged: (value) {
-                        setState(() {
-                          searchQuery = value;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 22),
-                    HomeCategoryTabs(
-                      categories: categories,
-                      selectedIndex: selectedCategory,
-                      onSelected: (index) {
-                        setState(() {
-                          selectedCategory = index;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 20),
-                    visibleSections.isEmpty
-                        ? const HomeEmptyState()
-                        : Column(
-                            children: visibleSections.entries.map((section) {
-                              return HomeProductSection(
-                                title: section.key,
-                                products: section.value,
-                                onProductTap: (product) {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          ProductDetailPage(product: product),
-                                    ),
-                                  );
-                                },
-                              );
-                            }).toList(),
-                          ),
-                  ],
-                ),
-              ),
-            ),
-            CustomerBottomNav(
-              activeItem: CustomerNavItem.home,
-              onFavoritesTap: () => _openRoot(const FavoritesPage()),
-              onMessagesTap: () => _pushPage(const CustomerMessagesPage()),
-              onCartTap: () => _pushPage(const CartPage()),
-              onProfileTap: () => _pushPage(const ProfilePage()),
-            ),
-          ],
-        ),
-      ),
+    if (isWide) {
+      return UserHomeWebView(
+        categories: categories,
+        selectedCategory: selectedCategory,
+        visibleSections: filteredProductSections,
+        onCategorySelected: (index) {
+          setState(() {
+            selectedCategory = index;
+          });
+        },
+        onProductTap: _openProduct,
+        onHomeTap: () {},
+        onOrdersTap: () => _pushPage(const MyOrdersPage()),
+        onCartTap: () => _pushPage(const MyOrdersPage()),
+        onProfileTap: () => _openRoot(const ProfilePage()),
+      );
+    }
+
+    return UserHomeMobileView(
+      productSections: allProductSections,
+      onProductTap: _openProduct,
+      onProfileTap: () => _openRoot(const ProfilePage()),
+      onMenuTap: (category) =>
+          _pushPage(CustomerMenuPage(initialCategory: category)),
+      onViewAllMenuTap: () => _pushPage(const CustomerMenuPage()),
+      onMessagesTap: () => _pushPage(const CustomerMessagesPage()),
+      onOrdersTap: () => _pushPage(const MyOrdersPage()),
     );
   }
 }

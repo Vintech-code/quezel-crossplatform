@@ -4,12 +4,12 @@ import '../../../core/services/cart_service.dart';
 import '../../../core/services/product_catalog_service.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../models/product.dart';
+import '../../../widgets/adaptive_image.dart';
 import '../cart/cart_page.dart';
 import 'controllers/product_customization_controller.dart';
 import 'widgets/animated_cart_badge.dart';
 import 'widgets/flying_cart_bubble.dart';
 import 'widgets/product_addons_sheet.dart';
-import 'widgets/product_image_card.dart';
 import 'widgets/product_info_item.dart';
 import 'widgets/product_price_section.dart';
 import 'widgets/quantity_selector.dart';
@@ -186,19 +186,21 @@ class _ProductDetailPageState extends State<ProductDetailPage>
 
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.sizeOf(context).width >= 900;
+
     return Scaffold(
       backgroundColor: AppColors.warmBeige,
       body: Stack(
         children: [
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(22, 20, 22, 24),
+              padding: EdgeInsets.fromLTRB(22, isWide ? 20 : 8, 22, 24),
               child: Column(
                 children: [
-                  _topBar(),
-                  const SizedBox(height: 22),
+                  if (isWide) _topBar() else _mobileCloseButton(),
+                  SizedBox(height: isWide ? 36 : 8),
                   Expanded(child: _productContent()),
-                  _bottomAction(),
+                  if (!isWide) _mobileBottomAction(),
                 ],
               ),
             ),
@@ -248,34 +250,250 @@ class _ProductDetailPageState extends State<ProductDetailPage>
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
+        final isWide = MediaQuery.sizeOf(context).width >= 900;
+        if (isWide) {
+          return _webProductContent();
+        }
+
         return SingleChildScrollView(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              ProductImageCard(image: widget.product.image),
-              const SizedBox(height: 24),
-              _productTitleRow(),
-              const SizedBox(height: 10),
-              if (widget.product.savings != null) _savingsBadge(),
-              const SizedBox(height: 8),
-              ProductPriceSection(
-                price: controller.formattedTotalPrice,
-                hasAddOns: widget.product.addOns.isNotEmpty,
-                selectedAddOnsCount: controller.selectedAddOns.length,
-                onAddOnsTap: _showAddOnsSheet,
+              SizedBox(
+                height: 360,
+                width: double.infinity,
+                child: AdaptiveImage(
+                  path: widget.product.image,
+                  fit: BoxFit.contain,
+                ),
               ),
-              const SizedBox(height: 22),
-              _infoRow(),
-              const SizedBox(height: 26),
-              _description(),
-              const SizedBox(height: 20),
-              SelectedAddOnsPreview(selectedAddOns: controller.selectedAddOns),
-              if (controller.selectedAddOns.isNotEmpty)
-                const SizedBox(height: 20),
+              const SizedBox(height: 28),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      widget.product.name,
+                      style: const TextStyle(
+                        fontFamily: AppFonts.righteous,
+                        fontSize: 28,
+                        height: 1.12,
+                        color: AppColors.darkEspresso,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    controller.formattedTotalPrice,
+                    style: const TextStyle(
+                      fontFamily: AppFonts.poppins,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                      color: AppColors.darkEspresso,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              Text(
+                widget.product.description ??
+                    "A Quezel favorite made fresh with satisfying flavors for your cravings.",
+                style: const TextStyle(
+                  fontFamily: AppFonts.poppins,
+                  fontSize: 16,
+                  height: 1.65,
+                  color: AppColors.mutedForeground,
+                ),
+              ),
+              const SizedBox(height: 28),
+              _mobileAddOnsCard(),
               const SizedBox(height: 24),
             ],
           ),
         );
       },
+    );
+  }
+
+  Widget _mobileCloseButton() {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: IconButton(
+        onPressed: () => Navigator.pop(context),
+        icon: const Icon(Icons.close_rounded, size: 34),
+      ),
+    );
+  }
+
+  Widget _mobileAddOnsCard() {
+    final addOns = widget.product.addOns;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(20, 22, 20, 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE0E0E0), width: 1.4),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          RichText(
+            text: const TextSpan(
+              style: TextStyle(
+                fontFamily: AppFonts.poppins,
+                color: AppColors.darkEspresso,
+              ),
+              children: [
+                TextSpan(
+                  text: "Choice A ",
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900),
+                ),
+                TextSpan(
+                  text: "(Optional)",
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: AppColors.mutedForeground,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            addOns.isEmpty ? "No add-ons available" : "Select add-ons",
+            style: const TextStyle(
+              fontFamily: AppFonts.poppins,
+              fontSize: 15,
+              color: AppColors.mutedForeground,
+            ),
+          ),
+          const SizedBox(height: 18),
+          ...addOns.map((addOn) {
+            final selected = controller.isAddOnSelected(addOn);
+            return InkWell(
+              onTap: () => controller.toggleAddOn(addOn),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                child: Row(
+                  children: [
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 160),
+                      height: 30,
+                      width: 30,
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? AppColors.coffeeBrown
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(3),
+                        border: Border.all(
+                          color: selected
+                              ? AppColors.coffeeBrown
+                              : const Color(0xFFC9C9C9),
+                          width: 2.4,
+                        ),
+                      ),
+                      child: selected
+                          ? const Icon(
+                              Icons.check_rounded,
+                              color: Colors.white,
+                              size: 22,
+                            )
+                          : null,
+                    ),
+                    const SizedBox(width: 18),
+                    Expanded(
+                      child: Text(
+                        addOn.name,
+                        style: const TextStyle(
+                          fontFamily: AppFonts.poppins,
+                          fontSize: 18,
+                          color: AppColors.darkEspresso,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      "+ ${addOn.price}",
+                      style: const TextStyle(
+                        fontFamily: AppFonts.poppins,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.darkEspresso,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _webProductContent() {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 1380),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(48),
+                decoration: BoxDecoration(
+                  color: AppColors.parchment,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: AdaptiveImage(
+                  path: widget.product.image,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+            const SizedBox(width: 40),
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(48, 40, 48, 40),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _productTitleRow(),
+                      const SizedBox(height: 12),
+                      if (widget.product.savings != null) _savingsBadge(),
+                      const SizedBox(height: 16),
+                      ProductPriceSection(
+                        price: controller.formattedTotalPrice,
+                        hasAddOns: widget.product.addOns.isNotEmpty,
+                        selectedAddOnsCount: controller.selectedAddOns.length,
+                        onAddOnsTap: _showAddOnsSheet,
+                      ),
+                      const SizedBox(height: 26),
+                      _infoRow(),
+                      const SizedBox(height: 34),
+                      _description(),
+                      const SizedBox(height: 24),
+                      SelectedAddOnsPreview(
+                        selectedAddOns: controller.selectedAddOns,
+                      ),
+                      if (controller.selectedAddOns.isNotEmpty)
+                        const SizedBox(height: 20),
+                      const SizedBox(height: 34),
+                      _bottomAction(),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -390,7 +608,7 @@ class _ProductDetailPageState extends State<ProductDetailPage>
                 onPressed: addToCart,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: available
-                      ? AppColors.softGold
+                      ? AppColors.coffeeBrown
                       : AppColors.mutedForeground,
                   foregroundColor: AppColors.creamWhite,
                   padding: const EdgeInsets.symmetric(vertical: 18),
@@ -404,6 +622,91 @@ class _ProductDetailPageState extends State<ProductDetailPage>
                     fontFamily: AppFonts.poppins,
                     fontWeight: FontWeight.w700,
                   ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _mobileBottomAction() {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, _) {
+        final available = productCatalog.canOrder(widget.product);
+        return Row(
+          children: [
+            Container(
+              height: 64,
+              width: 128,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: AppColors.darkEspresso, width: 1.8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                    onPressed: available ? controller.decreaseQuantity : null,
+                    icon: const Icon(Icons.remove_rounded),
+                  ),
+                  Text(
+                    controller.quantity.toString(),
+                    style: const TextStyle(
+                      fontFamily: AppFonts.poppins,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: available ? controller.increaseQuantity : null,
+                    icon: const Icon(Icons.add_rounded),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              key: buttonKey,
+              child: ElevatedButton(
+                onPressed: addToCart,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: available
+                      ? AppColors.coffeeBrown
+                      : AppColors.mutedForeground,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 18,
+                    vertical: 20,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        "Add to Cart",
+                        style: TextStyle(
+                          fontFamily: AppFonts.poppins,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      controller.formattedTotalPrice,
+                      style: const TextStyle(
+                        fontFamily: AppFonts.poppins,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

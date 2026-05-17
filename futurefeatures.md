@@ -1,5 +1,13 @@
 Future features should include:
 
+Frontend structure note:
+Mobile UI = separate file
+Web UI = separate file
+Services/API/models/theme = shared
+Product cards/buttons/modals = shared when reusable
+No backend yet
+
+
 customer address
 delivery fee
 rider assignment

@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import '../core/services/cart_service.dart';
 import '../core/theme/app_theme.dart';
 
-enum CustomerNavItem { home, favorites, messages, cart, profile }
+enum CustomerNavItem { home, menu, orders, profile, favorites, messages, cart }
 
 class CustomerBottomNav extends StatelessWidget {
   final CustomerNavItem activeItem;
   final VoidCallback? onHomeTap;
+  final VoidCallback? onMenuTap;
+  final VoidCallback? onOrdersTap;
   final VoidCallback? onFavoritesTap;
   final VoidCallback? onMessagesTap;
   final VoidCallback? onCartTap;
@@ -17,6 +19,8 @@ class CustomerBottomNav extends StatelessWidget {
     super.key,
     required this.activeItem,
     this.onHomeTap,
+    this.onMenuTap,
+    this.onOrdersTap,
     this.onFavoritesTap,
     this.onMessagesTap,
     this.onCartTap,
@@ -25,16 +29,23 @@ class CustomerBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final menuActive =
+        activeItem == CustomerNavItem.menu ||
+        activeItem == CustomerNavItem.favorites;
+    final ordersActive =
+        activeItem == CustomerNavItem.orders ||
+        activeItem == CustomerNavItem.cart;
+
     return Container(
       height: 58,
       decoration: BoxDecoration(
         color: AppColors.creamWhite,
         border: Border(
-          top: BorderSide(color: AppColors.softGold.withOpacity(0.5)),
+          top: BorderSide(color: AppColors.softGold.withValues(alpha: 0.5)),
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             blurRadius: 12,
             offset: const Offset(0, -2),
           ),
@@ -51,30 +62,20 @@ class CustomerBottomNav extends StatelessWidget {
               onTap: activeItem == CustomerNavItem.home ? null : onHomeTap,
             ),
             _NavButton(
-              icon: Icons.favorite_border_rounded,
-              label: "Favorites",
-              active: activeItem == CustomerNavItem.favorites,
-              onTap: activeItem == CustomerNavItem.favorites
-                  ? null
-                  : onFavoritesTap,
-            ),
-            _NavButton(
-              icon: Icons.chat_bubble_outline_rounded,
-              label: "Messages",
-              active: activeItem == CustomerNavItem.messages,
-              onTap: activeItem == CustomerNavItem.messages
-                  ? null
-                  : onMessagesTap,
+              icon: Icons.restaurant_menu_rounded,
+              label: "Menu",
+              active: menuActive,
+              onTap: menuActive ? null : onMenuTap ?? onFavoritesTap,
             ),
             AnimatedBuilder(
               animation: CartService.instance,
               builder: (context, _) {
                 return _NavButton(
-                  icon: Icons.shopping_cart_outlined,
-                  label: "Cart",
-                  active: activeItem == CustomerNavItem.cart,
+                  icon: Icons.receipt_long_rounded,
+                  label: "Orders",
+                  active: ordersActive,
                   badgeCount: CartService.instance.itemCount,
-                  onTap: activeItem == CustomerNavItem.cart ? null : onCartTap,
+                  onTap: ordersActive ? null : onOrdersTap ?? onCartTap,
                 );
               },
             ),
@@ -110,7 +111,7 @@ class _NavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final inactiveColor = AppColors.softGold.withOpacity(0.65);
+    final inactiveColor = AppColors.softGold.withValues(alpha: 0.65);
 
     return Expanded(
       child: InkWell(

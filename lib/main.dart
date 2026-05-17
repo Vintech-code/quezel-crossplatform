@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'core/constants/app_routes.dart';
+import 'core/theme/app_theme.dart';
 import 'core/services/cart_service.dart';
 import 'core/services/favorite_service.dart';
 import 'core/services/local_storage_service.dart';
@@ -33,6 +34,22 @@ class QuezelApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: "Quezel",
+      theme: ThemeData(
+        useMaterial3: true,
+        scaffoldBackgroundColor: AppColors.warmBeige,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColors.coffeeBrown,
+          primary: AppColors.coffeeBrown,
+          secondary: AppColors.softGold,
+          tertiary: AppColors.haloPurple,
+          surface: AppColors.creamWhite,
+        ),
+        fontFamily: AppFonts.poppins,
+        textTheme: Theme.of(context).textTheme.apply(
+          bodyColor: AppColors.darkEspresso,
+          displayColor: AppColors.darkEspresso,
+        ),
+      ),
       initialRoute: AppRoutes.landing,
       routes: {
         AppRoutes.landing: (context) => const LandingPage(),

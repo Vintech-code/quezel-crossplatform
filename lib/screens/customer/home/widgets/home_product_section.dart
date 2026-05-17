@@ -20,6 +20,15 @@ class HomeProductSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isWide = MediaQuery.sizeOf(context).width >= 900;
+    if (isWide) {
+      return _WebHomeProductSection(
+        title: title,
+        products: products,
+        onProductTap: onProductTap,
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.only(bottom: 26),
       child: Column(
@@ -69,6 +78,195 @@ class HomeProductSection extends StatelessWidget {
                 );
               },
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WebHomeProductSection extends StatelessWidget {
+  final String title;
+  final List<Product> products;
+  final void Function(Product product) onProductTap;
+
+  const _WebHomeProductSection({
+    required this.title,
+    required this.products,
+    required this.onProductTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+    final columns = width >= 1180 ? 3 : 2;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 88),
+      child: Column(
+        children: [
+          Text(
+            title,
+            textAlign: TextAlign.center,
+            style: AppTextStyles.sectionTitle.copyWith(
+              fontSize: 44,
+              color: AppColors.darkEspresso,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "$title Category",
+            textAlign: TextAlign.center,
+            style: AppTextStyles.bodyLarge.copyWith(
+              fontSize: 18,
+              color: AppColors.mutedForeground,
+            ),
+          ),
+          const SizedBox(height: 92),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1540),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 72),
+              itemCount: products.length,
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: columns,
+                mainAxisExtent: 360,
+                crossAxisSpacing: 64,
+                mainAxisSpacing: 76,
+              ),
+              itemBuilder: (context, index) {
+                final product = products[index];
+                return _WebHomeProductCard(
+                  product: product,
+                  onTap: () => onProductTap(product),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _WebHomeProductCard extends StatelessWidget {
+  final Product product;
+  final VoidCallback onTap;
+
+  const _WebHomeProductCard({required this.product, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final available = product.canOrder;
+
+    return Opacity(
+      opacity: available ? 1 : 0.58,
+      child: Column(
+        children: [
+          Expanded(
+            child: Stack(
+              alignment: Alignment.topCenter,
+              children: [
+                Positioned.fill(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: AdaptiveImage(
+                      path: product.image,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+                if (product.savings != null)
+                  Positioned(
+                    right: 48,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.haloPurple,
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: Text(
+                        product.savings!,
+                        style: AppTextStyles.navLabel.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 18),
+          Text(
+            product.name,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.navItem.copyWith(
+              fontSize: 24,
+              height: 1.32,
+              fontWeight: FontWeight.w900,
+              color: AppColors.darkEspresso,
+            ),
+          ),
+          const SizedBox(height: 28),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              OutlinedButton(
+                onPressed: onTap,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.darkEspresso,
+                  side: const BorderSide(color: Color(0xFF9CA3AF)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 28,
+                    vertical: 18,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                child: Text(
+                  "View item",
+                  style: AppTextStyles.navItem.copyWith(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              FilledButton(
+                onPressed: available ? onTap : null,
+                style: FilledButton.styleFrom(
+                  backgroundColor: AppColors.coffeeBrown,
+                  disabledBackgroundColor: AppColors.mutedForeground,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 30,
+                    vertical: 19,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                ),
+                child: Text(
+                  available ? "Order Now" : product.availability.label,
+                  style: AppTextStyles.navItem.copyWith(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

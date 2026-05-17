@@ -39,3 +39,8 @@ flutter:
     - family: Righteous
       fonts:
         - asset: assets/fonts/Righteous-Regular.ttf
+
+    - family: QuezelRound
+      fonts:
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 700
